@@ -5,11 +5,19 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "format": "prettier --write '{pages,components,lib,styles,utilities}/**/*'"
   },
   "dependencies": {
     "next": "10.0.3",
     "react": "17.0.1",
     "react-dom": "17.0.1"
+  },
+  "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^3.0.0",
+    "autoprefixer": "^10.0.2",
+    "postcss": "^8.1.10",
+    "postcss-preset-env": "^6.7.0",
+    "tailwindcss": "^2.0.1"
   }
 }
