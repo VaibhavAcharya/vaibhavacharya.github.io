@@ -1,4 +1,4 @@
-Personal portfolio to showcase work.
+# Personal portfolio to showcase work.
 
 Build using:
 - Next.js
