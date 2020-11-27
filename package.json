@@ -10,6 +10,7 @@
     "format": "prettier --write '{pages,components,lib,styles,utilities}/**/*'"
   },
   "dependencies": {
+    "@icons-pack/react-simple-icons": "^3.13.0",
     "next": "10.0.3",
     "prettier": "^2.2.0",
     "react": "17.0.1",

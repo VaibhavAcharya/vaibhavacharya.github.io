@@ -1,11 +1,16 @@
+const colors = require('tailwindcss/colors')
+
 module.exports = {
   purge: [],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'media',
   theme: {
+    colors: { ...colors },
     extend: {},
   },
   variants: {
-    extend: {},
+    extend: {
+      backgroundColor: ['focus-visible']
+    },
   },
   plugins: [],
 }
