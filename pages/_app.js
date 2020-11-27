@@ -1,6 +1,6 @@
 import Head from "next/head";
 
-import "../styles/tailwind.css";
+import "./../styles/tailwind.css";
 
 import Layout from "./../components/Layout";
 
