@@ -14,7 +14,8 @@ module.exports = {
   },
   variants: {
     extend: {
-      backgroundColor: ['focus-visible']
+      backgroundColor: ['focus-visible'],
+      scale: ['focus-visible']
     },
   },
   plugins: [],
