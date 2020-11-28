@@ -10,6 +10,10 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+          name="description"
+          content="Portfolio of Vaibhav Acharya to showcase work."
+        />
         <link rel="shortcut icon" href="/icon.png" type="image/x-icon" />
         <title>Vaibhav Acharya</title>
       </Head>
