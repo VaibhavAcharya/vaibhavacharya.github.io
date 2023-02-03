@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes spin {
+  0% {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+.animate-spin-slow {
+  animation-name: spin;
+  animation-duration: 32s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
 .bg-custom-gradient {
   background: linear-gradient(115deg, rgb(211, 255, 215) 0%, rgb(0, 0, 0) 100%),
     radial-gradient(
