@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" prefix="og: http://ogp.me/ns#" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -24,7 +24,7 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://vaibhavacharya.github.io/" />
+    <meta property="og:url" content="https://vaibhavacharya.github.io" />
     <meta
       property="og:title"
       content="Vaibhav Acharya ✨ — web developer & designer."
@@ -35,20 +35,24 @@
     />
     <meta property="og:image:width" content="2400" />
     <meta property="og:image:height" content="1280" />
-    <meta property="og:image" content="/images/og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="og header" />
+    <meta
+      property="og:image"
+      content="https://vaibhavacharya.github.io/images/og.png"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://vaibhavacharya.github.io/images/og.png"
+    />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://vaibhavacharya.github.io/" />
+    <meta property="twitter:image:alt" content="og header" />
     <meta
-      property="twitter:title"
-      content="Vaibhav Acharya ✨ — web developer & designer."
+      property="twitter:image"
+      content="https://vaibhavacharya.github.io/images/og.png"
     />
-    <meta
-      property="twitter:description"
-      content="my corner of the internet, previous projects, experiences, socials, almost everything."
-    />
-    <meta property="twitter:image" content="/images/og.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
@@ -64,7 +68,9 @@
     <link rel="stylesheet" href="./styles/tailwind.css" />
   </head>
 
-  <body class="bg-black">
+  <body
+    class="bg-black text-white font-sans antialiased selection:bg-white selection:text-black"
+  >
     <div class="relative w-full overflow-x-hidden">
       <svg
         class="pointer-events-none fixed z-50 opacity-70 mix-blend-soft-light"
@@ -92,7 +98,7 @@
       ></div>
 
       <div
-        class="mx-auto flex min-h-screen w-[min(720px,_100%)] flex-col items-stretch justify-start gap-12 bg-transparent p-8 font-sans text-white"
+        class="mx-auto flex min-h-screen w-[min(720px,_100%)] flex-col items-stretch justify-start gap-12 bg-transparent p-8"
       >
         <header
           class="flex min-h-[50vh] flex-col items-stretch justify-center gap-8"
