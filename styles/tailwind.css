@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :is(a, button, input):focus {
+    @apply outline-none;
+  }
+  :is(a, button, input):focus-visible {
+    @apply outline-2 outline-dashed outline-offset-2 outline-white/50;
+  }
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0);

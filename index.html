@@ -12,11 +12,8 @@
     <link rel="shortcut icon" href="/logo.svg" type="image/x-icon" />
 
     <!-- Primary Meta Tags -->
-    <title>Vaibhav Acharya ✨ — web developer & designer.</title>
-    <meta
-      name="title"
-      content="Vaibhav Acharya ✨ — web developer & designer."
-    />
+    <title>Vaibhav Acharya — web developer & designer.</title>
+    <meta name="title" content="Vaibhav Acharya — web developer & designer." />
     <meta
       name="description"
       content="I build elegant, useful & accessible online experiences."
@@ -27,7 +24,7 @@
     <meta property="og:url" content="https://vaibhavacharya.github.io" />
     <meta
       property="og:title"
-      content="Vaibhav Acharya ✨ — web developer & designer."
+      content="Vaibhav Acharya — web developer & designer."
     />
     <meta
       property="og:description"
@@ -60,8 +57,12 @@
       href="https://fonts.gstatic.com"
       crossorigin="anonymous"
     />
+    <!-- <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    /> -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
 
@@ -69,11 +70,11 @@
   </head>
 
   <body
-    class="bg-black text-white font-sans antialiased selection:bg-white selection:text-black"
+    class="bg-bhagwa text-white font-handjet antialiased selection:bg-black selection:text-white"
   >
     <div class="relative w-full overflow-x-hidden">
       <svg
-        class="pointer-events-none fixed z-50 opacity-70 mix-blend-soft-light"
+        class="pointer-events-none fixed z-50 opacity-100 mix-blend-soft-light"
         width="100%"
         height="100%"
       >
@@ -81,39 +82,33 @@
           <feTurbulence
             type="fractalNoise"
             baseFrequency="0.75"
-            numOctaves="4"
+            numOctaves="8"
             stitchTiles="stitch"
           ></feTurbulence>
         </filter>
         <rect width="100%" height="100%" filter="url(#noise)"></rect>
       </svg>
       <div
-        class="-z-50 absolute -left-1/2 w-[60vh] h-[60vh] md:w-[60vw] md:h-[60vw] bg-[linear-gradient(0deg,_#FF9999_0%,_#CCFF99_25%,_#99FFFF_50%,_#9999FF_75%,_#FF99EE_100%)] opacity-10 md:opacity-20 animate-spin-slow blur-3xl"
-      ></div>
-      <div
-        class="-z-50 absolute -right-1/2 w-[60vh] h-[60vh] md:w-[60vw] md:h-[60vw] bg-[linear-gradient(90deg,_#FF9999_0%,_#CCFF99_25%,_#99FFFF_50%,_#9999FF_75%,_#FF99EE_100%)] opacity-10 md:opacity-20 animate-spin-slow blur-3xl"
-      ></div>
-      <div
-        class="-z-50 absolute w-full h-[40vh] [mask-image:_linear-gradient(180deg,_black_20%,_transparent)] bg-[url('/images/grid.svg')] bg-[length:_64px] opacity-10"
+        class="-z-50 absolute w-full h-[40vh] [mask-image:_linear-gradient(180deg,_black_20%,_transparent)] bg-[url('/images/grid.svg')] bg-[length:_64px] opacity-40"
       ></div>
 
       <div
-        class="mx-auto flex min-h-screen w-[min(720px,_100%)] flex-col items-stretch justify-start gap-12 bg-transparent p-8"
+        class="mx-auto flex min-h-screen w-[min(1024px,_100%)] flex-col items-stretch justify-start gap-12 bg-transparent p-8"
       >
         <header
           class="flex min-h-[50vh] flex-col items-stretch justify-center gap-8"
         >
           <div class="gap flex flex-col items-stretch justify-start">
-            <p class="text-xl font-medium text-white/75">Hey! I am</p>
-            <h1 class="text-4xl font-bold">Vaibhav Acharya,</h1>
-            <h2 class="text-4xl font-medium">a web developer & designer.</h2>
+            <p class="text-2xl font-medium text-opacity-75">Hey! I am</p>
+            <h1 class="text-6xl font-bold">Vaibhav Acharya,</h1>
+            <h2 class="text-6xl font-medium">a web developer & designer.</h2>
           </div>
-          <p class="text-2xl font-medium text-white/75">
+          <p class="text-4xl font-medium text-opacity-75">
             I build <u>elegant</u>, useful & <u>accessible</u> online
             experiences.
           </p>
           <nav
-            class="mx-auto w-[min(100%,_480px)] flex flex-row flex-wrap items-stretch justify-start md:justify-center gap-2"
+            class="flex flex-row flex-wrap items-stretch justify-start gap-2"
           >
             <a
               href="mailto:vaibhavacharya111@gmail.com"
@@ -249,13 +244,13 @@
           type="application/pdf"
           width="100%"
           height="800px"
-          class="rounded-md"
+          class="rounded-md outline-2 outline-dashed outline-white/50 outline-offset-2"
         ></object>
 
         <footer
           class="min-h-[20vh] flex flex-col items-center justify-center text-center"
         >
-          <p class="text-xs text-white/75">
+          <p class="text-lg text-opacity-75">
             ✨ thank you for visiting my corner of the internet :)
           </p>
         </footer>

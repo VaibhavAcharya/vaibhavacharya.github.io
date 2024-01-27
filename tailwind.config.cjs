@@ -6,7 +6,13 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: [`"Public Sans"`, ...defaultTheme.fontFamily.sans],
+        sans: [`"Work Sans"`, ...defaultTheme.fontFamily.sans],
+        handjet: ["Handjet", ...defaultTheme.fontFamily.sans],
+      },
+      colors: {
+        bhagwa: {
+          DEFAULT: "hsl(27, 100%, 50%)",
+        },
       },
     },
   },
