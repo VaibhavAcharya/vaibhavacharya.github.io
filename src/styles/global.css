@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+    /* Add Handjet font */
+    --font-handjet: "Handjet", var(--font-sans);
+
+    /* Override default font family */
+    --default-font-family: "Work Sans";
+    --default-mono-font-family: "Cascadia Code";
+}
