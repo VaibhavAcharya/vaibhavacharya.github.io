@@ -1,0 +1,56 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import NoiseOverlay from '../components/NoiseOverlay.astro';
+import GradientBackground from '../components/GradientBackground.astro';
+import GridBackground from '../components/GridBackground.astro';
+import { SITE_TITLE } from '../consts';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+---
+
+<html lang="en" class="scroll-smooth">
+	<head>
+		<BaseHead title={title + ' — ' + SITE_TITLE} description={description} />
+	</head>
+
+	<body class="bg-black text-white font-handjet antialiased">
+		<div class="relative w-full overflow-x-hidden">
+			<NoiseOverlay />
+			<GradientBackground />
+			<GridBackground />
+
+			<div class="mx-auto flex w-[min(1024px,_100%)] flex-col items-stretch gap-8 p-8">
+				<Header />
+				<main class="flex flex-col gap-8">
+					<article class="flex flex-col gap-6">
+						{heroImage && <img width={1020} height={510} src={heroImage} alt="" class="rounded-md border border-white/10" />}
+						<div class="flex flex-col gap-4">
+							<div class="flex flex-row items-center gap-4 text-white/70 text-base">
+								<FormattedDate date={pubDate} />
+								{
+									updatedDate && (
+										<span>
+											• Last updated on <FormattedDate date={updatedDate} />
+										</span>
+									)
+								}
+							</div>
+							<h1 class="text-4xl md:text-5xl font-bold">{title}</h1>
+							<hr class="border-white/20" />
+						</div>
+						<div class="font-sans prose prose-invert prose-orange prose-neutral prose-lg md:prose-xl max-w-none">
+							<slot />
+						</div>
+					</article>
+				</main>
+				<Footer />
+			</div>
+		</div>
+	</body>
+</html>

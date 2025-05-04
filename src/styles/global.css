@@ -1,4 +1,11 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/*
+We are using Tailwind 4^, there is no tailwind config file anymore.
+We can customize the theme here.
+Tailwind will automatically pick up `--font-x` and `--color-x` variable and add it to the theme.
+*/
 
 @theme {
     /* Add Handjet font */
@@ -7,4 +14,7 @@
     /* Override default font family */
     --default-font-family: "Work Sans";
     --default-mono-font-family: "Cascadia Code";
+
+    /* Add bhagwa color */
+    --color-bhagwa: oklch(0.71 0.1945 47.88);
 }
