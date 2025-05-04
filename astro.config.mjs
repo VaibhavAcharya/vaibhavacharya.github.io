@@ -8,11 +8,16 @@ import tailwindcss from "@tailwindcss/vite";
 // https://astro.build/config
 export default defineConfig({
     site: "https://vaibhavacharya.github.io",
+
+    output: "static",
+    outDir: "./docs",
+    build: {
+        assets: "astro",
+    },
+
     integrations: [mdx(), sitemap()],
 
     vite: {
         plugins: [tailwindcss()],
     },
-
-    outDir: "docs",
 });
