@@ -1,0 +1,171 @@
+---
+title: "Deep Dive into JavaScript Array Methods"
+description: "Map, forEach, filter, reduce explained from scratch"
+pubDate: "May 04 2025"
+heroImage: "/blog/deep-dive-into-javascript-array-methods.png"
+---
+
+If you just read my **[Functional Programming in JavaScript](/blog/functional-programming-in-javascript/)** post, you saw a few helpful array methods like `map` and `reduce`.
+
+Here, we'll slow down and take each helper apart, like opening a toy car to see the gears.
+
+We'll even build our own versions from scratch — think of them as simple, [_pure_ functions](/blog/functional-programming-in-javascript/#2-pure-functions-the-smallest-reliable-unit) — to truly understand how they work under the hood.
+
+Feel free to copy-paste the code into your console and try things as we go.
+
+## 0. Why bother?
+
+Loops work.
+
+But when the idea in your head is "do something to every item" or "keep only the red marbles," a loop is noisy.
+
+Array methods let you say what you mean in one line.
+
+---
+
+## 1. `.forEach` — do something for every item
+
+`forEach` doesn't give you a new array. It just runs a function once per item.
+
+```js
+const pets = ["cat", "dog", "hamster"];
+
+pets.forEach((pet) => {
+    console.log(pet.toUpperCase());
+});
+// CAT
+// DOG
+// HAMSTER
+```
+
+### Build your own
+
+```js
+function myForEach(array, callback) {
+    for (let i = 0; i < array.length; i++) {
+        callback(array[i], i, array);
+    }
+}
+
+myForEach(pets, (pet) => console.log(pet));
+```
+
+Notice we pass three things:
+
+1.  the current value,
+2.  the index,
+3.  the whole array (rarely used, but free).
+
+This `myForEach` isn't _pure_ because `console.log` has a side effect (writing to the console), but it shows the basic structure.
+
+---
+
+## 2. `.map` — turn one array into another
+
+`map` is like `forEach`, but it **returns** a brand-new array full of whatever your callback gives back.
+
+```js
+const lengths = pets.map((pet) => pet.length);
+console.log(lengths); // [3, 3, 7]
+```
+
+### Build your own
+
+```js
+function myMap(array, callback) {
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+        result.push(callback(array[i], i, array));
+    }
+    return result;
+}
+
+console.log(myMap([1, 2, 3], (n) => n * 10)); // [10, 20, 30]
+```
+
+Key point: the original `array` stays the same. `map` is friendly that way. Our `myMap` function here _is_ pure if the callback you provide is also pure!
+
+---
+
+## 3. `.filter` — keep the items that pass the test
+
+```js
+const longNames = pets.filter((pet) => pet.length > 3);
+console.log(longNames); // ["hamster"]
+```
+
+### Build your own
+
+```js
+function myFilter(array, callback) {
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+        if (callback(array[i], i, array)) {
+            result.push(array[i]);
+        }
+    }
+    return result;
+}
+
+console.log(myFilter([1, 2, 3, 4], (n) => n % 2 === 0)); // [2, 4]
+```
+
+`filter` gives you a shorter (or equal) array, never longer. Again, `myFilter` is pure if its callback is.
+
+---
+
+## 4. `.reduce` — turn many values into one
+
+`reduce` can feel scary because it is a blank canvas. It can sum numbers, build strings, even create objects.
+
+```js
+const numbers = [5, 10, 15];
+const total = numbers.reduce((acc, n) => acc + n, 0);
+console.log(total); // 30
+```
+
+1. The **first argument** of `reduce` is a callback.
+
+    1. The **first parameter** of that callback is the "accumulator" (what we have so far).
+    2. The **second parameter** is the current item.
+
+2. The **second argument** of `reduce` (here `0`) is the starting value.
+
+Like the others, `myReduce` is pure if the callback function maintains purity.
+
+### Build your own
+
+```js
+function myReduce(array, callback, initial) {
+    let acc = initial;
+    for (let i = 0; i < array.length; i++) {
+        acc = callback(acc, array[i], i, array);
+    }
+    return acc;
+}
+
+const product = myReduce([2, 3, 4], (acc, n) => acc * n, 1);
+console.log(product); // 24
+```
+
+#### Practical example: group by first letter
+
+```js
+const byFirstLetter = pets.reduce((acc, pet) => {
+    const key = pet[0];
+    acc[key] = [...(acc[key] || []), pet];
+    return acc;
+}, {});
+
+console.log(byFirstLetter);
+// { c: ["cat"], d: ["dog"], h: ["hamster"] }
+```
+
+---
+
+### Where to next?
+
+- Revisit the **[Functional Programming in JavaScript](/blog/functional-programming-in-javascript/)** article to see these helpers in a wider context.
+- Try re-writing a `for` loop from your own project using `map`, `filter`, or `reduce`.
+
+And of course, if this was helpful, share it with a friend who is still writing three nested loops.

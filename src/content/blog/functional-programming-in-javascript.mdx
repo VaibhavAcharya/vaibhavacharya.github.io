@@ -5,4 +5,213 @@ pubDate: "May 04 2025"
 heroImage: "/blog/functional-programming-in-javascript.png"
 ---
 
-Coming soon...
+Patterns for organising code are called **programming paradigms**.
+
+In this guide, we'll explore the functional paradigm together, using just plain JavaScript and a few core ideas.
+
+## 0. Programming Paradigms at a Glance
+
+- **Imperative:** write the exact steps in order.
+- **Procedural:** group those steps into reusable procedures.
+- **Object-Oriented:** bundle data with the functions that work on that data.
+- **Functional:** build results by calling pure functions.
+- **Event-Driven / Reactive:** react when something happens (a click, a message).
+- **Declarative:** describe the result you want and let the computer work out how (SQL, CSS).
+
+Each style is good for some problems and not others.
+
+In this guide we focus on the functional style and use only plain JavaScript and a few small ideas.
+
+## 1. Functions Are Just Values
+
+In school we learn that a function is something you _call_. In JavaScript it's also something you can _store_.
+
+```js
+const greet = (name) => `Hello, ${name}!`;
+
+// We can put the function in a variable…
+const sayHi = greet;
+
+// …or pass it to another function.
+const callTwice = (fn, value) => {
+    fn(value);
+    fn(value);
+};
+
+callTwice(console.log, "👋");
+```
+
+We simply stored a function like any other value. **Functions are data**.
+
+When you can pass functions around, you avoid repeating yourself and keep code clear.
+
+## 2. Pure Functions: The Smallest Reliable Unit
+
+A _pure_ function is a function that, given the same input, always returns the same output and changes nothing else.
+
+```js
+// pure
+(a) => a * 2;
+
+// impure - depends on external state
+let factor = 2;
+const multiply = (a) => a * factor;
+```
+
+Pure functions never surprise you. They also combine well with other pure functions.
+
+### Side Effects
+
+Not every function _can_ be pure. Reading a file, fetching data, even `console.log` are all side effects. The trick is to **push impurity to the edges** of your program, the same way you keep mud outside the house.
+
+## 3. Immutability: Changing Without Mutating
+
+JavaScript lets you reassign and mutate with abandon. Functional style asks you to pause before you do.
+
+```js
+// mutation
+const user = { name: "Ada" };
+user.name = "Charles"; // original object changed
+
+// immutable update
+const updated = { ...user, name: "Charles" };
+```
+
+Immutability sounds fussy until you debug a race condition. Copies may cost a few bytes; _mystery bugs_ cost weekends.
+
+## 4. Higher-Order Functions
+
+A function that takes a function or returns one is called _higher-order_. You've already met `callTwice`. JavaScript's standard library is full of such helpers.
+
+```js
+const numbers = [1, 2, 3];
+const doubled = numbers.map((n) => n * 2); // [2, 4, 6]
+```
+
+`map` receives your little doubling function and applies it to every element. No loops, no counters, no off-by-one errors.
+
+### Common Helpers
+
+- `forEach`: do something for every item (ignores return value).
+- `map`: transform each item, return new array.
+- `filter`: keep only items where the callback returns `true`.
+- `reduce`: boil an array down to a single value.
+
+> Want to see these helpers broken down line by line? Head over to the **[Deep Dive into JavaScript Array Methods](/blog/deep-dive-into-javascript-array-methods/)** for build-your-own versions and more examples.
+
+## 5. `reduce`: A Small But Powerful Tool
+
+`reduce` looks intimidating, so let's tame it.
+
+```js
+const sum = [1, 2, 3, 4].reduce((total, n) => total + n, 0);
+// 10
+```
+
+Think of `reduce` as **folding** a list. The callback says how to fold one more item, and the initial value is where you start.
+
+Need to count words?
+
+```js
+const words = ["a", "lot", "of", "words"];
+const lengths = words.reduce((acc, word) => {
+    acc[word] = word.length;
+    return acc;
+}, {});
+// { a:1, lot:3, of:2, words:5 }
+```
+
+#### Examples in Action
+
+```js
+const numbers = [1, 2, 3, 4, 5];
+
+// Keep only odd numbers
+const odds = numbers.filter((n) => n % 2 === 1);
+console.log(odds); // [1, 3, 5]
+
+// Find the first number over 3
+const firstLarge = numbers.find((n) => n > 3);
+console.log(firstLarge); // 4
+```
+
+#### Build your own `map`
+
+```js
+function myMap(array, fn) {
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+        result.push(fn(array[i], i));
+    }
+    return result;
+}
+
+console.log(myMap([1, 2, 3], (n) => n * 2)); // [2, 4, 6]
+```
+
+Try writing `myFilter` and `myReduce` yourself.  
+Doing it once by hand makes the built-in helpers feel much less like magic.
+
+## 6. Composition: Small Functions, Big Effects
+
+If functions are Lego bricks, composition is snapping them together.
+
+```js
+const trim = (s) => s.trim();
+const toLower = (s) => s.toLowerCase();
+const withoutSpaces = (s) => s.replace(/\s+/g, "-");
+
+// manual composition
+const slugify = (s) => withoutSpaces(toLower(trim(s)));
+
+slugify("  Functional JavaScript   "); // "functional-javascript"
+```
+
+With a helper you can make composition declarative:
+
+```js
+const compose =
+    (...fns) =>
+    (value) =>
+        fns.reduceRight((v, fn) => fn(v), value);
+
+const slug = compose(withoutSpaces, toLower, trim);
+```
+
+Now reading `compose(a, b, c)` mirrors the data flow: right-to-left, c then b then a.
+
+Composition means calling one function after another so the output of one becomes the input of the next.
+
+## 7. Real-World Mini Project
+
+Imagine a to-do list coming from an API:
+
+```js
+const raw = [
+    { id: 1, title: "Buy milk", done: false },
+    { id: 2, title: "Write blog", done: true },
+];
+```
+
+We want an HTML string of incomplete tasks.
+
+```js
+const openItems = raw.filter((t) => !t.done);
+
+const toLi = ({ title }) => `<li>${title}</li>`;
+
+const html = openItems.map(toLi).reduce((all, li) => all + li, "");
+
+console.log(`<ul>${html}</ul>`);
+```
+
+No counters and no manual string joins. Just a clear pipeline.
+
+## 8. Where to Go Next
+
+Functional programming is a spectrum, not a switch. Start small:
+
+1. Write pure functions where you can.
+2. Reach for `map`, `filter`, `reduce` before `for`.
+3. Keep data immutable unless there's a reason not to.
+4. Deepen your understanding of array helpers with the companion post **[Deep Dive into JavaScript Array Methods](/blog/deep-dive-into-javascript-array-methods/)**.
