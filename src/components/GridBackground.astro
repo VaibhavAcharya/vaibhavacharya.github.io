@@ -5,19 +5,17 @@
 // Additional `class` prop to extend Tailwind classes.
 
 interface Props {
-	maskHeight?: number; // percentage at which grid fades (default 40)
 	class?: string;
 }
 
-const { maskHeight = 40, class: extra = '' } = Astro.props;
-const mask = `linear-gradient(180deg, black 20%, transparent)`;
+const { class: extra = '' } = Astro.props;
 ---
 
 <div
 	class={[
 		'-z-50 absolute w-full',
-		`h-[${maskHeight}vh]`,
-		`[mask-image:_${mask.replace(/\s+/g, '_')}]`,
+		`h-[40vh]`,
+		`[mask-image:_linear-gradient(180deg,_black_20%,_transparent)]`,
 		"bg-[url('/grid.svg')] bg-[length:_64px] opacity-40",
 		extra,
 ].filter(Boolean).join(' ')}
