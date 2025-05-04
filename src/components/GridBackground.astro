@@ -1,0 +1,24 @@
+---
+// GridBackground.astro
+// Displays a subtle grid texture that fades away using a CSS mask. You may pass a custom
+// `maskHeight` (percentage as number 0-100) which controls until what point the grid is visible.
+// Additional `class` prop to extend Tailwind classes.
+
+interface Props {
+	maskHeight?: number; // percentage at which grid fades (default 40)
+	class?: string;
+}
+
+const { maskHeight = 40, class: extra = '' } = Astro.props;
+const mask = `linear-gradient(180deg, black 20%, transparent)`;
+---
+
+<div
+	class={[
+		'-z-50 absolute w-full',
+		`h-[${maskHeight}vh]`,
+		`[mask-image:_${mask.replace(/\s+/g, '_')}]`,
+		"bg-[url('/grid.svg')] bg-[length:_64px] opacity-40",
+		extra,
+].filter(Boolean).join(' ')}
+></div> 
