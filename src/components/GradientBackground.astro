@@ -4,16 +4,22 @@
 // Optional props allow overriding class strings.
 
 interface Props {
-	class?: string; // Extra Tailwind classes to append
-	heightClass?: string; // Tailwind height utility (defaults to h-screen)
+    class?: string; // Extra Tailwind classes to append
+    heightClass?: string; // Tailwind height utility (defaults to h-screen)
 }
 
-const { class: extra = '', heightClass = 'h-screen' } = Astro.props;
+const { class: extra = "", heightClass = "h-screen" } = Astro.props;
 ---
 
-<div class={[
-	'-z-50 absolute w-full',
-	heightClass,
-	'bg-gradient-to-b from-bhagwa via-transparent to-transparent',
-	extra,
-].filter(Boolean).join(' ')}></div> 
+<div
+    class={[
+        "-z-50 absolute w-full",
+        heightClass,
+        "bg-gradient-to-b from-bhagwa via-transparent to-transparent",
+        extra,
+    ]
+        .filter(Boolean)
+        .join(" ")}
+>
+</div>
+

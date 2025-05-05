@@ -5,18 +5,21 @@
 // Additional `class` prop to extend Tailwind classes.
 
 interface Props {
-	class?: string;
+    class?: string;
 }
 
-const { class: extra = '' } = Astro.props;
+const { class: extra = "" } = Astro.props;
 ---
 
 <div
-	class={[
-		'-z-50 absolute w-full',
-		`h-[40vh]`,
-		`[mask-image:_linear-gradient(180deg,_black_20%,_transparent)]`,
-		"bg-[url('/grid.svg')] bg-[length:_64px] opacity-40",
-		extra,
-].filter(Boolean).join(' ')}
-></div> 
+    class={[
+        "-z-50 absolute w-full",
+        `h-[40vh]`,
+        `[mask-image:_linear-gradient(180deg,_black_20%,_transparent)]`,
+        "bg-[url('/grid.svg')] bg-[length:_64px] opacity-40",
+        extra,
+    ]
+        .filter(Boolean)
+        .join(" ")}
+>
+</div>

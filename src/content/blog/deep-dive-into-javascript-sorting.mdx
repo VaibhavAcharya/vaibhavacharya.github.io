@@ -1,0 +1,127 @@
+---
+title: "Deep Dive into JavaScript Sorting"
+description: "Array.prototype.sort explained, custom comparators, and stability quirks"
+pubDate: "May 06 2025"
+heroImage: "/blog/deep-dive-into-javascript-sorting.png"
+---
+
+Have you read my **[Deep Dive into JavaScript Array Methods](/blog/deep-dive-into-javascript-array-methods/)**? In that post we used helpers like `map` and `reduce`.
+
+Today we look at another helper: **`Array.prototype.sort`**. Sorting sounds easy, but JavaScript has a few hidden rules.
+
+By the end of this post you will:
+
+1. Predict the exact order produced by the default sort.
+2. Write solid compare functions for numbers, strings, and objects.
+3. Explain what a **stable** sort is and why it matters.
+
+Open your console and follow along.
+
+---
+
+## 0. `sort` in sixty seconds
+
+If you remember nothing else, remember these facts:
+
+- No compare function? Every value is cast to a string and compared by UTF-16 code points.
+- A compare function must return a negative, zero, or positive number.
+- Since 2019 every engine guarantees the result is **stable**.
+- Behind the scenes browsers use **TimSort** which is a hybrid sorting algorithm derived from merge sort and insertion sort.
+
+The rest of this post expands those points with examples you can paste into the console.
+
+---
+
+## 1. The default sort turns items into strings
+
+If you call `sort()` with **no compare function**, JavaScript first makes every item a **string**. It then orders those strings by UTF-16 code units.
+
+```js
+[10, 2, 30].sort(); // ["10", "2", "30"]
+```
+
+`"10"` comes before `"2"` because the first character `"1"` is smaller than `"2"`.  
+Good for names, bad for numbers.
+
+### The right way to sort numbers
+
+```js
+const nums = [10, 2, 30];
+
+nums.sort((a, b) => a - b); // [2, 10, 30]  ascending
+nums.sort((a, b) => b - a); // [30, 10, 2]  descending
+```
+
+A compare function must return:
+
+- a **negative** number if `a` should come first,
+- **zero** if their order does not matter,
+- a **positive** number if `b` should come first.
+
+---
+
+## 2. Simple compare patterns
+
+### 2.1 Boolean shortcut for numbers
+
+```js
+const asc = (a, b) => (a > b) - (a < b);
+```
+
+True is `1`, false is `0`. Subtracting gives `1`, `0`, or `-1`.
+
+### 2.2 Locale-aware strings
+
+```js
+const names = ["Åke", "Zoë", "Émile", "Ana"];
+names.sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base" }));
+```
+
+`localeCompare` knows about accents and many alphabets.
+
+### 2.3 One key on objects
+
+```js
+const users = [
+    { id: 3, name: "Ada" },
+    { id: 1, name: "Charles" },
+    { id: 2, name: "Grace" },
+];
+
+users.sort((a, b) => a.id - b.id);
+```
+
+### 2.4 Two keys (tie-breaker)
+
+```js
+users.sort((a, b) =>
+    a.name === b.name ? a.id - b.id : a.name.localeCompare(b.name),
+);
+```
+
+If the names are equal we fall back to the id.
+
+---
+
+## 3. Stable vs. unstable
+
+A **stable** sort keeps items that compare as equal in their _original_ order.  
+Since **ES2019** JavaScript engines must give you a stable sort.
+
+```js
+const items = [
+    { category: "fruit", name: "🍎" },
+    { category: "veg", name: "🥕" },
+    { category: "fruit", name: "🍌" },
+];
+
+items.sort((a, b) => a.category.localeCompare(b.category));
+// fruit 🍎, fruit 🍌, veg 🥕   (the two fruits stay in order)
+```
+
+## Where to next?
+
+- Try `localeCompare` with different locales and options.
+- Benchmark the default sort against a numeric comparator on large arrays.
+- Go back to **[Functional Programming in JavaScript](/blog/functional-programming-in-javascript/)** and replace loops with `sort` plus `map` or `filter`.
+- Share with a friend who still writes `arr.sort((a, b) => a > b ? 1 : -1)`
