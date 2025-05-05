@@ -1,11 +1,16 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import { PencilLineIcon } from "@lucide/astro"
+import { ArrowRightIcon } from "@lucide/astro"
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import NoiseOverlay from '../components/NoiseOverlay.astro';
 import GradientBackground from '../components/GradientBackground.astro';
 import GridBackground from '../components/GridBackground.astro';
 import Footer from '../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+// Fetch and sort blog posts
+const posts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
 ---
 
 <!doctype html>
@@ -21,10 +26,10 @@ import Footer from '../components/Footer.astro';
 
 			<!-- Main wrapper -->
 			<div
-				class="mx-auto flex min-h-screen w-[min(1024px,_100%)] flex-col items-stretch justify-start gap-8 bg-transparent p-8"
+				class="mx-auto flex min-h-screen w-[min(1024px,_100%)] flex-col items-stretch justify-start gap-12 bg-transparent p-8"
 			>
 				<!-- Hero / Header section -->
-				<header class="flex min-h-[50vh] flex-col items-stretch justify-center gap-8">
+				<header class="flex flex-col py-8 items-stretch justify-center gap-8">
 					<div class="gap flex flex-col items-stretch justify-start">
 						<p class="text-2xl font-medium text-opacity-75">Hey! I am</p>
 						<h1 class="text-6xl font-bold">Vaibhav Acharya,</h1>
@@ -131,61 +136,33 @@ import Footer from '../components/Footer.astro';
 							</svg>
 							<span>LinkedIn</span>
 						</a>
+					</nav>
+				</header>
 
-						<p class="text-xl font-bold text-white/25">||</p>
-
-						<!-- Blog -->
+				<!-- Recent Blog Posts -->
+				<section class="flex flex-col gap-4 rounded-md border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+					<div class="flex flex-row items-center justify-start gap-4">
+						<h3 class="text-3xl font-semibold">Recent Writings</h3>
 						<a
 							href="/blog"
 							class="flex flex-row items-center justify-center gap-2 rounded-md border border-orange-500/40 bg-orange-500/20 px-2 py-1 text-sm font-medium backdrop-blur hover:border-orange-500/60"
 						>
-							<PencilLineIcon class="text-orange-500" size={16} />
-							<span>Blog</span>
+							<span>View all posts...</span>
 						</a>
-					</nav>
+					</div>
 
-					<!-- Blog stamp -->
-					<a
-						href="/blog"
-						class="group fixed top-6 right-6 z-50 h-28 w-28 rotate-[8deg] transition-transform duration-300 hover:rotate-0 hover:scale-105 animate-pulse hover:animate-none"
-						aria-label="Blog"
-					>
-						<svg viewBox="0 0 100 100" class="h-full w-full text-white/90">
-							<!-- Outer ring -->
-							<circle cx="50" cy="50" r="45" fill="transparent" stroke="currentColor" stroke-width="4" class="opacity-70" />
-							<!-- Inner ring -->
-							<circle cx="50" cy="50" r="34" fill="transparent" stroke="currentColor" stroke-width="2" class="opacity-40" />
-							
-							<!-- Side patterns -->
-							<g class="opacity-60">
-								<!-- Original stars -->
-								<text x="15" y="50" fill="currentColor" font-size="10" text-anchor="middle">✦</text>
-								<text x="85" y="50" fill="currentColor" font-size="10" text-anchor="middle">✦</text>
-								<text x="25" y="30" fill="currentColor" font-size="10" text-anchor="middle">✦</text>
-								<text x="75" y="30" fill="currentColor" font-size="10" text-anchor="middle">✦</text>
-								<text x="25" y="70" fill="currentColor" font-size="10" text-anchor="middle">✦</text>
-								<text x="75" y="70" fill="currentColor" font-size="10" text-anchor="middle">✦</text>
-								
-								<!-- Additional stars -->
-								<text x="50" y="15" fill="currentColor" font-size="10" text-anchor="middle">✦</text>
-								<text x="50" y="85" fill="currentColor" font-size="10" text-anchor="middle">✦</text>
-								<text x="35" y="20" fill="currentColor" font-size="8" text-anchor="middle">✧</text>
-								<text x="65" y="20" fill="currentColor" font-size="8" text-anchor="middle">✧</text>
-								<text x="35" y="80" fill="currentColor" font-size="8" text-anchor="middle">✧</text>
-								<text x="65" y="80" fill="currentColor" font-size="8" text-anchor="middle">✧</text>
-								<text x="20" y="40" fill="currentColor" font-size="8" text-anchor="middle">✧</text>
-								<text x="80" y="40" fill="currentColor" font-size="8" text-anchor="middle">✧</text>
-								<text x="20" y="60" fill="currentColor" font-size="8" text-anchor="middle">✧</text>
-								<text x="80" y="60" fill="currentColor" font-size="8" text-anchor="middle">✧</text>
-							</g>
-							
-							<!-- Center text -->
-							<text x="50" y="55" fill="currentColor" font-size="18" font-family="inherit" text-anchor="middle" class="uppercase font-bold">
-								Blog ↗
-							</text>
-						</svg>
-					</a>
-				</header>
+					<ul class="flex flex-col items-start gap-2">
+						{
+							posts.map((post) => (
+								<li>
+									<a href={`/blog/${post.id}/`} class="block text-lg font-medium hover:underline text-bhagwa">
+										{post.data.title} <ArrowRightIcon class="text-bhagwa/50 inline-block" size={18} />
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</section>
 
 				<!-- Resume embed -->
 				<object
