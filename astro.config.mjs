@@ -15,7 +15,12 @@ export default defineConfig({
         assets: "astro",
     },
 
-    integrations: [mdx(), sitemap()],
+    integrations: [
+        mdx(),
+        sitemap({
+            lastmod: new Date(),
+        }),
+    ],
 
     vite: {
         plugins: [tailwindcss()],

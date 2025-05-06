@@ -1,0 +1,202 @@
+---
+title: "JavaScript Closures and Scope"
+description: "Demystify closures with practical patterns like private counters and once-only functions while visualising the scope chain"
+pubDate: "May 07 2025"
+heroImage: "/blog/javascript-closures-and-scope.png"
+---
+
+Have you read my **[Functional Programming in JavaScript](/blog/functional-programming-in-javascript/)** guide? In that post we saw how pure functions stay reliable when they do not depend on outside state.
+
+Closures add a powerful twist, a function can **remember** the place where it was created. That memory lets us hide private data, make one-off helpers, and avoid global variables.
+
+By the end of this post you will:
+
+1. Draw the scope chain for any piece of code.
+2. Explain why a function still sees variables after its outer function finished.
+3. Build real helpers: a private counter and a `once` utility.
+
+Open your console and follow along.
+
+---
+
+## 0. Closures in sixty seconds
+
+A **closure** is the combination of:
+
+1. A **function**.
+2. The **scope** where that function was defined.
+
+Whenever you create a function, JavaScript quietly stores a reference to its surrounding variables. When you later call the function - even in another place - it can reach back to that original scope.
+
+Put differently: **functions carry their backpack of variables with them**.
+
+```js
+function outer() {
+    const secret = "🕵️‍♂️";
+    return function inner() {
+        console.log(secret); // still sees secret
+    };
+}
+
+const reveal = outer(); // outer finished but inner remembers
+reveal(); // 🕵️‍♂️
+```
+
+---
+
+## 1. Visualising the scope chain
+
+Each function call gets its own **execution context** that holds local variables. If a variable is not found locally, the engine walks **outward** one level at a time. This linked list is the **scope chain**.
+
+```js
+const a = "global";
+
+function first() {
+    const b = "first";
+
+    function second() {
+        const c = "second";
+        console.log(a, b, c);
+    }
+
+    second();
+}
+
+first(); // global first second
+```
+
+1. `second` looks for `a` → not local.
+2. Walks up to `first` → still not found.
+3. Walks up again to the global scope → found!
+
+Closures simply **freeze** that chain for later use.
+
+---
+
+## 2. Practical pattern - private counters
+
+Because a closure keeps private data alive, we can create functions that manage their own state without exposing it.
+
+```js
+function makeCounter() {
+    let count = 0; // private
+
+    return {
+        next() {
+            return ++count;
+        },
+        reset() {
+            count = 0;
+        },
+    };
+}
+
+const counter = makeCounter();
+console.log(counter.next()); // 1
+console.log(counter.next()); // 2
+console.log(counter.count); // undefined - cannot access directly
+```
+
+No global variables, no `this`, just a tidy function with its own memory.
+
+### Build your own `counter`
+
+Try re-writing `makeCounter` so it returns a single function that both increments **and** returns the value.
+
+```js
+const makeSimpleCounter = () => {
+    let n = 0;
+    return () => ++n;
+};
+
+const inc = makeSimpleCounter();
+console.log(inc()); // 1
+console.log(inc()); // 2
+```
+
+Same idea, fewer characters.
+
+---
+
+## 3. Practical pattern - run only once
+
+A common need: run an expensive setup exactly once.
+
+```js
+function once(fn) {
+    let done = false;
+    let result;
+
+    return function (...args) {
+        if (!done) {
+            result = fn.apply(this, args);
+            done = true;
+        }
+        return result;
+    };
+}
+
+const init = once(() => {
+    console.log("Initialising…");
+    return 42;
+});
+
+init(); // Initialising…  → 42
+init(); //                  → 42 (silent)
+```
+
+`once` keeps `done` and `result` alive between calls, but only inside the returned function.
+
+---
+
+## 4. Common gotchas
+
+### 4.1 Loops with `var`
+
+Before `let` and `const`, developers hit a classic trap:
+
+```js
+for (var i = 0; i < 3; i++) {
+    setTimeout(() => console.log(i), 0);
+}
+// 3 3 3
+```
+
+`var` is function-scoped, so all callbacks share the same `i`. Replace with `let` and the block scope gives each loop its own value.
+
+```js
+for (let i = 0; i < 3; i++) {
+    setTimeout(() => console.log(i), 0);
+}
+// 0 1 2
+```
+
+### 4.2 Leaking memory by accident
+
+A closure keeps variables alive **as long as the function is reachable**. Return large objects or DOM nodes only when needed or you may block garbage collection.
+
+---
+
+## 5. Testing your understanding
+
+Try answering without running the code. Then verify in the console.
+
+```js
+function makeAdder(x) {
+    return (y) => x + y;
+}
+
+const add10 = makeAdder(10);
+console.log(add10(5));
+// What happens if we later set x = 99? Why?
+```
+
+Spoiler: the closure captured the **value** of `x` inside `makeAdder`, not the external variable after the function finished.
+
+---
+
+## Where to next?
+
+- Convert an event handler into a closure that remembers options.
+- Refactor a module that uses a global variable into a factory like `makeCounter`.
+- Share this guide with a friend who still sprinkles `var self = this` in callbacks.
