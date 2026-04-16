@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # blog
 blog.md
+
+# superpowers brainstorming artifacts
+.superpowers/
