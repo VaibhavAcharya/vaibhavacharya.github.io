@@ -5,7 +5,7 @@ import Colophon from "../../components/Colophon.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
 
-const posts = (await getCollection("blog")).sort(
+const posts = (await getCollection("writings")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 
@@ -25,7 +25,7 @@ function formatShortDate(d: Date): string {
 <html lang="en">
     <head>
         <BaseHead
-            title={`writing · ${SITE_TITLE}`}
+            title={`writings · ${SITE_TITLE}`}
             description={SITE_DESCRIPTION}
         />
     </head>
@@ -33,7 +33,7 @@ function formatShortDate(d: Date): string {
         <div class="page">
             <BackLink label="home" href="/" />
 
-            <p class="section-label fade-in">writing</p>
+            <p class="section-label fade-in">writings</p>
             <p class="body-line fade-in d1">
                 I write rarely. This is the complete archive.
             </p>

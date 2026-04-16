@@ -1,12 +1,12 @@
 ---
-// src/layouts/BlogPostLayout.astro
+// src/layouts/WritingLayout.astro
 import type { CollectionEntry } from "astro:content";
 import BaseHead from "../components/BaseHead.astro";
 import BackLink from "../components/BackLink.astro";
 import Colophon from "../components/Colophon.astro";
 import { SITE_TITLE } from "../consts";
 
-type Props = CollectionEntry<"blog">["data"] & { slug: string };
+type Props = CollectionEntry<"writings">["data"] & { slug: string };
 
 const { title, description, pubDate, updatedDate, slug } = Astro.props;
 
@@ -36,7 +36,7 @@ const formattedUpdated = updatedDate
     </head>
     <body>
         <div class="page">
-            <BackLink label="writing" href="/writings" />
+            <BackLink label="writings" href="/writings" />
 
             <article>
                 <h1 class="post-title fade-in">{title}</h1>

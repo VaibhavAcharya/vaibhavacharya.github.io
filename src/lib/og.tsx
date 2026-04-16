@@ -8,11 +8,13 @@ type OgProps = {
     meta: string; // "7 May 2025  ·  vaibhavacharya.github.io" or just the domain on home
 };
 
-const PAPER = "#f5efdf"; // oklch(0.975 0.006 80)
-const INK = "#2b2720"; // oklch(0.22 0.008 80)
-const INK_SOFT = "#7f7864"; // oklch(0.50 0.01 80)
-const RULE = "#c5bea8"; // oklch(0.78 0.008 80)
-const ACCENT = "#2a3d78"; // oklch(0.42 0.10 258)
+// Hex equivalents of the spec's OKLCH tokens, computed with a proper
+// OKLCH -> linear sRGB -> sRGB conversion so the OG matches the site.
+const PAPER = "#faf6ea"; // oklch(0.975 0.006 80)
+const INK = "#2c271e"; // oklch(0.22 0.008 80)
+const INK_SOFT = "#81796a"; // oklch(0.50 0.01 80)
+const RULE = "#c8c2ae"; // oklch(0.78 0.008 80)
+const ACCENT = "#2b3d79"; // oklch(0.42 0.10 258)
 
 export function renderOg({ title, meta }: OgProps) {
     return (

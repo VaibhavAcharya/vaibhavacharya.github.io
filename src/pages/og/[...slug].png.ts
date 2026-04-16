@@ -1,5 +1,5 @@
 // src/pages/og/[...slug].png.ts
-// Prerendered OG PNGs. One per route: index + each blog post.
+// Prerendered OG PNGs. One per route: index + each writing post.
 
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
@@ -32,7 +32,7 @@ function formatPubDate(d: Date): string {
 }
 
 export async function getStaticPaths() {
-    const posts = await getCollection("blog");
+    const posts = await getCollection("writings");
 
     return [
         {
