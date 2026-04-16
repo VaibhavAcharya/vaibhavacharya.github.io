@@ -1,0 +1,140 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.github.io/rss.xml"><meta name="generator" content="Astro v5.7.10"><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.github.io/writings/javascript-closures-and-scope/"><!-- Primary Meta --><title>JavaScript Closures and Scope · Vaibhav Acharya, engineer.</title><meta name="title" content="JavaScript Closures and Scope · Vaibhav Acharya, engineer."><meta name="description" content="Demystify closures with practical patterns like private counters and once-only functions while visualising the scope chain"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://vaibhavacharya.github.io/writings/javascript-closures-and-scope/"><meta property="og:title" content="JavaScript Closures and Scope · Vaibhav Acharya, engineer."><meta property="og:description" content="Demystify closures with practical patterns like private counters and once-only functions while visualising the scope chain"><meta property="og:image" content="https://vaibhavacharya.github.io/og/javascript-closures-and-scope.png"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://vaibhavacharya.github.io/writings/javascript-closures-and-scope/"><meta property="twitter:title" content="JavaScript Closures and Scope · Vaibhav Acharya, engineer."><meta property="twitter:description" content="Demystify closures with practical patterns like private counters and once-only functions while visualising the scope chain"><meta property="twitter:image" content="https://vaibhavacharya.github.io/og/javascript-closures-and-scope.png"><link rel="stylesheet" href="/astro/_slug_.CTs-pAJo.css"></head> <body> <div class="page"> <a href="/writings" class="back-link">← writings</a> <article> <h1 class="post-title fade-in">JavaScript Closures and Scope</h1> <p class="post-meta fade-in d1">
+by Vaibhav Acharya, 7 May 2025  </p> <hr class="post-divider fade-in d1"> <div class="post-body fade-in d2">  <p>Have you read my <strong><a href="/writings/functional-programming-in-javascript/">Functional Programming in JavaScript</a></strong> guide? In that post we saw how pure functions stay reliable when they do not depend on outside state.</p>
+<p>Closures add a powerful twist, a function can <strong>remember</strong> the place where it was created. That memory lets us hide private data, make one-off helpers, and avoid global variables.</p>
+<p>By the end of this post you will:</p>
+<ol>
+<li>Draw the scope chain for any piece of code.</li>
+<li>Explain why a function still sees variables after its outer function finished.</li>
+<li>Build real helpers: a private counter and a <code>once</code> utility.</li>
+</ol>
+<p>Open your console and follow along.</p>
+<hr/>
+<h2 id="0-closures-in-sixty-seconds">0. Closures in sixty seconds</h2>
+<p>A <strong>closure</strong> is the combination of:</p>
+<ol>
+<li>A <strong>function</strong>.</li>
+<li>The <strong>scope</strong> where that function was defined.</li>
+</ol>
+<p>Whenever you create a function, JavaScript quietly stores a reference to its surrounding variables. When you later call the function - even in another place - it can reach back to that original scope.</p>
+<p>Put differently: <strong>functions carry their backpack of variables with them</strong>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> outer</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> secret</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> &quot;🕵️‍♂️&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> function</span><span style="color:#B392F0"> inner</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(secret); </span><span style="color:#6A737D">// still sees secret</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> reveal</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> outer</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// outer finished but inner remembers</span></span>
+<span class="line"><span style="color:#B392F0">reveal</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// 🕵️‍♂️</span></span></code></pre>
+<hr/>
+<h2 id="1-visualising-the-scope-chain">1. Visualising the scope chain</h2>
+<p>Each function call gets its own <strong>execution context</strong> that holds local variables. If a variable is not found locally, the engine walks <strong>outward</strong> one level at a time. This linked list is the <strong>scope chain</strong>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> a</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> &quot;global&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> first</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> b</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> &quot;first&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    function</span><span style="color:#B392F0"> second</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> c</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> &quot;second&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(a, b, c);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    second</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">first</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// global first second</span></span></code></pre>
+<ol>
+<li><code>second</code> looks for <code>a</code> → not local.</li>
+<li>Walks up to <code>first</code> → still not found.</li>
+<li>Walks up again to the global scope → found!</li>
+</ol>
+<p>Closures simply <strong>freeze</strong> that chain for later use.</p>
+<hr/>
+<h2 id="2-practical-pattern---private-counters">2. Practical pattern - private counters</h2>
+<p>Because a closure keeps private data alive, we can create functions that manage their own state without exposing it.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> makeCounter</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">// private</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">        next</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> ++</span><span style="color:#E1E4E8">count;</span></span>
+<span class="line"><span style="color:#E1E4E8">        },</span></span>
+<span class="line"><span style="color:#B392F0">        reset</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            count </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        },</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> counter</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> makeCounter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(counter.</span><span style="color:#B392F0">next</span><span style="color:#E1E4E8">()); </span><span style="color:#6A737D">// 1</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(counter.</span><span style="color:#B392F0">next</span><span style="color:#E1E4E8">()); </span><span style="color:#6A737D">// 2</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(counter.count); </span><span style="color:#6A737D">// undefined - cannot access directly</span></span></code></pre>
+<p>No global variables, no <code>this</code>, just a tidy function with its own memory.</p>
+<h3 id="build-your-own-counter">Build your own <code>counter</code></h3>
+<p>Try re-writing <code>makeCounter</code> so it returns a single function that both increments <strong>and</strong> returns the value.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> makeSimpleCounter</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#F97583"> ++</span><span style="color:#E1E4E8">n;</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> inc</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> makeSimpleCounter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">inc</span><span style="color:#E1E4E8">()); </span><span style="color:#6A737D">// 1</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">inc</span><span style="color:#E1E4E8">()); </span><span style="color:#6A737D">// 2</span></span></code></pre>
+<p>Same idea, fewer characters.</p>
+<hr/>
+<h2 id="3-practical-pattern---run-only-once">3. Practical pattern - run only once</h2>
+<p>A common need: run an expensive setup exactly once.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> once</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> done </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">...</span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">done) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fn.</span><span style="color:#B392F0">apply</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">            done </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> init</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> once</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Initialising…&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> 42</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">init</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// Initialising…  → 42</span></span>
+<span class="line"><span style="color:#B392F0">init</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//                  → 42 (silent)</span></span></code></pre>
+<p><code>once</code> keeps <code>done</code> and <code>result</code> alive between calls, but only inside the returned function.</p>
+<hr/>
+<h2 id="4-common-gotchas">4. Common gotchas</h2>
+<h3 id="41-loops-with-var">4.1 Loops with <code>var</code></h3>
+<p>Before <code>let</code> and <code>const</code>, developers hit a classic trap:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">var</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&lt;</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">    setTimeout</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(i), </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// 3 3 3</span></span></code></pre>
+<p><code>var</code> is function-scoped, so all callbacks share the same <code>i</code>. Replace with <code>let</code> and the block scope gives each loop its own value.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">let</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&lt;</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">    setTimeout</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(i), </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// 0 1 2</span></span></code></pre>
+<h3 id="42-leaking-memory-by-accident">4.2 Leaking memory by accident</h3>
+<p>A closure keeps variables alive <strong>as long as the function is reachable</strong>. Return large objects or DOM nodes only when needed or you may block garbage collection.</p>
+<hr/>
+<h2 id="5-testing-your-understanding">5. Testing your understanding</h2>
+<p>Try answering without running the code. Then verify in the console.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> makeAdder</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">x</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">y</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> x </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> y;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> add10</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> makeAdder</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">add10</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">// What happens if we later set x = 99? Why?</span></span></code></pre>
+<p>Spoiler: the closure captured the <strong>value</strong> of <code>x</code> inside <code>makeAdder</code>, not the external variable after the function finished.</p>
+<hr/>
+<h2 id="where-to-next">Where to next?</h2>
+<ul>
+<li>Convert an event handler into a closure that remembers options.</li>
+<li>Refactor a module that uses a global variable into a factory like <code>makeCounter</code>.</li>
+<li>Share this guide with a friend who still sprinkles <code>var self = this</code> in callbacks.</li>
+</ul>  </div> </article> <div class="fade-in d3"> <footer class="colophon"> <div class="row"> <span>source</span> <a href="https://github.com/VaibhavAcharya/vaibhavacharya.github.io" target="_blank" rel="noreferrer">github.com/VaibhavAcharya/vaibhavacharya.github.io</a> </div> <div class="row"> <span>last updated</span> <span>17 April 2026</span> </div> </footer> </div> </div> </body></html>

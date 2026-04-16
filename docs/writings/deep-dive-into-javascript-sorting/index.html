@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.github.io/rss.xml"><meta name="generator" content="Astro v5.7.10"><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><!-- Primary Meta --><title>Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer.</title><meta name="title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta name="description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><!-- Open Graph / Facebook --><meta property="og:type" content="website"><meta property="og:url" content="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><meta property="og:title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta property="og:description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><meta property="og:image" content="https://vaibhavacharya.github.io/og/deep-dive-into-javascript-sorting.png"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><meta property="twitter:title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta property="twitter:description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><meta property="twitter:image" content="https://vaibhavacharya.github.io/og/deep-dive-into-javascript-sorting.png"><link rel="stylesheet" href="/astro/_slug_.CTs-pAJo.css"></head> <body> <div class="page"> <a href="/writings" class="back-link">← writings</a> <article> <h1 class="post-title fade-in">Deep Dive into JavaScript Sorting</h1> <p class="post-meta fade-in d1">
+by Vaibhav Acharya, 6 May 2025  </p> <hr class="post-divider fade-in d1"> <div class="post-body fade-in d2">  <p>Have you read my <strong><a href="/writings/deep-dive-into-javascript-array-methods/">Deep Dive into JavaScript Array Methods</a></strong>? In that post we used helpers like <code>map</code> and <code>reduce</code>.</p>
+<p>Today we look at another helper: <strong><code>Array.prototype.sort</code></strong>. Sorting sounds easy, but JavaScript has a few hidden rules.</p>
+<p>By the end of this post you will:</p>
+<ol>
+<li>Predict the exact order produced by the default sort.</li>
+<li>Write solid compare functions for numbers, strings, and objects.</li>
+<li>Explain what a <strong>stable</strong> sort is and why it matters.</li>
+</ol>
+<p>Open your console and follow along.</p>
+<hr/>
+<h2 id="0-sort-in-sixty-seconds">0. <code>sort</code> in sixty seconds</h2>
+<p>If you remember nothing else, remember these facts:</p>
+<ul>
+<li>No compare function? Every value is cast to a string and compared by UTF-16 code points.</li>
+<li>A compare function must return a negative, zero, or positive number.</li>
+<li>Since 2019 every engine guarantees the result is <strong>stable</strong>.</li>
+<li>Behind the scenes browsers use <strong>TimSort</strong> which is a hybrid sorting algorithm derived from merge sort and insertion sort.</li>
+</ul>
+<p>The rest of this post expands those points with examples you can paste into the console.</p>
+<hr/>
+<h2 id="1-the-default-sort-turns-items-into-strings">1. The default sort turns items into strings</h2>
+<p>If you call <code>sort()</code> with <strong>no compare function</strong>, JavaScript first makes every item a <strong>string</strong>. It then orders those strings by UTF-16 code units.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">30</span><span style="color:#E1E4E8">].</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// [&quot;10&quot;, &quot;2&quot;, &quot;30&quot;]</span></span></code></pre>
+<p><code>&quot;10&quot;</code> comes before <code>&quot;2&quot;</code> because the first character <code>&quot;1&quot;</code> is smaller than <code>&quot;2&quot;</code>.<br/>
+Good for names, bad for numbers.</p>
+<h3 id="the-right-way-to-sort-numbers">The right way to sort numbers</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> nums</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">30</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">nums.</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">a</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> a </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> b); </span><span style="color:#6A737D">// [2, 10, 30]  ascending</span></span>
+<span class="line"><span style="color:#E1E4E8">nums.</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">a</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> b </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> a); </span><span style="color:#6A737D">// [30, 10, 2]  descending</span></span></code></pre>
+<p>A compare function must return:</p>
+<ul>
+<li>a <strong>negative</strong> number if <code>a</code> should come first,</li>
+<li><strong>zero</strong> if their order does not matter,</li>
+<li>a <strong>positive</strong> number if <code>b</code> should come first.</li>
+</ul>
+<hr/>
+<h2 id="2-simple-compare-patterns">2. Simple compare patterns</h2>
+<h3 id="21-boolean-shortcut-for-numbers">2.1 Boolean shortcut for numbers</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> asc</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">a</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> (a </span><span style="color:#F97583">&gt;</span><span style="color:#E1E4E8"> b) </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> (a </span><span style="color:#F97583">&lt;</span><span style="color:#E1E4E8"> b);</span></span></code></pre>
+<p>True is <code>1</code>, false is <code>0</code>. Subtracting gives <code>1</code>, <code>0</code>, or <code>-1</code>.</p>
+<h3 id="22-locale-aware-strings">2.2 Locale-aware strings</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> names</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">&quot;Åke&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;Zoë&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;Émile&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;Ana&quot;</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">names.</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">a</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> a.</span><span style="color:#B392F0">localeCompare</span><span style="color:#E1E4E8">(b, </span><span style="color:#9ECBFF">&quot;en&quot;</span><span style="color:#E1E4E8">, { sensitivity: </span><span style="color:#9ECBFF">&quot;base&quot;</span><span style="color:#E1E4E8"> }));</span></span></code></pre>
+<p><code>localeCompare</code> knows about accents and many alphabets.</p>
+<h3 id="23-one-key-on-objects">2.3 One key on objects</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> users</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#E1E4E8">    { id: </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">, name: </span><span style="color:#9ECBFF">&quot;Ada&quot;</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">    { id: </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, name: </span><span style="color:#9ECBFF">&quot;Charles&quot;</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">    { id: </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, name: </span><span style="color:#9ECBFF">&quot;Grace&quot;</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">users.</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">a</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> a.id </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> b.id);</span></span></code></pre>
+<h3 id="24-two-keys-tie-breaker">2.4 Two keys (tie-breaker)</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">users.</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">a</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    a.name </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> b.name </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> a.id </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> b.id </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> a.name.</span><span style="color:#B392F0">localeCompare</span><span style="color:#E1E4E8">(b.name),</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>If the names are equal we fall back to the id.</p>
+<hr/>
+<h2 id="3-stable-vs-unstable">3. Stable vs. unstable</h2>
+<p>A <strong>stable</strong> sort keeps items that compare as equal in their <em>original</em> order.<br/>
+Since <strong>ES2019</strong> JavaScript engines must give you a stable sort.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> items</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#E1E4E8">    { category: </span><span style="color:#9ECBFF">&quot;fruit&quot;</span><span style="color:#E1E4E8">, name: </span><span style="color:#9ECBFF">&quot;🍎&quot;</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">    { category: </span><span style="color:#9ECBFF">&quot;veg&quot;</span><span style="color:#E1E4E8">, name: </span><span style="color:#9ECBFF">&quot;🥕&quot;</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">    { category: </span><span style="color:#9ECBFF">&quot;fruit&quot;</span><span style="color:#E1E4E8">, name: </span><span style="color:#9ECBFF">&quot;🍌&quot;</span><span style="color:#E1E4E8"> },</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">items.</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">a</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">b</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> a.category.</span><span style="color:#B392F0">localeCompare</span><span style="color:#E1E4E8">(b.category));</span></span>
+<span class="line"><span style="color:#6A737D">// fruit 🍎, fruit 🍌, veg 🥕   (the two fruits stay in order)</span></span></code></pre>
+<h2 id="where-to-next">Where to next?</h2>
+<ul>
+<li>Try <code>localeCompare</code> with different locales and options.</li>
+<li>Benchmark the default sort against a numeric comparator on large arrays.</li>
+<li>Go back to <strong><a href="/writings/functional-programming-in-javascript/">Functional Programming in JavaScript</a></strong> and replace loops with <code>sort</code> plus <code>map</code> or <code>filter</code>.</li>
+<li>Share with a friend who still writes <code>arr.sort((a, b) =&gt; a &gt; b ? 1 : -1)</code></li>
+</ul>  </div> </article> <div class="fade-in d3"> <footer class="colophon"> <div class="row"> <span>source</span> <a href="https://github.com/VaibhavAcharya/vaibhavacharya.github.io" target="_blank" rel="noreferrer">github.com/VaibhavAcharya/vaibhavacharya.github.io</a> </div> <div class="row"> <span>last updated</span> <span>17 April 2026</span> </div> </footer> </div> </div> </body></html>

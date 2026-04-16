@@ -1,0 +1,59 @@
+---
+import BaseHead from "../../components/BaseHead.astro";
+import BackLink from "../../components/BackLink.astro";
+import Colophon from "../../components/Colophon.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("writings")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+function formatShortDate(d: Date): string {
+    // en-US gives "May 7, 2025"; lowercase to match "may 7, 2025".
+    return d
+        .toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        })
+        .toLowerCase();
+}
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead
+            title={`writings · ${SITE_TITLE}`}
+            description={SITE_DESCRIPTION}
+        />
+    </head>
+    <body>
+        <div class="page">
+            <BackLink label="home" href="/" />
+
+            <p class="section-label fade-in">writings</p>
+            <p class="body-line fade-in d1">
+                I write rarely. This is the complete archive.
+            </p>
+
+            <table class="row-table contact fade-in d2" style="margin-top: 12px;">
+                <tbody>
+                    {posts.map((post) => (
+                        <tr>
+                            <td class="label">{formatShortDate(post.data.pubDate)}</td>
+                            <td class="val">
+                                <a href={`/writings/${post.id}/`}>{post.data.title}</a>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            <div class="fade-in d3">
+                <Colophon />
+            </div>
+        </div>
+    </body>
+</html>

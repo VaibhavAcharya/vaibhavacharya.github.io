@@ -1,0 +1,16 @@
+---
+// src/components/BackLink.astro
+// Renders an arrow-prefixed back link.
+// Examples:
+//   <BackLink label="home" href="/" />          → "← home", goes to /
+//   <BackLink label="writings" href="/writings" /> → "← writings", goes to /writings
+
+interface Props {
+    label: string;
+    href: string;
+}
+
+const { label, href } = Astro.props;
+---
+
+<a href={href} class="back-link">← {label}</a>

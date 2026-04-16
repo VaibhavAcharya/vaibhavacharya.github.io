@@ -1,0 +1,59 @@
+---
+// src/layouts/WritingLayout.astro
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import BackLink from "../components/BackLink.astro";
+import Colophon from "../components/Colophon.astro";
+import { SITE_TITLE } from "../consts";
+
+type Props = CollectionEntry<"writings">["data"] & { slug: string };
+
+const { title, description, pubDate, updatedDate, slug } = Astro.props;
+
+const formattedDate = pubDate.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+});
+
+const formattedUpdated = updatedDate
+    ? updatedDate.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+      })
+    : null;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <BaseHead
+            title={`${title} · ${SITE_TITLE}`}
+            description={description}
+            image={`/og/${slug}.png`}
+        />
+    </head>
+    <body>
+        <div class="page">
+            <BackLink label="writings" href="/writings" />
+
+            <article>
+                <h1 class="post-title fade-in">{title}</h1>
+                <p class="post-meta fade-in d1">
+                    by Vaibhav Acharya, {formattedDate}
+                    {formattedUpdated && <> · updated {formattedUpdated}</>}
+                </p>
+                <hr class="post-divider fade-in d1" />
+
+                <div class="post-body fade-in d2">
+                    <slot />
+                </div>
+            </article>
+
+            <div class="fade-in d3">
+                <Colophon />
+            </div>
+        </div>
+    </body>
+</html>
