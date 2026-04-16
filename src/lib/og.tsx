@@ -8,13 +8,15 @@ type OgProps = {
     meta: string; // "7 May 2025  ·  vaibhavacharya.github.io" or just the domain on home
 };
 
-// Hex equivalents of the spec's OKLCH tokens, computed with a proper
-// OKLCH -> linear sRGB -> sRGB conversion so the OG matches the site.
-const PAPER = "#faf6ea"; // oklch(0.975 0.006 80)
-const INK = "#2c271e"; // oklch(0.22 0.008 80)
-const INK_SOFT = "#81796a"; // oklch(0.50 0.01 80)
-const RULE = "#c8c2ae"; // oklch(0.78 0.008 80)
-const ACCENT = "#2b3d79"; // oklch(0.42 0.10 258)
+// sRGB hex equivalents of the spec's OKLCH tokens, computed via culori.
+// Satori v0.26 does not yet parse oklch() directly, so we pre-convert.
+// To recompute after token changes, see scripts/oklch-to-hex.mjs or run:
+//   bun -e 'import { formatHex, oklch, rgb } from "culori"; console.log(formatHex(rgb(oklch("oklch(...)"))))'
+const PAPER = "#f9f6f2"; // oklch(0.975 0.006 80)
+const INK = "#1d1a16"; // oklch(0.22 0.008 80)
+const INK_SOFT = "#66635d"; // oklch(0.50 0.01 80)
+const RULE = "#bab7b2"; // oklch(0.78 0.008 80)
+const ACCENT = "#284d83"; // oklch(0.42 0.10 258)
 
 export function renderOg({ title, meta }: OgProps) {
     return (
