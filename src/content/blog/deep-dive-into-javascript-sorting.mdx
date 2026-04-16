@@ -4,7 +4,7 @@ description: "Array.prototype.sort explained, custom comparators, and stability 
 pubDate: "May 06 2025"
 ---
 
-Have you read my **[Deep Dive into JavaScript Array Methods](/blog/deep-dive-into-javascript-array-methods/)**? In that post we used helpers like `map` and `reduce`.
+Have you read my **[Deep Dive into JavaScript Array Methods](/writings/deep-dive-into-javascript-array-methods/)**? In that post we used helpers like `map` and `reduce`.
 
 Today we look at another helper: **`Array.prototype.sort`**. Sorting sounds easy, but JavaScript has a few hidden rules.
 
@@ -122,5 +122,5 @@ items.sort((a, b) => a.category.localeCompare(b.category));
 
 - Try `localeCompare` with different locales and options.
 - Benchmark the default sort against a numeric comparator on large arrays.
-- Go back to **[Functional Programming in JavaScript](/blog/functional-programming-in-javascript/)** and replace loops with `sort` plus `map` or `filter`.
+- Go back to **[Functional Programming in JavaScript](/writings/functional-programming-in-javascript/)** and replace loops with `sort` plus `map` or `filter`.
 - Share with a friend who still writes `arr.sort((a, b) => a > b ? 1 : -1)`
