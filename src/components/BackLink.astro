@@ -1,0 +1,12 @@
+---
+// src/components/BackLink.astro
+interface Props {
+    subpath?: string; // e.g. "writing" produces "← vaibhav acharya / writing"
+}
+
+const { subpath } = Astro.props;
+---
+
+<a href="/" class="back-link">
+    ← vaibhav acharya{subpath ? ` / ${subpath}` : ""}
+</a>
