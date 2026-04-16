@@ -4,13 +4,17 @@ import Colophon from "../components/Colophon.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
 const previously = [
-    { role: "product engineer", name: "Supernova AI", href: null },
+    {
+        role: "product engineer",
+        name: "Supernova AI",
+        href: "https://www.getsupernova.ai",
+    },
     { role: "web engineer", name: "Skcript", href: "https://skcript.com" },
     { role: "founder", name: "InvocationX", href: null },
     { role: "junior engineer", name: "Dukaan", href: "https://mydukaan.io" },
 ];
 
-const contact = [
+const connect = [
     {
         label: "email",
         value: "vaibhavacharya111@gmail.com",
@@ -22,7 +26,7 @@ const contact = [
         href: "https://github.com/VaibhavAcharya",
     },
     {
-        label: "x",
+        label: "x/twitter",
         value: "@VaibhavAcharya_",
         href: "https://x.com/VaibhavAcharya_",
     },
@@ -35,6 +39,11 @@ const contact = [
         label: "linkedin",
         value: "in/vaibhav-acharya",
         href: "https://www.linkedin.com/in/vaibhav-acharya",
+    },
+    {
+        label: "writing",
+        value: "/blog",
+        href: "/blog",
     },
 ];
 ---
@@ -55,7 +64,7 @@ const contact = [
 
             <p class="section-label fade-in d2">now</p>
             <p class="body-line fade-in d2">
-                Software Engineer at <a href="https://netlify.com" target="_blank" rel="noreferrer">Netlify</a>. I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.
+                Software Engineer at <a href="https://netlify.com" target="_blank" rel="noreferrer">Netlify</a>, based in IN. I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.
             </p>
 
             <p class="section-label fade-in d2">previously</p>
@@ -74,14 +83,14 @@ const contact = [
                 </tbody>
             </table>
 
-            <p class="section-label fade-in d2">contact</p>
+            <p class="section-label fade-in d2">connect</p>
             <table class="row-table contact fade-in d2">
                 <tbody>
-                    {contact.map((c) => (
+                    {connect.map((c) => (
                         <tr>
                             <td class="label">{c.label}</td>
                             <td class="val">
-                                <a href={c.href} target="_blank" rel="noreferrer">{c.value}</a>
+                                <a href={c.href} target={c.href.startsWith("/") ? "_self" : "_blank"} rel="noreferrer">{c.value}</a>
                             </td>
                         </tr>
                     ))}
