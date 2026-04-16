@@ -24,7 +24,7 @@ The blog is de-emphasised per the writer's stated preference. It gets one row in
 
 - **Register**: refined editorial minimalism. Manuscript adjacent but not costumed. No Roman numerals, no § glyphs, no performed metadata.
 - **Core move**: hierarchy is done by type and space alone. No drop shadows, no rounded cards, no gradients, no glassmorphism, no background textures, no overlays, no grid patterns, no noise.
-- **One accent only**: a terracotta umber (`oklch(0.52 0.11 50)`) held under 10% of visual weight. Used on section labels, link underlines, one italicised word in the Now paragraph, and nothing else.
+- **One accent only**: an ink navy (`oklch(0.42 0.10 258)`) held under 10% of visual weight. Used on section labels, link underlines, the favicon glyph, and the OG image tick mark. Nothing else. The navy is chosen to read as a printer's ink rather than a brand colour, so it disappears into the page at normal reading attention.
 
 ## 4. Typography
 
@@ -67,8 +67,8 @@ All values in OKLCH for perceptual uniformity. Neutrals tinted toward the amber 
 | `--ink-soft` | `oklch(0.50 0.01 80)` | mono labels, muted |
 | `--rule-dotted` | `oklch(0.74 0.01 80)` | table row dividers (dotted) |
 | `--rule-solid` | `oklch(0.78 0.01 80)` | footer separator (solid) |
-| `--accent` | `oklch(0.52 0.11 50)` | section labels, accent marks |
-| `--accent-45` | `oklch(0.52 0.11 50 / 45%)` | link underlines |
+| `--accent` | `oklch(0.42 0.10 258)` | section labels, favicon glyph, OG tick |
+| `--accent-50` | `oklch(0.42 0.10 258 / 50%)` | link underlines |
 
 No pure black, no pure white. No gray on paper. Everything tinted.
 
@@ -123,7 +123,7 @@ based          IN
 
 - Section labels sit at `margin-top: 52px; margin-bottom: 14px`. Italic Literata 17px, accent colour.
 - Tables use `border-bottom: 1px dotted var(--rule-dotted)` on each `td` for ruled rows.
-- In the Previously table, the role column (mono) takes 38% width; the company column (sans) takes the rest. Company names are linkable; underline is 1px solid `var(--accent-45)`.
+- In the Previously table, the role column (mono) takes 38% width; the company column (sans) takes the rest. Company names are linkable; underline is 1px solid `var(--accent-50)`.
 - In the Contact table, the label column (mono) takes 30% width; value column (sans) takes the rest. Each value is linkable. The Contact table holds only direct contact and social rows (email, github, x, bluesky, linkedin). The `/blog` pointer deliberately does not live here; it sits in the colophon instead.
 - Footer separated by `border-top: 1px solid var(--rule-solid)`, 18px padding-top. Rows are flex-justified (label left, value right), Cascadia 11px across both columns.
 
@@ -170,7 +170,7 @@ by Vaibhav Acharya, 7 May 2025                                    [meta, mono 11
   code blocks   - Cascadia Code, same background as inline code (oklch(0.93 0.008 80)), padding 16px 20px, border-radius 4px, no syntax highlight
   blockquotes   - Literata italic 20px, no quote marks, simple left indent
   h2/h3         - Literata italic, smaller than post title; no rules above
-  links         - same accent-45 underline as home]
+  links         - same accent-50 underline as home]
 
 
 ─────────────────────────────────────────────
@@ -187,7 +187,7 @@ One template, applied at build time to the home page and to every blog post. Out
 ┌──────────────────────────────────────────────────────────────┐
 │                                                              │
 │ vaibhav acharya                                      ────    │   ← mono masthead (top-left)
-│                                                              │     terracotta tick (top-right)
+│                                                              │     ink navy tick (top-right)
 │                                                              │
 │                                                              │
 │   JavaScript Closures and Scope.                             │   ← Literata italic, ~72px
@@ -213,7 +213,7 @@ One template, applied at build time to the home page and to every blog post. Out
 
 - **Name** (two lines): `Vaibhav Acharya,` / `engineer.`
 - **Lede**: `I work at the seam where product, design and engineering stop being separate jobs.`
-- **Now**: `Software Engineer at Netlify. I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.` The word `Netlify` renders as a plain Atkinson link with the `var(--accent-45)` underline, identical styling to company names in the Previously table. No italic emphasis, no font switch.
+- **Now**: `Software Engineer at Netlify. I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.` The word `Netlify` renders as a plain Atkinson link with the `var(--accent-50)` underline, identical styling to company names in the Previously table. No italic emphasis, no font switch.
 - **Previously rows** (role, company):
   - `product engineer`, `Supernova AI`
   - `web engineer`, `Skcript`
