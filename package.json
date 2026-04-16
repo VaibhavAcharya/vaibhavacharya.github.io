@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",
+    "@types/react": "^19.2.14",
     "prettier": "^3.5.3"
   },
   "packageManager": "bun@1.2.4"
