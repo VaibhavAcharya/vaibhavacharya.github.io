@@ -9,9 +9,9 @@ author: Vaibhav Acharya (via brainstorm)
 
 ## 1. Summary
 
-Replace the current themed portfolio and blog (gradient + grid + noise overlays, Handjet display font, chip-style social buttons, emoji footer) with a quiet, senior, principal-engineer register. The new site is a one-screen identity document with three named sections (now, previously, elsewhere) and a colophon footer. The `/blog` index and `/blog/[slug]` pages inherit the same register and drop hero images.
+Replace the current themed portfolio and blog (gradient + grid + noise overlays, Handjet display font, chip-style social buttons, emoji footer) with a quiet, senior, principal-engineer register. The new site is a one-screen identity document with three named sections (now, previously, contact) and a four-row colophon footer. The `/blog` index and `/blog/[slug]` pages inherit the same register and drop hero images.
 
-The blog is de-emphasised per the writer's stated preference. It gets one row in `elsewhere`; there is no list of posts on the home page and no dedicated "writing" section.
+The blog is de-emphasised per the writer's stated preference. It gets one row inside the colophon as `writing /blog`; there is no list of posts on the home page and no dedicated "writing" section.
 
 ## 2. Who and why
 
@@ -33,8 +33,8 @@ All three families chosen outside impeccable's reflex-reject list.
 | Role | Family | Use |
 | --- | --- | --- |
 | Display | **Literata** (variable, italic) | Hero name; section labels; italicised "Netlify" in the Now paragraph; blog post titles |
-| Body | **Atkinson Hyperlegible** | Now paragraph; company names in Previously; value column in Elsewhere; blog post body |
-| Mono | **Cascadia Code**, ligatures disabled | Role labels in Previously; label column in Elsewhere; all rows of the footer colophon; blog post meta line |
+| Body | **Atkinson Hyperlegible** | Now paragraph; "Netlify" link in Now; company names in Previously; value column in Contact; blog post body |
+| Mono | **Cascadia Code**, ligatures disabled | Role labels in Previously; label column in Contact; all rows of the footer colophon; blog post meta line; back-link; OG meta |
 
 **Rationale**. Literata was commissioned by Google for Google Books reading and has a real `opsz` axis, so display weights look different from reading italic. Atkinson Hyperlegible was engineered at the Braille Institute for low-vision reading, so letterforms are unusually distinct; the whole page reads as "careful". Cascadia Code is Microsoft's terminal font; ligatures are turned off via `font-variant-ligatures: none` to keep labels crisp.
 
@@ -103,19 +103,18 @@ founder                InvocationX
 junior engineer        Dukaan
 
 
-elsewhere                                                         [label]
+contact                                                           [label]
 
 email         vaibhavacharya111@gmail.com
 github        github.com/VaibhavAcharya
 x             @VaibhavAcharya_
 bluesky       vaibhavacharya.bsky.social
 linkedin      in/vaibhav-acharya
-writing       /blog
 
 
 ─────────────────────────────────────────────
+writing        /blog
 source         github.com/VaibhavAcharya/vaibhavacharya.github.io
-built with     Astro, Tailwind, GitHub Pages
 last updated   17 April 2026
 based          IN
 ```
@@ -125,7 +124,7 @@ based          IN
 - Section labels sit at `margin-top: 52px; margin-bottom: 14px`. Italic Literata 17px, accent colour.
 - Tables use `border-bottom: 1px dotted var(--rule-dotted)` on each `td` for ruled rows.
 - In the Previously table, the role column (mono) takes 38% width; the company column (sans) takes the rest. Company names are linkable; underline is 1px solid `var(--accent-45)`.
-- In the Elsewhere table, the label column (mono) takes 30% width; value column (sans) takes the rest. Each value is linkable.
+- In the Contact table, the label column (mono) takes 30% width; value column (sans) takes the rest. Each value is linkable. The Contact table holds only direct contact and social rows (email, github, x, bluesky, linkedin). The `/blog` pointer deliberately does not live here; it sits in the colophon instead.
 - Footer separated by `border-top: 1px solid var(--rule-solid)`, 18px padding-top. Rows are flex-justified (label left, value right), Cascadia 11px across both columns.
 
 ### 6.2 Blog index (`/blog`)
@@ -178,7 +177,35 @@ by Vaibhav Acharya, 7 May 2025                                    [meta, mono 11
 [same colophon as home]
 ```
 
-**Hero images are removed**. The prose runs straight from title to body. The current `heroImage` frontmatter is retained in the collection schema but is no longer rendered on the post page. It continues to be used as the OG image via `<meta property="og:image">`, so social previews still have a picture.
+**Hero images are removed**. The prose runs straight from title to body. The `heroImage` frontmatter is dropped from the content collection schema and the existing images in `/public/blog/` are deleted. Each post now gets a generated OG image instead (see §6.4).
+
+### 6.4 Open Graph image (1200 × 630)
+
+One template, applied at build time to the home page and to every blog post. Output: one PNG per route, sitting at `/og/<slug>.png` (and `/og/index.png` for home). The `<meta property="og:image">` tag in `BaseHead.astro` points at the generated file for the current route.
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│ vaibhav acharya                                      ────    │   ← mono masthead (top-left)
+│                                                              │     terracotta tick (top-right)
+│                                                              │
+│                                                              │
+│   JavaScript Closures and Scope.                             │   ← Literata italic, ~72px
+│                                                              │     max 80% width
+│                                                              │
+│   ────────────────                                           │   ← 60% hairline rule
+│   7 May 2025  ·  vaibhavacharya.github.io                    │   ← Cascadia mono, 18px
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+- Paper: `var(--paper)` background across the whole canvas.
+- Title: Literata italic 400, opsz 72, `var(--ink)`, line-height 1.02, tracking -0.02em. Falls back to smaller sizes for longer titles.
+- Masthead: `vaibhav acharya` in Cascadia Code 18px, `var(--ink-soft)`, tracking 0.08em, no ligatures.
+- Terracotta tick: 40px × 2px solid `var(--accent)` at top-right, mirrors the masthead baseline.
+- Divider: 60% width hairline in `var(--rule-solid)`.
+- Meta: `<date> · vaibhavacharya.github.io` in Cascadia Code 18px, `var(--ink-soft)`.
+- Home variant: title becomes `Vaibhav Acharya, engineer.` and the meta line becomes just `vaibhavacharya.github.io` (no date).
 
 ## 7. Copy
 
@@ -186,23 +213,22 @@ by Vaibhav Acharya, 7 May 2025                                    [meta, mono 11
 
 - **Name** (two lines): `Vaibhav Acharya,` / `engineer.`
 - **Lede**: `I work at the seam where product, design and engineering stop being separate jobs.`
-- **Now**: `Software Engineer at [Netlify]. I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.` The brackets mark the one word rendered in `Literata italic` + accent colour (no underline, just emphasis).
+- **Now**: `Software Engineer at Netlify. I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.` The word `Netlify` renders as a plain Atkinson link with the `var(--accent-45)` underline, identical styling to company names in the Previously table. No italic emphasis, no font switch.
 - **Previously rows** (role, company):
   - `product engineer`, `Supernova AI`
   - `web engineer`, `Skcript`
   - `founder`, `InvocationX`
   - `junior engineer`, `Dukaan`
-- **Elsewhere rows** (label, value, href):
+- **Contact rows** (label, value, href):
   - `email`, `vaibhavacharya111@gmail.com`, `mailto:vaibhavacharya111@gmail.com`
   - `github`, `github.com/VaibhavAcharya`, `https://github.com/VaibhavAcharya`
   - `x`, `@VaibhavAcharya_`, `https://x.com/VaibhavAcharya_`
   - `bluesky`, `vaibhavacharya.bsky.social`, `https://bsky.app/profile/vaibhavacharya.bsky.social`
   - `linkedin`, `in/vaibhav-acharya`, `https://www.linkedin.com/in/vaibhav-acharya`
-  - `writing`, `/blog`, `/blog`
-- **Colophon rows** (label, value):
+- **Colophon rows** (label, value, ordered):
+  - `writing`, `/blog` (linked)
   - `source`, `github.com/VaibhavAcharya/vaibhavacharya.github.io` (linked)
-  - `built with`, `Astro, Tailwind, GitHub Pages`
-  - `last updated`, dynamic from build time (format `DD Month YYYY`, e.g. `17 April 2026`)
+  - `last updated`, dynamic from build time (format `D Month YYYY`, e.g. `17 April 2026`)
   - `based`, `IN`
 
 ### 7.2 Blog index copy
@@ -248,9 +274,13 @@ Minimal. One page-load stagger only.
 
 | Path | Purpose |
 | --- | --- |
-| `src/components/Colophon.astro` | Footer block (4 rows: source, built with, last updated, based) |
+| `src/components/Colophon.astro` | Footer block (4 rows: writing, source, last updated, based) |
 | `src/components/BackLink.astro` | Back-link header for `/blog` and `/blog/[slug]` |
 | `src/lib/buildDate.ts` | Exposes last-updated date as a static string populated at build time |
+| `src/lib/og.tsx` | Satori JSX template for the OG image (home + post variants) |
+| `src/pages/og/[...slug].png.ts` | Astro endpoint that prerenders OG PNGs at build; `getStaticPaths` enumerates home + every post slug |
+| `public/fonts/Literata-Italic.ttf` | Bundled Literata italic TTF for satori at build time (Google Fonts CSS cannot be fetched by satori in Node) |
+| `public/fonts/CascadiaCode.ttf` | Bundled Cascadia Code TTF for the OG meta and masthead text |
 | `specs/2026-04-17-redesign-design.md` | This document |
 
 ### 10.2 Rewrites
@@ -258,11 +288,14 @@ Minimal. One page-load stagger only.
 | Path | Change |
 | --- | --- |
 | `src/styles/global.css` | Replace Handjet / Work Sans theme with Literata + Atkinson + Cascadia; add OKLCH custom properties; remove old font-variable declarations |
-| `src/pages/index.astro` | Rewrite to hero + now + previously + elsewhere + colophon, no backgrounds, no chips |
+| `src/pages/index.astro` | Rewrite to hero + now + previously + contact + colophon, no backgrounds, no chips |
 | `src/pages/blog/index.astro` | Rewrite as dated ruled list, remove hero images and card grid |
-| `src/layouts/BlogPostLayout.astro` | Rewrite: remove hero image render, remove RSS chip, remove orange prose classes, replace with Literata/Atkinson prose styles |
-| `src/components/BaseHead.astro` | Update Google Fonts URL (Literata, Atkinson Hyperlegible, Cascadia Code); drop Handjet + Work Sans imports; keep canonical / OG / sitemap / Umami tags |
+| `src/layouts/BlogPostLayout.astro` | Rewrite: remove hero image render, remove RSS chip, remove orange prose classes, replace with Literata/Atkinson prose styles; `<meta property="og:image">` now points at the generated `/og/<slug>.png` |
+| `src/components/BaseHead.astro` | Update Google Fonts URL (Literata, Atkinson Hyperlegible, Cascadia Code); drop Handjet + Work Sans imports; wire `og:image` to generated route; keep canonical / sitemap / Umami tags |
+| `src/content.config.ts` | Drop the required `heroImage` field from the blog collection schema |
 | `src/consts.ts` | New `SITE_TITLE` and `SITE_DESCRIPTION` |
+| `public/favicon.svg` | Replace orange-pixel "VA" with a Literata italic `v.` (lowercase v plus period) in `var(--accent)` on `var(--paper)`. Path-outlined so it renders without a web font |
+| `package.json` | Add `satori` and `@resvg/resvg-js` as dev dependencies for OG generation |
 
 ### 10.3 Deletions
 
@@ -274,30 +307,33 @@ Minimal. One page-load stagger only.
 | `src/components/Header.astro` | Replaced by inline `BackLink` where needed; home has no header |
 | `src/components/Footer.astro` | Replaced by `Colophon` |
 | `public/grid.svg` | Unused after GridBackground deletion |
+| `public/og.png` | Replaced by generated per-route OG images |
+| `public/blog/*` | Per-post hero images no longer referenced anywhere |
+| `heroImage` frontmatter in each `.mdx` post | No longer rendered or required by the schema |
 
 ### 10.4 Unchanged
 
 - `src/pages/rss.xml.js`
 - `src/pages/robots.txt.ts`
-- `public/favicon.svg`, stays for now. If it clashes visually during implementation, that's a follow-up.
-- `public/og.png`, stays. A new OG image in the new register would be nice but is explicitly out of scope here.
-- `astro.config.mjs`, `package.json`, no config changes required. No new dependencies.
+- `astro.config.mjs`, no config changes required (aside from the new OG endpoint being a standard Astro prerendered route)
 
 ## 11. Technical notes
 
-- **Font loading**: single `https://fonts.googleapis.com/css2?` URL with all three families and needed weights/axes. Preconnect to `fonts.googleapis.com` and `fonts.gstatic.com` stays. `display=swap`.
+- **Font loading (runtime)**: single `https://fonts.googleapis.com/css2?` URL with all three families and needed weights/axes. Preconnect to `fonts.googleapis.com` and `fonts.gstatic.com` stays. `display=swap`.
 - **Cascadia ligatures**: globally disabled on `.font-mono` class via `font-variant-ligatures: none`.
 - **Build output**: continues to go to `./docs` for GitHub Pages. Nothing else changes in the deploy pipeline.
 - **`last updated`** in the colophon: populated from `buildDate.ts` which evaluates `new Date()` at build time. Formatted as `D Month YYYY`.
-- **No Tailwind removal**: Tailwind 4 stays. New styles live in `global.css` using Tailwind's `@theme` directive for CSS variables plus regular CSS rules for the bespoke manuscript register. The few utility classes still in use (`flex`, `gap`, `max-w`) remain valid.
+- **No Tailwind removal**: Tailwind 4 stays. New styles live in `global.css` using Tailwind's `@theme` directive for CSS variables plus regular CSS rules for the bespoke manuscript register.
+- **OG image generation**: `satori` renders JSX from `src/lib/og.tsx` into SVG; `@resvg/resvg-js` converts the SVG to PNG. The endpoint `src/pages/og/[...slug].png.ts` is an Astro prerendered route with `export const prerender = true` and `getStaticPaths()` returning `{ slug: 'index' }` plus one entry per post slug. Both fonts needed by the template (Literata Italic, Cascadia Code) are loaded from `public/fonts/*.ttf` at build time; satori cannot fetch Google Fonts CSS from Node, hence the bundled TTFs.
+- **Favicon**: `public/favicon.svg` is a hand-authored SVG with the glyph outlined to paths so it renders identically without requiring the browser to have Literata. Source of the glyph is Literata italic lowercase `v.` at a large size, exported as paths; two rectangles behind it for the rounded paper square. Fill colours use CSS colour values (`oklch` or hex equivalents) so no external resources are referenced.
+- **OG meta wiring**: `BaseHead.astro` already receives `image` as a prop. On home it defaults to `/og/index.png`; on post pages, `BlogPostLayout.astro` passes `/og/${post.id}.png`. No runtime logic; all resolved at build.
 
 ## 12. Open items
 
 These are resolved during implementation, not here.
 
 - Real URLs for `Supernova AI` and `InvocationX`. If the URL is unknown at implementation time, the row renders as plain text (no link). User supplies URLs during the implementation step or as a follow-up.
-- Whether to add a subtle initial-letter mark as favicon, in accent colour. Deferred.
-- Regenerated OG image. Deferred.
+- Source of the Literata italic and Cascadia Code TTF files to bundle. Google Fonts provides TTFs via its download archive; these are placed in `public/fonts/` and referenced by satori at build time only.
 
 ## 13. Out of scope
 
@@ -306,6 +342,7 @@ These are resolved during implementation, not here.
 - Dark mode. Paper register only.
 - Analytics change. The existing Umami script in `BaseHead.astro` stays.
 - Any change to RSS, sitemap, or robots.
+- Apple-specific touch icons and Windows tile icons. The single `favicon.svg` is enough for current browsers; a follow-up can add `apple-touch-icon.png` if needed.
 
 ## 14. Design context captured (for future brainstorms)
 
