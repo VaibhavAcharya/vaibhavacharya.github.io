@@ -56,9 +56,12 @@ const connectRows = [
     @reference "../styles/global.css";
 
     .body-line a {
-        @apply text-ink no-underline border-b border-accent-50 pb-px transition-[border-color] duration-[120ms] ease-linear;
+        @apply text-ink;
+        border-bottom: 1px solid var(--color-accent-50);
+        padding-bottom: 1px;
+        transition: border-color 120ms linear;
     }
     .body-line a:hover {
-        @apply border-accent;
+        border-color: var(--color-accent);
     }
 </style>

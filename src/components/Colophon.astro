@@ -1,22 +1,18 @@
 ---
 // src/components/Colophon.astro
-import { formatBuildDate } from "../lib/buildDate";
-
-const lastUpdated = formatBuildDate();
 ---
 
 <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]">
     <div class="flex justify-between gap-4 py-1">
-        <span>source</span>
-        <a
-            href="https://github.com/VaibhavAcharya/vaibhavacharya.github.io"
-            target="_blank"
-            rel="noreferrer"
-            class="text-ink-muted no-underline border-b border-accent-50"
-        >github.com/VaibhavAcharya/vaibhavacharya.github.io</a>
-    </div>
-    <div class="flex justify-between gap-4 py-1">
-        <span>last updated</span>
-        <span class="text-ink-muted">{lastUpdated}</span>
+        <span>
+            <a href="/" class="link">home</a>
+            <span class="mx-1.5 text-rule-dot">&middot;</span>
+            <a href="/writings" class="link">writings</a>
+        </span>
+        <span>
+            <a href="/rss.xml" class="link">rss</a>
+            <span class="mx-1.5 text-rule-dot">&middot;</span>
+            <a href="/sitemap-index.xml" class="link">sitemap</a>
+        </span>
     </div>
 </footer>

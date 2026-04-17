@@ -9,6 +9,7 @@ export async function GET(context) {
         title: SITE_TITLE,
         description: SITE_DESCRIPTION,
         site: context.site,
+        customData: "<language>en-us</language>",
         items: posts.map((post) => ({
             ...post.data,
             link: `/writings/${post.id}/`,

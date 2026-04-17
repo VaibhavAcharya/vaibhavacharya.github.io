@@ -32,6 +32,8 @@ const formattedUpdated = updatedDate
             title={`${title} · ${SITE_TITLE}`}
             description={description}
             image={`/og/${slug}.png`}
+            type="article"
+            publishedDate={pubDate}
         />
     </head>
     <body>
@@ -41,7 +43,7 @@ const formattedUpdated = updatedDate
             <article>
                 <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]">{title}</h1>
                 <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8">
-                    by Vaibhav Acharya, {formattedDate}
+                    by <a href="/" class="link">Vaibhav Acharya</a>, {formattedDate}
                     {formattedUpdated && <> · updated {formattedUpdated}</>}
                 </p>
                 <hr class="border-0 border-t border-rule-solid m-0 mb-8" />
@@ -76,11 +78,15 @@ const formattedUpdated = updatedDate
     }
 
     .post-body :global(a) {
-        @apply text-ink no-underline border-b border-accent-50 pb-px transition-[border-color] duration-[120ms] ease-linear;
+        @apply text-ink;
+        /* inherits .link styles from global.css — add the class in markup or extend here */
+        border-bottom: 1px solid var(--color-accent-50);
+        padding-bottom: 1px;
+        transition: border-color 120ms linear;
     }
 
     .post-body :global(a:hover) {
-        @apply border-accent;
+        border-color: var(--color-accent);
     }
 
     .post-body :global(code) {
@@ -126,5 +132,21 @@ const formattedUpdated = updatedDate
 
     .post-body :global(img) {
         @apply max-w-full h-auto rounded-[4px] my-[1.4em];
+    }
+
+    .post-body :global(table) {
+        @apply w-full my-[1.6em] border-collapse text-[15px];
+    }
+
+    .post-body :global(th) {
+        @apply font-mono [font-variant-ligatures:none] text-[12px] tracking-[0.02em] text-ink-soft font-normal text-left py-2 px-3 border-b border-rule-solid;
+    }
+
+    .post-body :global(td) {
+        @apply text-[14px] leading-[1.5] text-ink-muted py-2.5 px-3 border-b border-[oklch(0.9_0.005_80)];
+    }
+
+    .post-body :global(tr:last-child td) {
+        @apply border-b-0;
     }
 </style>

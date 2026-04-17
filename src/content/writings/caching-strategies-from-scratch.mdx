@@ -1,0 +1,317 @@
+---
+title: "Caching Strategies from Scratch"
+description: "LRU, LFU, TTL, write-through, write-back, and cache stampedes explained with interactive demos"
+pubDate: "Apr 17 2026"
+---
+
+import { CacheHero } from "../../components/demos/CacheHero";
+import { FillTheShelf } from "../../components/demos/FillTheShelf";
+import { LRUDemo } from "../../components/demos/LRUDemo";
+import { LFUDemo } from "../../components/demos/LFUDemo";
+import { TTLDemo } from "../../components/demos/TTLDemo";
+import { WriteStrategyDemo } from "../../components/demos/WriteStrategyDemo";
+import { StampedeDemo } from "../../components/demos/StampedeDemo";
+
+Have you read my **[JavaScript Closures and Scope](/writings/javascript-closures-and-scope/)** post? In that post we built a `once` utility that runs an expensive function exactly one time.
+
+Today we look at **caching**. We will build several caches from scratch and play with interactive demos to see how each strategy behaves.
+
+<CacheHero client:load />
+
+By the end of this post you will:
+
+1. Build five different caches in plain JavaScript.
+2. Explain why LRU, LFU, and TTL each evict different items given the same requests.
+3. Know when write-through beats write-back, and what a cache stampede is.
+
+Open your console and follow along.
+
+---
+
+## 0. Caching in sixty seconds
+
+If you remember nothing else, remember these facts:
+
+- A cache is a small, fast store that sits in front of a big, slow one.
+- The hard part is not reading. The hard part is deciding **what to throw away** when the cache is full and **when data is too old** to trust.
+- Cache invalidation is one of the two hard problems in computer science. The other is naming things.
+
+The rest of this post expands those points with code and demos you can poke at.
+
+---
+
+## 1. The simplest cache, a Map with a limit
+
+At its core a cache is a key-value store that only keeps a limited number of items. In JavaScript we can start with a `Map` and a capacity. When the map is full, we need to decide which item gets thrown out to make room.
+
+```js
+class SimpleCache {
+    #map = new Map();
+    #capacity;
+
+    constructor(capacity) {
+        this.#capacity = capacity;
+    }
+
+    get(key) {
+        return this.#map.get(key);
+    }
+
+    set(key, value) {
+        if (this.#map.size >= this.#capacity && !this.#map.has(key)) {
+            // Evict the first item that was inserted (FIFO)
+            const firstKey = this.#map.keys().next().value;
+            this.#map.delete(firstKey);
+        }
+        this.#map.set(key, value);
+    }
+}
+```
+
+This is FIFO, first in, first out. When the cache is full, the oldest entry goes. Try it:
+
+<FillTheShelf client:visible />
+
+That works. But what if we are smarter about _which_ item we throw away?
+
+---
+
+## 2. LRU, Least Recently Used
+
+The idea is simple: throw away whatever you have not touched for the longest time. If you have not reached for it recently, you probably will not reach for it soon.
+
+To make this fast we need O(1) access _and_ O(1) reordering. A plain array would need shifting on every access. The classic trick is a **doubly-linked list** combined with a **hash map**.
+
+JavaScript's `Map` already remembers insertion order, so we can cheat:
+
+### Build your own
+
+```js
+class LRUCache {
+    #map = new Map();
+    #capacity;
+
+    constructor(capacity) {
+        this.#capacity = capacity;
+    }
+
+    get(key) {
+        if (!this.#map.has(key)) return undefined;
+
+        // Move to "most recent" by re-inserting
+        const value = this.#map.get(key);
+        this.#map.delete(key);
+        this.#map.set(key, value);
+        return value;
+    }
+
+    set(key, value) {
+        if (this.#map.has(key)) this.#map.delete(key);
+
+        if (this.#map.size >= this.#capacity) {
+            // Evict the least recently used (first in iteration order)
+            const lruKey = this.#map.keys().next().value;
+            this.#map.delete(lruKey);
+        }
+
+        this.#map.set(key, value);
+    }
+}
+```
+
+The `delete` + `set` trick moves a key to the end of the `Map` iteration order, effectively "most recent." The first key in iteration order is always the least recently used.
+
+Use the **Step** or **Auto** button to run a predefined sequence, or click any letter to make your own requests:
+
+<LRUDemo client:visible />
+
+Notice how accessing a cached item moves it to the front. The item at the back, the one you have not touched in the longest time, is the one that gets evicted.
+
+LRU is the general-purpose default. It works well when recent access predicts future access. But it does not work for every pattern.
+
+---
+
+## 3. LFU, Least Frequently Used
+
+Think about a news site. The homepage gets hit thousands of times a day. A single trending article gets a brief spike, then fades. LRU would keep the trending article alive because it was _recently_ accessed and might evict the homepage instead.
+
+**LFU** counts how many times each item is accessed. When evicting, it removes the item with the _lowest_ frequency.
+
+### Build your own
+
+```js
+class LFUCache {
+    #values = new Map();
+    #freqs = new Map();
+    #capacity;
+
+    constructor(capacity) {
+        this.#capacity = capacity;
+    }
+
+    get(key) {
+        if (!this.#values.has(key)) return undefined;
+        this.#freqs.set(key, (this.#freqs.get(key) || 0) + 1);
+        return this.#values.get(key);
+    }
+
+    set(key, value) {
+        if (this.#capacity <= 0) return;
+
+        if (this.#values.has(key)) {
+            this.#values.set(key, value);
+            this.get(key); // bump frequency
+            return;
+        }
+
+        if (this.#values.size >= this.#capacity) {
+            // Find the key with the lowest frequency
+            let minFreq = Infinity;
+            let minKey = null;
+            for (const [k, f] of this.#freqs) {
+                if (f < minFreq) {
+                    minFreq = f;
+                    minKey = k;
+                }
+            }
+            this.#values.delete(minKey);
+            this.#freqs.delete(minKey);
+        }
+
+        this.#values.set(key, value);
+        this.#freqs.set(key, 1);
+    }
+}
+```
+
+Run the same access pattern in both **LFU** and **LRU** mode. Notice how different items get evicted:
+
+<LFUDemo client:visible />
+
+An item accessed five times survives over one accessed once, even if that single access was more recent. The frequency badges make this easy to see.
+
+LFU has a weakness too. A one-time popular item (accessed 100 times during a sale, then never again) squats in the cache forever. Its high frequency protects it long after it stopped being useful. Some systems use **LFU with aging** to decay old frequencies over time.
+
+---
+
+## 4. TTL, Time To Live
+
+Sometimes the question is not "which item is least useful?" but "how old is this data?"
+
+A **TTL** cache attaches an expiry time to each entry. After the TTL passes, the item is stale and should be removed.
+
+### Build your own
+
+```js
+class TTLCache {
+    #map = new Map(); // key -> { value, expiresAt }
+
+    get(key) {
+        const entry = this.#map.get(key);
+        if (!entry) return undefined;
+
+        if (Date.now() > entry.expiresAt) {
+            // Lazy deletion: remove stale entry on access
+            this.#map.delete(key);
+            return undefined;
+        }
+
+        return entry.value;
+    }
+
+    set(key, value, ttlMs) {
+        this.#map.set(key, {
+            value,
+            expiresAt: Date.now() + ttlMs,
+        });
+    }
+}
+```
+
+That is **lazy deletion**, we only check if an item is stale when someone asks for it. The alternative is **eager deletion**: a background timer sweeps through and removes anything past its TTL.
+
+Lazy is simpler. Eager keeps memory cleaner. Most real systems use a blend.
+
+Try adding items with different TTLs and watch them expire. Toggle between lazy and eager modes:
+
+<TTLDemo client:visible />
+
+In lazy mode, stale items linger as ghosts until you click them. In eager mode, they vanish the moment their timer hits zero. Which one you pick depends on whether you care more about memory (eager) or simplicity (lazy).
+
+---
+
+## 5. Write-through vs write-back
+
+Everything so far is about _reading_. But what about writes? When you update data, when does the database hear about it?
+
+**Write-through** sends every write to the cache _and_ the database before the client gets a response. Consistent, but slower because you are waiting for two writes.
+
+**Write-back** writes to the cache only, gives the client an immediate response, and updates the database later in a batch. Fast, but risky. If the cache crashes before the database write, the data is gone.
+
+<WriteStrategyDemo client:visible />
+
+Click "Write" in each mode and watch the data flow. In write-through the response waits for both stores. In write-back the response comes immediately, but try the "Simulate crash" button to see what happens when the cache dies before syncing.
+
+---
+
+## 6. Cache stampede
+
+A popular cache entry expires. Hundreds of requests arrive at the same time. None of them find the entry in cache, so all of them hit the database at once. The database collapses under the load.
+
+This is a **cache stampede**, also called the thundering herd problem.
+
+The solution is a **lock**. When the first request sees a cache miss, it acquires a lock and fetches from the database. Every other request waits for that single fetch instead of making its own. If you read the **[closures post](/writings/javascript-closures-and-scope/)**, you will recognise this as the same idea behind the `once` utility: run the expensive thing exactly once, share the result with everyone.
+
+### Build your own
+
+```js
+const locks = new Map();
+
+async function getWithLock(cache, key, fetchFn) {
+    const cached = cache.get(key);
+    if (cached !== undefined) return cached;
+
+    // If someone else is already fetching, wait for them
+    if (locks.has(key)) return locks.get(key);
+
+    // We are the first, fetch and cache
+    const promise = fetchFn(key).then((value) => {
+        cache.set(key, value);
+        locks.delete(key);
+        return value;
+    });
+
+    locks.set(key, promise);
+    return promise;
+}
+```
+
+Toggle "lock (single-flight)" and compare the database load:
+
+<StampedeDemo client:visible />
+
+Without the lock, every request hammers the database at once. With it, one request fetches while the others wait. The database handles a single query instead of a hundred.
+
+---
+
+## 7. When to use what
+
+| Strategy | Best when | Watch out for |
+|---|---|---|
+| LRU | General purpose, temporal locality | Scan pollution (one full sweep evicts everything useful) |
+| LFU | Stable popularity distribution | One-hit wonders with high frequency clog the cache |
+| TTL | Data has a known freshness window | Clock skew, stale reads if TTL is too generous |
+| Write-through | Consistency matters most | Higher write latency |
+| Write-back | Write-heavy workloads | Data loss risk on crash |
+
+Most production systems combine strategies. An LRU cache with a TTL and a stampede lock is a very common setup.
+
+---
+
+### Where to next?
+
+- Try implementing `LRUCache` with an actual doubly-linked list instead of the `Map` trick. You will appreciate what `Map` does for you.
+- Add a TTL to your LRU cache. How does the eviction logic change when both recency and freshness matter?
+- Read through the source of a real caching library like [lru-cache](https://github.com/isaacs/node-lru-cache) and see how much of it you now recognise.
+
+And if this helped, send it to someone who is about to add their first cache to a project.
