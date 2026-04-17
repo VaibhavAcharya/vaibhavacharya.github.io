@@ -1,50 +1,24 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
 import Colophon from "../components/Colophon.astro";
+import RowTable from "../components/RowTable.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
-const previously = [
-    {
-        role: "product engineer",
-        name: "Supernova AI",
-        href: "https://www.getsupernova.ai",
-    },
-    { role: "web engineer", name: "Skcript", href: "https://skcript.com" },
-    { role: "founder", name: "InvocationX", href: null },
-    { role: "junior engineer", name: "Dukaan", href: "https://mydukaan.io" },
+const workRows = [
+    { label: "product engineer", value: "Supernova AI", href: "https://www.getsupernova.ai" },
+    { label: "web engineer", value: "Skcript", href: "https://skcript.com" },
+    { label: "co-founder", value: "InvocationX" },
+    { label: "co-founder", value: "Uniboat" },
+    { label: "junior engineer", value: "Dukaan", href: "https://mydukaan.io" },
 ];
 
-const connect = [
-    {
-        label: "email",
-        value: "vaibhavacharya111@gmail.com",
-        href: "mailto:vaibhavacharya111@gmail.com",
-    },
-    {
-        label: "github",
-        value: "github.com/VaibhavAcharya",
-        href: "https://github.com/VaibhavAcharya",
-    },
-    {
-        label: "x/twitter",
-        value: "@VaibhavAcharya_",
-        href: "https://x.com/VaibhavAcharya_",
-    },
-    {
-        label: "bluesky",
-        value: "vaibhavacharya.bsky.social",
-        href: "https://bsky.app/profile/vaibhavacharya.bsky.social",
-    },
-    {
-        label: "linkedin",
-        value: "in/vaibhav-acharya",
-        href: "https://www.linkedin.com/in/vaibhav-acharya",
-    },
-    {
-        label: "writings",
-        value: "/writings",
-        href: "/writings",
-    },
+const connectRows = [
+    { label: "email", value: "vaibhavacharya111@gmail.com", href: "mailto:vaibhavacharya111@gmail.com" },
+    { label: "github", value: "github.com/VaibhavAcharya", href: "https://github.com/VaibhavAcharya" },
+    { label: "x/twitter", value: "@VaibhavAcharya_", href: "https://x.com/VaibhavAcharya_" },
+    { label: "bluesky", value: "vaibhavacharya.bsky.social", href: "https://bsky.app/profile/vaibhavacharya.bsky.social" },
+    { label: "linkedin", value: "in/vaibhav-acharya", href: "https://www.linkedin.com/in/vaibhav-acharya" },
+    { label: "writings", value: "/writings", href: "/writings", target: "_self" },
 ];
 ---
 
@@ -54,52 +28,37 @@ const connect = [
         <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
     </head>
     <body>
-        <div class="page">
-            <h1 class="hero-name fade-in">
+        <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12">
+            <h1 class="font-serif italic font-normal text-[clamp(42px,5.6vw,60px)] leading-[1.02] tracking-[-0.02em] m-0 mb-6 text-ink [font-variation-settings:'opsz'_72]">
                 Vaibhav Acharya,<br />engineer.
             </h1>
-            <p class="hero-lede fade-in d1">
+            <p class="font-serif italic font-normal text-xl leading-[1.42] text-ink-muted max-w-[42ch] m-0 [font-variation-settings:'opsz'_24]">
                 I work at the seam where product, design and engineering stop being separate jobs.
             </p>
 
-            <p class="section-label fade-in d2">now</p>
-            <p class="body-line fade-in d2">
+            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">now</p>
+            <p class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 mb-3 body-line">
                 Software Engineer at <a href="https://netlify.com" target="_blank" rel="noreferrer">Netlify</a>, based in IN. I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.
             </p>
 
-            <p class="section-label fade-in d2">previously</p>
-            <table class="row-table work fade-in d2">
-                <tbody>
-                    {previously.map((p) => (
-                        <tr>
-                            <td class="role">{p.role}</td>
-                            <td class="val">
-                                {p.href
-                                    ? <a href={p.href} target="_blank" rel="noreferrer">{p.name}</a>
-                                    : p.name}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">previously</p>
+            <RowTable rows={workRows} variant="work" />
 
-            <p class="section-label fade-in d2">connect</p>
-            <table class="row-table contact fade-in d2">
-                <tbody>
-                    {connect.map((c) => (
-                        <tr>
-                            <td class="label">{c.label}</td>
-                            <td class="val">
-                                <a href={c.href} target={c.href.startsWith("/") ? "_self" : "_blank"} rel="noreferrer">{c.value}</a>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">connect</p>
+            <RowTable rows={connectRows} />
 
-            <div class="fade-in d3">
-                <Colophon />
-            </div>
-        </div>
+            <Colophon />
+        </main>
     </body>
 </html>
+
+<style>
+    @reference "../styles/global.css";
+
+    .body-line a {
+        @apply text-ink no-underline border-b border-accent-50 pb-px transition-[border-color] duration-[120ms] ease-linear;
+    }
+    .body-line a:hover {
+        @apply border-accent;
+    }
+</style>

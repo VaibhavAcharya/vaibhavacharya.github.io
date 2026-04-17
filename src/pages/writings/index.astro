@@ -2,6 +2,7 @@
 import BaseHead from "../../components/BaseHead.astro";
 import BackLink from "../../components/BackLink.astro";
 import Colophon from "../../components/Colophon.astro";
+import RowTable from "../../components/RowTable.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
 import { getCollection } from "astro:content";
 
@@ -10,7 +11,6 @@ const posts = (await getCollection("writings")).sort(
 );
 
 function formatShortDate(d: Date): string {
-    // en-US gives "May 7, 2025"; lowercase to match "may 7, 2025".
     return d
         .toLocaleDateString("en-US", {
             day: "numeric",
@@ -19,6 +19,13 @@ function formatShortDate(d: Date): string {
         })
         .toLowerCase();
 }
+
+const postRows = posts.map((post) => ({
+    label: formatShortDate(post.data.pubDate),
+    value: post.data.title,
+    href: `/writings/${post.id}/`,
+    target: "_self",
+}));
 ---
 
 <!doctype html>
@@ -30,30 +37,17 @@ function formatShortDate(d: Date): string {
         />
     </head>
     <body>
-        <div class="page">
+        <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12">
             <BackLink label="home" href="/" />
 
-            <p class="section-label fade-in">writings</p>
-            <p class="body-line fade-in d1">
+            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">writings</p>
+            <p class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 mb-3">
                 I write rarely. This is the complete archive.
             </p>
 
-            <table class="row-table contact fade-in d2" style="margin-top: 12px;">
-                <tbody>
-                    {posts.map((post) => (
-                        <tr>
-                            <td class="label">{formatShortDate(post.data.pubDate)}</td>
-                            <td class="val">
-                                <a href={`/writings/${post.id}/`}>{post.data.title}</a>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <RowTable rows={postRows} class="mt-3" />
 
-            <div class="fade-in d3">
-                <Colophon />
-            </div>
-        </div>
+            <Colophon />
+        </main>
     </body>
 </html>

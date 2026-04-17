@@ -1,0 +1,53 @@
+---
+// src/components/RowTable.astro
+
+interface Row {
+    label: string;
+    value: string;
+    href?: string | null;
+    target?: string;
+}
+
+interface Props {
+    rows: Row[];
+    variant?: "work" | "default";
+    class?: string;
+}
+
+const { rows, variant = "default", class: className } = Astro.props;
+
+const labelWidthClass =
+    variant === "work"
+        ? "w-[38%] max-sm:w-[44%]"
+        : "w-[30%] max-sm:w-[40%]";
+---
+
+<table class:list={["w-full border-collapse", className]}>
+    <tbody>
+        {rows.map((row) => (
+            <tr>
+                <td class:list={[
+                    "py-[9px] border-b border-dotted border-rule-dot align-baseline",
+                    "font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft",
+                    labelWidthClass,
+                ]}>
+                    {row.label}
+                </td>
+                <td class="py-[9px] border-b border-dotted border-rule-dot align-baseline font-sans text-[15px] text-ink max-sm:text-sm">
+                    {row.href ? (
+                        <a
+                            href={row.href}
+                            target={row.target ?? "_blank"}
+                            rel="noreferrer"
+                            class="text-inherit no-underline border-b border-accent-50 pb-px transition-[border-color] duration-[120ms] ease-linear hover:border-accent"
+                        >
+                            {row.value}
+                        </a>
+                    ) : (
+                        row.value
+                    )}
+                </td>
+            </tr>
+        ))}
+    </tbody>
+</table>
