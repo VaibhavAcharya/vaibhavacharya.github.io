@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
-import sitemap from "@astrojs/sitemap";
 import react from "@astrojs/react";
 
 import tailwindcss from "@tailwindcss/vite";
@@ -16,13 +15,7 @@ export default defineConfig({
         assets: "astro",
     },
 
-    integrations: [
-        mdx(),
-        sitemap({
-            lastmod: new Date(),
-        }),
-        react(),
-    ],
+    integrations: [mdx(), react()],
 
     vite: {
         plugins: [tailwindcss()],

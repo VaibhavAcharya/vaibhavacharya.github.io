@@ -4,7 +4,7 @@
     "version": "0.0.1",
     "scripts": {
         "dev": "astro dev",
-        "build": "astro build && cp docs/sitemap-index.xml docs/sitemap.xml",
+        "build": "astro build && bun scripts/generate-sitemap.mjs",
         "preview": "astro preview",
         "astro": "astro"
     },
@@ -12,7 +12,6 @@
         "@astrojs/mdx": "^4.2.6",
         "@astrojs/react": "^5.0.3",
         "@astrojs/rss": "^4.0.11",
-        "@astrojs/sitemap": "^3.3.1",
         "@fontsource/cascadia-code": "^5.2.3",
         "@fontsource/literata": "^5.2.8",
         "@resvg/resvg-js": "^2.6.2",
