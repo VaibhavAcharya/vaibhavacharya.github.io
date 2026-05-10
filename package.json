@@ -1,30 +1,30 @@
 {
-  "name": "vaibhavacharya.github.io",
-  "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/mdx": "^4.2.6",
-    "@astrojs/react": "^5.0.3",
-    "@astrojs/rss": "^4.0.11",
-    "@astrojs/sitemap": "^3.3.1",
-    "@fontsource/cascadia-code": "^5.2.3",
-    "@fontsource/literata": "^5.2.8",
-    "@resvg/resvg-js": "^2.6.2",
-    "@tailwindcss/vite": "^4.1.5",
-    "astro": "^5.7.10",
-    "react": "^19.2.5",
-    "satori": "^0.26.0",
-    "tailwindcss": "^4.1.5"
-  },
-  "devDependencies": {
-    "@types/react": "^19.2.14",
-    "prettier": "^3.5.3"
-  },
-  "packageManager": "bun@1.2.4"
+    "name": "vaibhavacharya.github.io",
+    "type": "module",
+    "version": "0.0.1",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build && cp docs/sitemap-index.xml docs/sitemap.xml",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "@astrojs/mdx": "^4.2.6",
+        "@astrojs/react": "^5.0.3",
+        "@astrojs/rss": "^4.0.11",
+        "@astrojs/sitemap": "^3.3.1",
+        "@fontsource/cascadia-code": "^5.2.3",
+        "@fontsource/literata": "^5.2.8",
+        "@resvg/resvg-js": "^2.6.2",
+        "@tailwindcss/vite": "^4.1.5",
+        "astro": "^5.7.10",
+        "react": "^19.2.5",
+        "satori": "^0.26.0",
+        "tailwindcss": "^4.1.5"
+    },
+    "devDependencies": {
+        "@types/react": "^19.2.14",
+        "prettier": "^3.5.3"
+    },
+    "packageManager": "bun@1.2.4"
 }

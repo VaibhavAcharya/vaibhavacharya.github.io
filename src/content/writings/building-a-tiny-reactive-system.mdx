@@ -1,0 +1,352 @@
+---
+title: "Building a Tiny Reactive System"
+description: "Signals, effects, and computed values built from scratch in plain JavaScript"
+pubDate: "May 09 2026"
+---
+
+import { ReactiveHero } from "../../components/demos/ReactiveHero";
+import { SignalEffectDemo } from "../../components/demos/SignalEffectDemo";
+import { ComputedDemo } from "../../components/demos/ComputedDemo";
+import { BatchingDemo } from "../../components/demos/BatchingDemo";
+
+Have you read my **[JavaScript Closures and Scope](/writings/javascript-closures-and-scope/)** post? In that post we used closures to hide private state inside a function. Today we use the same trick to build a small reactive system: signals, effects, and computed values, in about fifty lines.
+
+By the end of this post you will:
+
+1. Build a `signal`, an `effect`, and a `computed` from scratch.
+2. Explain how a function can know which signals it read, without you telling it.
+3. Understand why batching exists, and what the diamond problem is.
+
+<ReactiveHero client:load />
+
+Open your console and follow along.
+
+---
+
+## 0. What is reactivity?
+
+Think of a spreadsheet. You type `10` into cell A1, `2` into A2, and `=A1*A2` into A3. A3 shows `20`. Change A1 to `11` and A3 instantly becomes `22`. You did not tell A3 to recalculate. It just knew.
+
+That is reactivity. Some values depend on others, and when an input changes, everything downstream updates on its own.
+
+Three building blocks show up in almost every reactive library:
+
+- **signal**: a value that knows who is watching it.
+- **effect**: a function that runs whenever its inputs change.
+- **computed**: a value derived from other signals, recalculated only when needed.
+
+We will build all three.
+
+---
+
+## 1. The naive version
+
+Before signals, here is what reactivity looks like when you wire it by hand.
+
+```js
+let count = 0;
+const subscribers = [];
+
+function setCount(next) {
+    count = next;
+    subscribers.forEach((fn) => fn());
+}
+
+subscribers.push(() => console.log("count is now", count));
+
+setCount(1); // count is now 1
+setCount(2); // count is now 2
+```
+
+This works. But every dependency is wired manually. If you have ten signals and twenty effects, you are tracking forty subscriptions in your head. That does not scale.
+
+The real magic of modern reactivity is **automatic dependency tracking**. The effect just runs your function. While it runs, signals notice they were read and quietly add the effect to their subscriber list.
+
+Closures make that possible.
+
+---
+
+## 2. signal, a value that knows who is watching
+
+A signal is a getter and a setter wrapped around a value. The getter records who is asking. The setter notifies everyone who has asked.
+
+### Build your own
+
+```js
+let currentEffect = null;
+
+function signal(initial) {
+    let value = initial;
+    const subscribers = new Set();
+
+    function read() {
+        if (currentEffect) subscribers.add(currentEffect);
+        return value;
+    }
+
+    function write(next) {
+        if (next === value) return; // skip no-op writes
+        value = next;
+        for (const fn of [...subscribers]) fn();
+    }
+
+    return [read, write];
+}
+```
+
+That `currentEffect` variable at the top is the trick. It is a single global slot that says "if anyone reads a signal right now, this is the function that read it."
+
+Read `signal` carefully. Three things are happening:
+
+1. `value` is hidden inside the closure. No one can change it without going through `write`.
+2. `subscribers` is also hidden. Each signal has its own private set.
+3. `read` peeks at `currentEffect` and registers the watcher automatically.
+
+We never tell the signal who is watching. The signal figures it out.
+
+---
+
+## 3. effect, a function that subscribes by running
+
+An effect runs your function once, sets `currentEffect` while it runs, and lets the signals do the registering.
+
+### Build your own
+
+```js
+function effect(fn) {
+    const run = () => {
+        const prev = currentEffect;
+        currentEffect = run;
+        try {
+            fn();
+        } finally {
+            currentEffect = prev;
+        }
+    };
+    run();
+}
+```
+
+That is it. No subscribe call, no list of dependencies. You write a function and it just works:
+
+```js
+const [count, setCount] = signal(0);
+const [name, setName] = signal("Ada");
+
+effect(() => console.log("count is", count()));
+// effect runs once: "count is 0"
+
+setCount(1); // "count is 1"
+setCount(2); // "count is 2"
+setName("Lin"); // (nothing, the effect never read name)
+```
+
+The effect read `count` but not `name`. So changing `name` does not re-run it. Try it:
+
+<SignalEffectDemo client:visible />
+
+Notice the run counter. It only ticks when you change `count`. The `name` button is harmless. Only the function that read `count` runs again. Nothing else.
+
+The save-the-stack pattern (`prev = currentEffect`, restore in `finally`) is what lets effects nest. An outer effect that creates an inner effect during its run does not lose its place.
+
+---
+
+## 4. computed, a derived signal that remembers
+
+Sometimes you want a value derived from other signals. You _could_ just write a function:
+
+```js
+const total = () => price() * qty();
+```
+
+That works. But every caller recomputes from scratch. If `price` and `qty` have not changed, you are doing the same multiplication over and over.
+
+A `computed` solves that. It is a signal whose value is defined by a function. It re-runs only when one of its inputs changes, and caches the result in between.
+
+### Build your own
+
+```js
+function computed(fn) {
+    const [read, write] = signal(undefined);
+    effect(() => write(fn()));
+    return read;
+}
+```
+
+Eight lines. We make a signal, then create an effect that writes the function's result into it. When any signal `fn` reads changes, the effect re-runs and updates the cached value. Anyone reading the computed is just reading a normal signal.
+
+```js
+const [price, setPrice] = signal(10);
+const [qty, setQty] = signal(2);
+const total = computed(() => price() * qty());
+
+effect(() => console.log("total:", total())); // "total: 20"
+
+setPrice(15); // "total: 30"
+setQty(3); // "total: 45"
+setQty(3); // (nothing, signal skipped a no-op write)
+```
+
+That last line is interesting. We wrote the same value (`3`) back to `qty`. The signal's `write` saw the new value matched the old one and did nothing. The computed never re-ran. That is **referential equality** acting as a free cache.
+
+<ComputedDemo client:visible />
+
+Click "set same" and watch the evaluation counter stay still. Click `+` or `-` and it ticks up.
+
+---
+
+## 5. The double-update problem
+
+Watch this carefully:
+
+```js
+const [first, setFirst] = signal("Ada");
+const [last, setLast] = signal("Lovelace");
+
+effect(() => console.log(`${first()} ${last()}`));
+// "Ada Lovelace"
+
+setFirst("Grace");
+setLast("Hopper");
+// "Grace Lovelace"
+// "Grace Hopper"
+```
+
+We changed two things and the effect ran twice. The middle output, `"Grace Lovelace"`, is a brief intermediate state that no one cares about. In a real app it might be a flash of broken UI, an extra network call, or a wasted render.
+
+The fix is **batching**. Defer effect runs until a block of updates finishes, then run each effect at most once.
+
+### Build your own
+
+```js
+let batchDepth = 0;
+const pendingEffects = new Set();
+
+function batch(fn) {
+    batchDepth++;
+    try {
+        fn();
+    } finally {
+        batchDepth--;
+        if (batchDepth === 0) {
+            const toRun = [...pendingEffects];
+            pendingEffects.clear();
+            for (const effect of toRun) effect();
+        }
+    }
+}
+```
+
+Then update `signal`'s `write` to queue instead of running immediately when we are inside a batch:
+
+```js
+function write(next) {
+    if (next === value) return;
+    value = next;
+    for (const fn of subscribers) {
+        if (batchDepth > 0) pendingEffects.add(fn);
+        else fn();
+    }
+}
+```
+
+A `Set` deduplicates automatically, so an effect that reads both `first` and `last` only ends up in the queue once.
+
+```js
+batch(() => {
+    setFirst("Grace");
+    setLast("Hopper");
+});
+// "Grace Hopper"   (one run, not two)
+```
+
+Toggle batching on and off and watch the run counter:
+
+<BatchingDemo client:visible />
+
+Without the batch, the effect runs twice and you can see the intermediate `"Grace Lovelace"` state in the log. With the batch, one run, one log line, no flicker.
+
+Most reactive libraries batch automatically inside event handlers and async boundaries. You almost never call `batch` by hand.
+
+---
+
+## 6. The diamond problem
+
+Here is a sharper version of the same issue:
+
+```
+       count
+       /   \
+   doubled  tripled
+       \   /
+        sum
+```
+
+Say `count` is `2`. Then `doubled` is `4`, `tripled` is `6`, and `sum` is `10`. Now set `count` to `3`. The right answer is `15`.
+
+Watch what a naive system does. It tells `doubled` to update first. `doubled` becomes `6`. That kicks `sum`, which reads the new `doubled` (`6`) and the **old** `tripled` (still `6`) and prints `12`. A moment later `tripled` updates to `9`, `sum` re-runs, and finally prints `15`.
+
+For a blink, `sum` was wrong. That stale `12` is called a **glitch**.
+
+The fix is to wait. Mark every downstream node as dirty first, then evaluate them in the right order so a node only runs once all its inputs have settled. Same idea as batching, just for a graph instead of a flat list. Real libraries spend a lot of code on this. The good news is you now know exactly what they are solving.
+
+---
+
+## 7. Cleanup
+
+One more thing. Effects that subscribe forever leak. If you create an effect inside a component and the component unmounts, the effect is still in every signal's subscriber set, holding a reference to your old DOM.
+
+The fix is to return a disposer from `effect`, and to give each effect a way to clear its old subscriptions before re-running.
+
+```js
+function effect(fn) {
+    const subs = new Set(); // signals this effect is subscribed to
+
+    const run = () => {
+        // remove ourselves from any previous subscriptions
+        for (const s of subs) s.delete(run);
+        subs.clear();
+
+        const prev = currentEffect;
+        currentEffect = { run, subs };
+        try {
+            fn();
+        } finally {
+            currentEffect = prev;
+        }
+    };
+    run();
+
+    return () => {
+        for (const s of subs) s.delete(run);
+        subs.clear();
+    };
+}
+```
+
+Now `signal`'s `read` records itself into both the signal's subscribers _and_ the effect's `subs` set, so each effect knows what to detach from. Calling the returned disposer unsubscribes cleanly. If the closures here look familiar, that is because we are building **exactly** the kind of private bookkeeping the [closures post](/writings/javascript-closures-and-scope/) was about.
+
+This is also where conditional reads start to matter. Imagine an effect that reads `signalA` only when `flag` is true. The first time it runs, it subscribes to `flag` and `signalA`. If `flag` flips to false on the next run, the effect re-runs and only reads `flag`. The cleanup step above wipes the `signalA` subscription before re-subscribing, so future writes to `signalA` correctly do nothing. Without that wipe, you would have a phantom subscription firing the effect for a value it no longer cares about.
+
+---
+
+## 8. Putting it together
+
+Forty-something lines of plain JavaScript and we have:
+
+- A signal with private state and automatic subscriber tracking.
+- An effect that subscribes simply by running.
+- A computed that caches and re-derives lazily.
+- Batched writes that avoid intermediate runs.
+- Cleanup that unsubscribes effects when they re-run or get disposed.
+
+This is the heart of how libraries like SolidJS and Vue's `ref` work. The names differ. The shape is the same.
+
+---
+
+### Where to next?
+
+- Add `untrack(fn)`: read signals inside `fn` without subscribing the current effect.
+- Replace the global `currentEffect` with a stack so deeply nested effects work in every browser, not just synchronous ones.
+- Wire the system to the DOM: write a tiny `text(signal)` helper that creates a text node and an effect updating its `nodeValue`. You now have a fifty-line UI library.
+- Read the source of [Preact Signals](https://github.com/preactjs/signals/blob/main/packages/core/src/index.ts). You will recognise most of it.

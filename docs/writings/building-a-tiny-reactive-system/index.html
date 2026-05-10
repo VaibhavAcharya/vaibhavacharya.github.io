@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-jbqbou7q> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.github.io/rss.xml"><meta name="generator" content="Astro v5.7.10"><meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk"><script>
+    (() => {
+        try {
+            const theme = localStorage.getItem("theme") || "system";
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle(
+                "dark",
+                theme === "dark" || (theme === "system" && prefersDark),
+            );
+        } catch {
+            // Keep the default light theme when theme detection is unavailable.
+        }
+    })();
+</script><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"></noscript><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.github.io/writings/building-a-tiny-reactive-system/"><!-- Primary Meta --><title>Building a Tiny Reactive System · Vaibhav Acharya, engineer.</title><meta name="title" content="Building a Tiny Reactive System · Vaibhav Acharya, engineer."><meta name="description" content="Signals, effects, and computed values built from scratch in plain JavaScript"><!-- Open Graph --><meta property="og:type" content="article"><meta property="og:url" content="https://vaibhavacharya.github.io/writings/building-a-tiny-reactive-system/"><meta property="og:title" content="Building a Tiny Reactive System · Vaibhav Acharya, engineer."><meta property="og:description" content="Signals, effects, and computed values built from scratch in plain JavaScript"><meta property="og:image" content="https://vaibhavacharya.github.io/og/building-a-tiny-reactive-system.png"><meta property="og:locale" content="en_US"><meta property="article:published_time" content="2026-05-08T18:30:00.000Z"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://vaibhavacharya.github.io/writings/building-a-tiny-reactive-system/"><meta name="twitter:title" content="Building a Tiny Reactive System · Vaibhav Acharya, engineer."><meta name="twitter:description" content="Signals, effects, and computed values built from scratch in plain JavaScript"><meta name="twitter:image" content="https://vaibhavacharya.github.io/og/building-a-tiny-reactive-system.png"><link rel="stylesheet" href="/astro/_slug_.BwOLxZBd.css">
+<link rel="stylesheet" href="/astro/_slug_.Bv2fdxJa.css"></head> <body data-astro-cid-jbqbou7q> <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12" data-astro-cid-jbqbou7q> <a href="/writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← writings</a> <article data-astro-cid-jbqbou7q> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]" data-astro-cid-jbqbou7q>Building a Tiny Reactive System</h1> <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8" data-astro-cid-jbqbou7q> <a href="/" class="link" data-astro-cid-jbqbou7q>Vaibhav Acharya</a>, 9 May 2026  </p> <hr class="border-0 border-t border-rule-solid m-0 mb-8" data-astro-cid-jbqbou7q> <div class="post-body" data-astro-cid-jbqbou7q>  <p>Have you read my <strong><a href="/writings/javascript-closures-and-scope/">JavaScript Closures and Scope</a></strong> post? In that post we used closures to hide private state inside a function. Today we use the same trick to build a small reactive system: signals, effects, and computed values, in about fifty lines.</p>
+<p>By the end of this post you will:</p>
+<ol>
+<li>Build a <code>signal</code>, an <code>effect</code>, and a <code>computed</code> from scratch.</li>
+<li>Explain how a function can know which signals it read, without you telling it.</li>
+<li>Understand why batching exists, and what the diamond problem is.</li>
+</ol>
+<style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();;(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();</script><astro-island uid="Z20SzEl" prefix="r4" component-url="/astro/ReactiveHero.ChA8kSFO.js" component-export="ReactiveHero" renderer-url="/astro/client.T-RLldxf.js" props="{}" ssr client="load" opts="{&quot;name&quot;:&quot;ReactiveHero&quot;,&quot;value&quot;:true}" await-children><div data-demo="true" style="border:1px solid oklch(0.85 0.008 80);border-radius:6px;padding:20px;margin:1.6em 0;background:oklch(0.96 0.005 80)"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center"><div style="flex:1 1 120px;min-width:120px;padding:12px 14px;border-radius:6px;font-family:var(--font-mono);font-variant-ligatures:none;transition:background 200ms ease;background:oklch(0.95 0.04 240);color:oklch(0.35 0.12 240);animation:rh-pulse 600ms ease-out"><div style="font-size:11px;opacity:0.7;margin-bottom:4px">count</div><div style="font-size:18px;font-weight:600">1</div><style>
+                @keyframes rh-pulse {
+                    0% { transform: scale(1); box-shadow: 0 0 0 0 currentColor; }
+                    30% { transform: scale(1.04); box-shadow: 0 0 0 4px oklch(from currentColor l c h / 0.15); }
+                    100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+                }
+            </style></div><div style="font-family:var(--font-mono);font-size:18px;color:oklch(0.5 0.01 80)" aria-hidden="true">→</div><div style="flex:1 1 120px;min-width:120px;padding:12px 14px;border-radius:6px;font-family:var(--font-mono);font-variant-ligatures:none;transition:background 200ms ease;background:oklch(0.95 0.04 90);color:oklch(0.4 0.12 90);animation:rh-pulse 600ms ease-out"><div style="font-size:11px;opacity:0.7;margin-bottom:4px">doubled</div><div style="font-size:18px;font-weight:600">2</div><style>
+                @keyframes rh-pulse {
+                    0% { transform: scale(1); box-shadow: 0 0 0 0 currentColor; }
+                    30% { transform: scale(1.04); box-shadow: 0 0 0 4px oklch(from currentColor l c h / 0.15); }
+                    100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+                }
+            </style></div><div style="font-family:var(--font-mono);font-size:18px;color:oklch(0.5 0.01 80)" aria-hidden="true">→</div><div style="flex:1 1 120px;min-width:120px;padding:12px 14px;border-radius:6px;font-family:var(--font-mono);font-variant-ligatures:none;transition:background 200ms ease;background:oklch(0.95 0.05 145);color:oklch(0.35 0.12 145);animation:rh-pulse 600ms ease-out"><div style="font-size:11px;opacity:0.7;margin-bottom:4px">effect</div><div style="font-size:18px;font-weight:600">log: 2</div><style>
+                @keyframes rh-pulse {
+                    0% { transform: scale(1); box-shadow: 0 0 0 0 currentColor; }
+                    30% { transform: scale(1.04); box-shadow: 0 0 0 4px oklch(from currentColor l c h / 0.15); }
+                    100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+                }
+            </style></div></div><p style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin:14px 0 0;text-align:center;font-variant-ligatures:none">set a signal, anything that read it re-runs.</p></div><!--astro:end--></astro-island>
+<p>Open your console and follow along.</p>
+<hr/>
+<h2 id="0-what-is-reactivity">0. What is reactivity?</h2>
+<p>Think of a spreadsheet. You type <code>10</code> into cell A1, <code>2</code> into A2, and <code>=A1*A2</code> into A3. A3 shows <code>20</code>. Change A1 to <code>11</code> and A3 instantly becomes <code>22</code>. You did not tell A3 to recalculate. It just knew.</p>
+<p>That is reactivity. Some values depend on others, and when an input changes, everything downstream updates on its own.</p>
+<p>Three building blocks show up in almost every reactive library:</p>
+<ul>
+<li><strong>signal</strong>: a value that knows who is watching it.</li>
+<li><strong>effect</strong>: a function that runs whenever its inputs change.</li>
+<li><strong>computed</strong>: a value derived from other signals, recalculated only when needed.</li>
+</ul>
+<p>We will build all three.</p>
+<hr/>
+<h2 id="1-the-naive-version">1. The naive version</h2>
+<p>Before signals, here is what reactivity looks like when you wire it by hand.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> subscribers</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> setCount</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">next</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    count </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next;</span></span>
+<span class="line"><span style="color:#E1E4E8">    subscribers.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> fn</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">subscribers.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;count is now&quot;</span><span style="color:#E1E4E8">, count));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">setCount</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// count is now 1</span></span>
+<span class="line"><span style="color:#B392F0">setCount</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// count is now 2</span></span></code></pre>
+<p>This works. But every dependency is wired manually. If you have ten signals and twenty effects, you are tracking forty subscriptions in your head. That does not scale.</p>
+<p>The real magic of modern reactivity is <strong>automatic dependency tracking</strong>. The effect just runs your function. While it runs, signals notice they were read and quietly add the effect to their subscriber list.</p>
+<p>Closures make that possible.</p>
+<hr/>
+<h2 id="2-signal-a-value-that-knows-who-is-watching">2. signal, a value that knows who is watching</h2>
+<p>A signal is a getter and a setter wrapped around a value. The getter records who is asking. The setter notifies everyone who has asked.</p>
+<h3 id="build-your-own">Build your own</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> currentEffect </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> signal</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">initial</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> initial;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> subscribers</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Set</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    function</span><span style="color:#B392F0"> read</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (currentEffect) subscribers.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(currentEffect);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> value;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    function</span><span style="color:#B392F0"> write</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">next</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (next </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> value) </span><span style="color:#F97583">return</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">// skip no-op writes</span></span>
+<span class="line"><span style="color:#E1E4E8">        value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next;</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> fn</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> [</span><span style="color:#F97583">...</span><span style="color:#E1E4E8">subscribers]) </span><span style="color:#B392F0">fn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> [read, write];</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>That <code>currentEffect</code> variable at the top is the trick. It is a single global slot that says “if anyone reads a signal right now, this is the function that read it.”</p>
+<p>Read <code>signal</code> carefully. Three things are happening:</p>
+<ol>
+<li><code>value</code> is hidden inside the closure. No one can change it without going through <code>write</code>.</li>
+<li><code>subscribers</code> is also hidden. Each signal has its own private set.</li>
+<li><code>read</code> peeks at <code>currentEffect</code> and registers the watcher automatically.</li>
+</ol>
+<p>We never tell the signal who is watching. The signal figures it out.</p>
+<hr/>
+<h2 id="3-effect-a-function-that-subscribes-by-running">3. effect, a function that subscribes by running</h2>
+<p>An effect runs your function once, sets <code>currentEffect</code> while it runs, and lets the signals do the registering.</p>
+<h3 id="build-your-own-1">Build your own</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> effect</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#B392F0"> run</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> prev</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> currentEffect;</span></span>
+<span class="line"><span style="color:#E1E4E8">        currentEffect </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> run;</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">            fn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            currentEffect </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prev;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#B392F0">    run</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>That is it. No subscribe call, no list of dependencies. You write a function and it just works:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">count</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setCount</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> signal</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">name</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setName</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> signal</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Ada&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">effect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;count is&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">count</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#6A737D">// effect runs once: &quot;count is 0&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">setCount</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// &quot;count is 1&quot;</span></span>
+<span class="line"><span style="color:#B392F0">setCount</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// &quot;count is 2&quot;</span></span>
+<span class="line"><span style="color:#B392F0">setName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Lin&quot;</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// (nothing, the effect never read name)</span></span></code></pre>
+<p>The effect read <code>count</code> but not <code>name</code>. So changing <code>name</code> does not re-run it. Try it:</p>
+<script>(()=>{var a=(s,i,o)=>{let r=async()=>{await(await s())()},t=typeof i.value=="object"?i.value:void 0,c={rootMargin:t==null?void 0:t.rootMargin},n=new IntersectionObserver(e=>{for(let l of e)if(l.isIntersecting){n.disconnect(),r();break}},c);for(let e of o.children)n.observe(e)};(self.Astro||(self.Astro={})).visible=a;window.dispatchEvent(new Event("astro:visible"));})();</script><astro-island uid="Z2tRSAL" prefix="r5" component-url="/astro/SignalEffectDemo.DDNAG18v.js" component-export="SignalEffectDemo" renderer-url="/astro/client.T-RLldxf.js" props="{}" ssr client="visible" opts="{&quot;name&quot;:&quot;SignalEffectDemo&quot;,&quot;value&quot;:true}" await-children><div data-demo="true" style="border:1px solid oklch(0.85 0.008 80);border-radius:6px;padding:20px;margin:1.6em 0;background:oklch(0.96 0.005 80)"><p style="font-family:var(--font-serif);font-style:italic;font-size:18px;margin:0 0 4px;color:oklch(0.22 0.008 80)">signal + effect</p><p style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin:0 0 16px;font-variant-ligatures:none">effect reads count, not name. setting name does nothing.</p><div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap"><div style="flex:1 1 140px;padding:12px;border-radius:6px;background:oklch(0.975 0.006 80);border:1px solid oklch(0.85 0.008 80)"><div style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin-bottom:4px">count</div><div style="font-family:var(--font-mono);font-size:22px;font-weight:600;margin-bottom:10px;color:oklch(0.22 0.008 80)">0</div><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:100%;height:32px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">count++</button></div><div style="flex:1 1 140px;padding:12px;border-radius:6px;background:oklch(0.975 0.006 80);border:1px solid oklch(0.85 0.008 80)"><div style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin-bottom:4px">name</div><div style="font-family:var(--font-mono);font-size:22px;font-weight:600;margin-bottom:10px;color:oklch(0.22 0.008 80)">Ada</div><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:100%;height:32px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">next name</button></div></div><p style="font-family:var(--font-mono);font-size:12px;color:oklch(0.5 0.01 80);margin:0 0 12px;min-height:18px;font-variant-ligatures:none">effect runs:<!-- --> <strong style="color:oklch(0.45 0.15 145)">1</strong></p><div style="background:oklch(0.99 0.003 80);border:1px solid oklch(0.88 0.008 80);border-radius:4px;padding:10px;min-height:100px"><div style="font-family:var(--font-mono);font-size:12px;color:oklch(0.35 0.01 80);font-variant-ligatures:none;padding:2px 0">effect ran: count = 0</div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid oklch(0.85 0.008 80);padding-top:12px"><button style="font-family:var(--font-mono);font-size:12px;padding:6px 14px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">Reset</button></div></div><!--astro:end--></astro-island>
+<p>Notice the run counter. It only ticks when you change <code>count</code>. The <code>name</code> button is harmless. Only the function that read <code>count</code> runs again. Nothing else.</p>
+<p>The save-the-stack pattern (<code>prev = currentEffect</code>, restore in <code>finally</code>) is what lets effects nest. An outer effect that creates an inner effect during its run does not lose its place.</p>
+<hr/>
+<h2 id="4-computed-a-derived-signal-that-remembers">4. computed, a derived signal that remembers</h2>
+<p>Sometimes you want a value derived from other signals. You <em>could</em> just write a function:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> total</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> price</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">*</span><span style="color:#B392F0"> qty</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p>That works. But every caller recomputes from scratch. If <code>price</code> and <code>qty</code> have not changed, you are doing the same multiplication over and over.</p>
+<p>A <code>computed</code> solves that. It is a signal whose value is defined by a function. It re-runs only when one of its inputs changes, and caches the result in between.</p>
+<h3 id="build-your-own-2">Build your own</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> computed</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">read</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">write</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> signal</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">undefined</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">    effect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> write</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">fn</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> read;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Eight lines. We make a signal, then create an effect that writes the function’s result into it. When any signal <code>fn</code> reads changes, the effect re-runs and updates the cached value. Anyone reading the computed is just reading a normal signal.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">price</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setPrice</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> signal</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">qty</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setQty</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> signal</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> total</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> computed</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> price</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">*</span><span style="color:#B392F0"> qty</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">effect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;total:&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">total</span><span style="color:#E1E4E8">())); </span><span style="color:#6A737D">// &quot;total: 20&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">setPrice</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">15</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// &quot;total: 30&quot;</span></span>
+<span class="line"><span style="color:#B392F0">setQty</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// &quot;total: 45&quot;</span></span>
+<span class="line"><span style="color:#B392F0">setQty</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// (nothing, signal skipped a no-op write)</span></span></code></pre>
+<p>That last line is interesting. We wrote the same value (<code>3</code>) back to <code>qty</code>. The signal’s <code>write</code> saw the new value matched the old one and did nothing. The computed never re-ran. That is <strong>referential equality</strong> acting as a free cache.</p>
+<astro-island uid="3TkXm" prefix="r6" component-url="/astro/ComputedDemo.C_T2AqMD.js" component-export="ComputedDemo" renderer-url="/astro/client.T-RLldxf.js" props="{}" ssr client="visible" opts="{&quot;name&quot;:&quot;ComputedDemo&quot;,&quot;value&quot;:true}" await-children><div data-demo="true" style="border:1px solid oklch(0.85 0.008 80);border-radius:6px;padding:20px;margin:1.6em 0;background:oklch(0.96 0.005 80)"><p style="font-family:var(--font-serif);font-style:italic;font-size:18px;margin:0 0 4px;color:oklch(0.22 0.008 80)">computed (memoised derived signal)</p><p style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin:0 0 16px;font-variant-ligatures:none">setting a signal to the same value does not re-run the computed.</p><div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap"><div style="flex:1 1 160px;padding:12px;border-radius:6px;background:oklch(0.975 0.006 80);border:1px solid oklch(0.85 0.008 80)"><div style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin-bottom:4px">price</div><div style="font-family:var(--font-mono);font-size:22px;font-weight:600;margin-bottom:10px;color:oklch(0.22 0.008 80)">10</div><div style="display:flex;gap:6px"><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:32px;height:28px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">-</button><button style="font-family:var(--font-mono);font-size:11px;font-weight:600;width:auto;height:28px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none;flex:1">set same</button><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:32px;height:28px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">+</button></div></div><div style="flex:1 1 160px;padding:12px;border-radius:6px;background:oklch(0.975 0.006 80);border:1px solid oklch(0.85 0.008 80)"><div style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin-bottom:4px">qty</div><div style="font-family:var(--font-mono);font-size:22px;font-weight:600;margin-bottom:10px;color:oklch(0.22 0.008 80)">2</div><div style="display:flex;gap:6px"><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:32px;height:28px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">-</button><button style="font-family:var(--font-mono);font-size:11px;font-weight:600;width:auto;height:28px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none;flex:1">set same</button><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:32px;height:28px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">+</button></div></div></div><div style="padding:14px;border-radius:6px;background:oklch(0.95 0.04 90);border:1px solid oklch(0.85 0.04 90);margin-bottom:12px"><div style="font-family:var(--font-mono);font-size:11px;color:oklch(0.4 0.08 90);margin-bottom:4px">total = price × qty</div><div style="font-family:var(--font-mono);font-size:26px;font-weight:600;color:oklch(0.35 0.12 90)">20</div></div><p style="font-family:var(--font-mono);font-size:12px;color:oklch(0.5 0.01 80);margin:0 0 12px;min-height:18px;font-variant-ligatures:none">computed evaluations:<!-- --> <strong style="color:oklch(0.45 0.15 145)">1</strong></p><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid oklch(0.85 0.008 80);padding-top:12px"><button style="font-family:var(--font-mono);font-size:12px;padding:6px 14px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">Reset</button></div></div><!--astro:end--></astro-island>
+<p>Click “set same” and watch the evaluation counter stay still. Click <code>+</code> or <code>-</code> and it ticks up.</p>
+<hr/>
+<h2 id="5-the-double-update-problem">5. The double-update problem</h2>
+<p>Watch this carefully:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">first</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setFirst</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> signal</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Ada&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">last</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setLast</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#B392F0"> signal</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Lovelace&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">effect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`${</span><span style="color:#B392F0">first</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">} ${</span><span style="color:#B392F0">last</span><span style="color:#9ECBFF">()</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">// &quot;Ada Lovelace&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">setFirst</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Grace&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">setLast</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Hopper&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// &quot;Grace Lovelace&quot;</span></span>
+<span class="line"><span style="color:#6A737D">// &quot;Grace Hopper&quot;</span></span></code></pre>
+<p>We changed two things and the effect ran twice. The middle output, <code>&quot;Grace Lovelace&quot;</code>, is a brief intermediate state that no one cares about. In a real app it might be a flash of broken UI, an extra network call, or a wasted render.</p>
+<p>The fix is <strong>batching</strong>. Defer effect runs until a block of updates finishes, then run each effect at most once.</p>
+<h3 id="build-your-own-3">Build your own</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> batchDepth </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> pendingEffects</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Set</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> batch</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    batchDepth</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">        fn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        batchDepth</span><span style="color:#F97583">--</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (batchDepth </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            const</span><span style="color:#79B8FF"> toRun</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span><span style="color:#F97583">...</span><span style="color:#E1E4E8">pendingEffects];</span></span>
+<span class="line"><span style="color:#E1E4E8">            pendingEffects.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> effect</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> toRun) </span><span style="color:#B392F0">effect</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Then update <code>signal</code>’s <code>write</code> to queue instead of running immediately when we are inside a batch:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> write</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">next</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (next </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> value) </span><span style="color:#F97583">return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next;</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> fn</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> subscribers) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (batchDepth </span><span style="color:#F97583">&gt;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) pendingEffects.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(fn);</span></span>
+<span class="line"><span style="color:#F97583">        else</span><span style="color:#B392F0"> fn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>A <code>Set</code> deduplicates automatically, so an effect that reads both <code>first</code> and <code>last</code> only ends up in the queue once.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">batch</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">    setFirst</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Grace&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">    setLast</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Hopper&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"><span style="color:#6A737D">// &quot;Grace Hopper&quot;   (one run, not two)</span></span></code></pre>
+<p>Toggle batching on and off and watch the run counter:</p>
+<astro-island uid="1usGqE" prefix="r7" component-url="/astro/BatchingDemo.Wsm8QdOQ.js" component-export="BatchingDemo" renderer-url="/astro/client.T-RLldxf.js" props="{}" ssr client="visible" opts="{&quot;name&quot;:&quot;BatchingDemo&quot;,&quot;value&quot;:true}" await-children><div data-demo="true" style="border:1px solid oklch(0.85 0.008 80);border-radius:6px;padding:20px;margin:1.6em 0;background:oklch(0.96 0.005 80)"><p style="font-family:var(--font-serif);font-style:italic;font-size:18px;margin:0 0 4px;color:oklch(0.22 0.008 80)">batching</p><p style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin:0 0 16px;font-variant-ligatures:none">effect depends on first and last. update both at once.</p><div style="display:flex;gap:6px;margin-bottom:14px"><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:auto;height:30px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none;padding:0 14px;flex:1">no batch</button><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:auto;height:30px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.35 0.008 80);color:oklch(0.97 0.005 80);cursor:pointer;font-variant-ligatures:none;padding:0 14px;flex:1;border-color:oklch(0.3 0.008 80)">batch</button></div><div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap"><div style="flex:1 1 140px;padding:12px;border-radius:6px;background:oklch(0.975 0.006 80);border:1px solid oklch(0.85 0.008 80)"><div style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin-bottom:4px">first</div><div style="font-family:var(--font-mono);font-size:18px;font-weight:600;color:oklch(0.22 0.008 80)">Ada</div></div><div style="flex:1 1 140px;padding:12px;border-radius:6px;background:oklch(0.975 0.006 80);border:1px solid oklch(0.85 0.008 80)"><div style="font-family:var(--font-mono);font-size:11px;color:oklch(0.5 0.01 80);margin-bottom:4px">last</div><div style="font-family:var(--font-mono);font-size:18px;font-weight:600;color:oklch(0.22 0.008 80)">Lovelace</div></div></div><button style="font-family:var(--font-mono);font-size:13px;font-weight:600;width:100%;height:36px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none;margin-bottom:4px">set both signals</button><p style="font-family:var(--font-mono);font-size:12px;color:oklch(0.5 0.01 80);margin:0 0 12px;min-height:18px;font-variant-ligatures:none">effect runs:<!-- --> <strong style="color:oklch(0.45 0.15 145)">1</strong></p><div style="background:oklch(0.99 0.003 80);border:1px solid oklch(0.88 0.008 80);border-radius:4px;padding:10px;min-height:100px;margin-top:8px"><div style="font-family:var(--font-mono);font-size:12px;color:oklch(0.35 0.01 80);font-variant-ligatures:none;padding:2px 0">effect ran: Ada Lovelace</div></div><div style="display:flex;gap:8px;margin-top:12px;border-top:1px solid oklch(0.85 0.008 80);padding-top:12px"><button style="font-family:var(--font-mono);font-size:12px;padding:6px 14px;border:1px solid oklch(0.78 0.01 80);border-radius:4px;background:oklch(0.975 0.006 80);color:oklch(0.22 0.008 80);cursor:pointer;font-variant-ligatures:none">Reset</button></div></div><!--astro:end--></astro-island>
+<p>Without the batch, the effect runs twice and you can see the intermediate <code>&quot;Grace Lovelace&quot;</code> state in the log. With the batch, one run, one log line, no flicker.</p>
+<p>Most reactive libraries batch automatically inside event handlers and async boundaries. You almost never call <code>batch</code> by hand.</p>
+<hr/>
+<h2 id="6-the-diamond-problem">6. The diamond problem</h2>
+<p>Here is a sharper version of the same issue:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>       count</span></span>
+<span class="line"><span>       /   \</span></span>
+<span class="line"><span>   doubled  tripled</span></span>
+<span class="line"><span>       \   /</span></span>
+<span class="line"><span>        sum</span></span></code></pre>
+<p>Say <code>count</code> is <code>2</code>. Then <code>doubled</code> is <code>4</code>, <code>tripled</code> is <code>6</code>, and <code>sum</code> is <code>10</code>. Now set <code>count</code> to <code>3</code>. The right answer is <code>15</code>.</p>
+<p>Watch what a naive system does. It tells <code>doubled</code> to update first. <code>doubled</code> becomes <code>6</code>. That kicks <code>sum</code>, which reads the new <code>doubled</code> (<code>6</code>) and the <strong>old</strong> <code>tripled</code> (still <code>6</code>) and prints <code>12</code>. A moment later <code>tripled</code> updates to <code>9</code>, <code>sum</code> re-runs, and finally prints <code>15</code>.</p>
+<p>For a blink, <code>sum</code> was wrong. That stale <code>12</code> is called a <strong>glitch</strong>.</p>
+<p>The fix is to wait. Mark every downstream node as dirty first, then evaluate them in the right order so a node only runs once all its inputs have settled. Same idea as batching, just for a graph instead of a flat list. Real libraries spend a lot of code on this. The good news is you now know exactly what they are solving.</p>
+<hr/>
+<h2 id="7-cleanup">7. Cleanup</h2>
+<p>One more thing. Effects that subscribe forever leak. If you create an effect inside a component and the component unmounts, the effect is still in every signal’s subscriber set, holding a reference to your old DOM.</p>
+<p>The fix is to return a disposer from <code>effect</code>, and to give each effect a way to clear its old subscriptions before re-running.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> effect</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> subs</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Set</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">// signals this effect is subscribed to</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#B392F0"> run</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        // remove ourselves from any previous subscriptions</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> s</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> subs) s.</span><span style="color:#B392F0">delete</span><span style="color:#E1E4E8">(run);</span></span>
+<span class="line"><span style="color:#E1E4E8">        subs.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> prev</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> currentEffect;</span></span>
+<span class="line"><span style="color:#E1E4E8">        currentEffect </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> { run, subs };</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">            fn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            currentEffect </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prev;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#B392F0">    run</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> s</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> subs) s.</span><span style="color:#B392F0">delete</span><span style="color:#E1E4E8">(run);</span></span>
+<span class="line"><span style="color:#E1E4E8">        subs.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Now <code>signal</code>’s <code>read</code> records itself into both the signal’s subscribers <em>and</em> the effect’s <code>subs</code> set, so each effect knows what to detach from. Calling the returned disposer unsubscribes cleanly. If the closures here look familiar, that is because we are building <strong>exactly</strong> the kind of private bookkeeping the <a href="/writings/javascript-closures-and-scope/">closures post</a> was about.</p>
+<p>This is also where conditional reads start to matter. Imagine an effect that reads <code>signalA</code> only when <code>flag</code> is true. The first time it runs, it subscribes to <code>flag</code> and <code>signalA</code>. If <code>flag</code> flips to false on the next run, the effect re-runs and only reads <code>flag</code>. The cleanup step above wipes the <code>signalA</code> subscription before re-subscribing, so future writes to <code>signalA</code> correctly do nothing. Without that wipe, you would have a phantom subscription firing the effect for a value it no longer cares about.</p>
+<hr/>
+<h2 id="8-putting-it-together">8. Putting it together</h2>
+<p>Forty-something lines of plain JavaScript and we have:</p>
+<ul>
+<li>A signal with private state and automatic subscriber tracking.</li>
+<li>An effect that subscribes simply by running.</li>
+<li>A computed that caches and re-derives lazily.</li>
+<li>Batched writes that avoid intermediate runs.</li>
+<li>Cleanup that unsubscribes effects when they re-run or get disposed.</li>
+</ul>
+<p>This is the heart of how libraries like SolidJS and Vue’s <code>ref</code> work. The names differ. The shape is the same.</p>
+<hr/>
+<h3 id="where-to-next">Where to next?</h3>
+<ul>
+<li>Add <code>untrack(fn)</code>: read signals inside <code>fn</code> without subscribing the current effect.</li>
+<li>Replace the global <code>currentEffect</code> with a stack so deeply nested effects work in every browser, not just synchronous ones.</li>
+<li>Wire the system to the DOM: write a tiny <code>text(signal)</code> helper that creates a text node and an effect updating its <code>nodeValue</code>. You now have a fifty-line UI library.</li>
+<li>Read the source of <a href="https://github.com/preactjs/signals/blob/main/packages/core/src/index.ts">Preact Signals</a>. You will recognise most of it.</li>
+</ul>  </div> </article> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/writings" class="link">writings</a> </span> <span> <a href="/rss.xml" class="link">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap-index.xml" class="link">sitemap</a> </span> </div> <div class="mt-2"> <label class="inline-flex items-center font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em]"> <span>theme:</span> <select class="ml-1 bg-transparent font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft outline-none transition-colors duration-[120ms] ease-linear hover:text-ink focus:text-ink" aria-label="Theme" data-theme-select> <option value="system">system</option> <option value="light">light</option> <option value="dark">dark</option> </select> </label> <script>
+    (() => {
+        const root = document.documentElement;
+        const select = document.querySelector("[data-theme-select]");
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        if (!select) return;
+
+        const getStoredTheme = () => {
+            try {
+                return localStorage.getItem("theme") || "system";
+            } catch {
+                return "system";
+            }
+        };
+
+        const storeTheme = (theme) => {
+            try {
+                if (theme === "system") {
+                    localStorage.removeItem("theme");
+                } else {
+                    localStorage.setItem("theme", theme);
+                }
+            } catch {
+                // Ignore storage failures and keep the in-page state working.
+            }
+        };
+
+        const applyTheme = (theme) => {
+            const resolvedTheme = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolvedTheme === "dark");
+            select.value = theme;
+        };
+
+        let selectedTheme = getStoredTheme();
+        applyTheme(selectedTheme);
+
+        select.addEventListener("change", () => {
+            selectedTheme = select.value;
+            storeTheme(selectedTheme);
+            applyTheme(selectedTheme);
+        });
+
+        mediaQuery.addEventListener("change", () => {
+            if (selectedTheme === "system") applyTheme(selectedTheme);
+        });
+    })();
+</script> </div> </footer> </main> </body></html>

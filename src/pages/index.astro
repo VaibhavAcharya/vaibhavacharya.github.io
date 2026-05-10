@@ -3,13 +3,15 @@ import BaseHead from "../components/BaseHead.astro";
 import Colophon from "../components/Colophon.astro";
 import RowTable from "../components/RowTable.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { getCollection } from "astro:content";
 
 const workRows = [
-    { label: "product engineer", value: "Supernova AI", href: "https://www.getsupernova.ai" },
-    { label: "web engineer", value: "Skcript", href: "https://skcript.com" },
-    { label: "co-founder", value: "InvocationX" },
-    { label: "co-founder", value: "Uniboat" },
-    { label: "junior engineer", value: "Dukaan", href: "https://mydukaan.io" },
+    { label: "software engineer", value: "Netlify", href: "https://netlify.com", current: true },
+    { label: "ex product engineer", value: "Supernova AI", href: "https://www.getsupernova.ai" },
+    { label: "ex web engineer", value: "Skcript", href: "https://skcript.com" },
+    { label: "ex co-founder", value: "InvocationX" },
+    { label: "ex co-founder", value: "Uniboat" },
+    { label: "ex junior engineer", value: "Dukaan", href: "https://mydukaan.io" },
 ];
 
 const connectRows = [
@@ -18,8 +20,28 @@ const connectRows = [
     { label: "x/twitter", value: "@VaibhavAcharya_", href: "https://x.com/VaibhavAcharya_" },
     { label: "bluesky", value: "vaibhavacharya.bsky.social", href: "https://bsky.app/profile/vaibhavacharya.bsky.social" },
     { label: "linkedin", value: "in/vaibhav-acharya", href: "https://www.linkedin.com/in/vaibhav-acharya" },
-    { label: "writings", value: "/writings", href: "/writings", target: "_self" },
 ];
+
+function formatShortDate(d: Date): string {
+    return d
+        .toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        })
+        .toLowerCase();
+}
+
+const latestPosts = (await getCollection("writings"))
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+    .slice(0, 3);
+
+const writingRows = latestPosts.map((post) => ({
+    label: formatShortDate(post.data.pubDate),
+    value: post.data.title,
+    href: `/writings/${post.id}/`,
+    target: "_self",
+}));
 ---
 
 <!doctype html>
@@ -36,13 +58,17 @@ const connectRows = [
                 I work at the seam where product, design and engineering stop being separate jobs.
             </p>
 
-            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">now</p>
-            <p class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 mb-3 body-line">
-                Software Engineer at <a href="https://netlify.com" target="_blank" rel="noreferrer">Netlify</a>, based in IN. I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.
+            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">hello</p>
+            <p class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 body-line">
+                I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.
             </p>
 
-            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">previously</p>
-            <RowTable rows={workRows} variant="work" />
+            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">recent writings</p>
+            <RowTable rows={writingRows} reverse />
+            <a href="/writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mt-6 transition-colors duration-[120ms] ease-linear hover:text-ink">more &rarr;</a>
+
+            <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">work</p>
+            <RowTable rows={workRows} />
 
             <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">connect</p>
             <RowTable rows={connectRows} />

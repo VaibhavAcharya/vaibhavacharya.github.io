@@ -1,0 +1,65 @@
+---
+// src/components/ThemeToggle.astro
+---
+
+<label class="inline-flex items-center font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em]">
+    <span>theme:</span>
+    <select
+        class="ml-1 bg-transparent font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft outline-none transition-colors duration-[120ms] ease-linear hover:text-ink focus:text-ink"
+        aria-label="Theme"
+        data-theme-select
+    >
+        <option value="system">system</option>
+        <option value="light">light</option>
+        <option value="dark">dark</option>
+    </select>
+</label>
+
+<script is:inline>
+    (() => {
+        const root = document.documentElement;
+        const select = document.querySelector("[data-theme-select]");
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        if (!select) return;
+
+        const getStoredTheme = () => {
+            try {
+                return localStorage.getItem("theme") || "system";
+            } catch {
+                return "system";
+            }
+        };
+
+        const storeTheme = (theme) => {
+            try {
+                if (theme === "system") {
+                    localStorage.removeItem("theme");
+                } else {
+                    localStorage.setItem("theme", theme);
+                }
+            } catch {
+                // Ignore storage failures and keep the in-page state working.
+            }
+        };
+
+        const applyTheme = (theme) => {
+            const resolvedTheme = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolvedTheme === "dark");
+            select.value = theme;
+        };
+
+        let selectedTheme = getStoredTheme();
+        applyTheme(selectedTheme);
+
+        select.addEventListener("change", () => {
+            selectedTheme = select.value;
+            storeTheme(selectedTheme);
+            applyTheme(selectedTheme);
+        });
+
+        mediaQuery.addEventListener("change", () => {
+            if (selectedTheme === "system") applyTheme(selectedTheme);
+        });
+    })();
+</script>

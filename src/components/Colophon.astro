@@ -1,5 +1,6 @@
 ---
 // src/components/Colophon.astro
+import ThemeToggle from "./ThemeToggle.astro";
 ---
 
 <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]">
@@ -14,5 +15,8 @@
             <span class="mx-1.5 text-rule-dot">&middot;</span>
             <a href="/sitemap-index.xml" class="link">sitemap</a>
         </span>
+    </div>
+    <div class="mt-2">
+        <ThemeToggle />
     </div>
 </footer>

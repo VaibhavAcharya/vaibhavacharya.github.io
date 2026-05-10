@@ -1,6 +1,18 @@
-<!DOCTYPE html><html lang="en" data-astro-cid-jbqbou7q> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.github.io/rss.xml"><meta name="generator" content="Astro v5.7.10"><meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk"><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"></noscript><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><!-- Primary Meta --><title>Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer.</title><meta name="title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta name="description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><!-- Open Graph --><meta property="og:type" content="article"><meta property="og:url" content="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><meta property="og:title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta property="og:description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><meta property="og:image" content="https://vaibhavacharya.github.io/og/deep-dive-into-javascript-sorting.png"><meta property="og:locale" content="en_US"><meta property="article:published_time" content="2025-05-05T18:30:00.000Z"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><meta name="twitter:title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta name="twitter:description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><meta name="twitter:image" content="https://vaibhavacharya.github.io/og/deep-dive-into-javascript-sorting.png"><link rel="stylesheet" href="/astro/_slug_.CX7DgoR5.css">
-<link rel="stylesheet" href="/astro/_slug_.Dgkm5k5x.css"></head> <body data-astro-cid-jbqbou7q> <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12" data-astro-cid-jbqbou7q> <a href="/writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← writings</a> <article data-astro-cid-jbqbou7q> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]" data-astro-cid-jbqbou7q>Deep Dive into JavaScript Sorting</h1> <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8" data-astro-cid-jbqbou7q>
-by <a href="/" class="link" data-astro-cid-jbqbou7q>Vaibhav Acharya</a>, 6 May 2025  </p> <hr class="border-0 border-t border-rule-solid m-0 mb-8" data-astro-cid-jbqbou7q> <div class="post-body" data-astro-cid-jbqbou7q>  <p>Have you read my <strong><a href="/writings/deep-dive-into-javascript-array-methods/">Deep Dive into JavaScript Array Methods</a></strong>? In that post we used helpers like <code>map</code> and <code>reduce</code>.</p>
+<!DOCTYPE html><html lang="en" data-astro-cid-jbqbou7q> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap-index.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.github.io/rss.xml"><meta name="generator" content="Astro v5.7.10"><meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk"><script>
+    (() => {
+        try {
+            const theme = localStorage.getItem("theme") || "system";
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle(
+                "dark",
+                theme === "dark" || (theme === "system" && prefersDark),
+            );
+        } catch {
+            // Keep the default light theme when theme detection is unavailable.
+        }
+    })();
+</script><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"></noscript><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><!-- Primary Meta --><title>Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer.</title><meta name="title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta name="description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><!-- Open Graph --><meta property="og:type" content="article"><meta property="og:url" content="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><meta property="og:title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta property="og:description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><meta property="og:image" content="https://vaibhavacharya.github.io/og/deep-dive-into-javascript-sorting.png"><meta property="og:locale" content="en_US"><meta property="article:published_time" content="2025-05-05T18:30:00.000Z"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://vaibhavacharya.github.io/writings/deep-dive-into-javascript-sorting/"><meta name="twitter:title" content="Deep Dive into JavaScript Sorting · Vaibhav Acharya, engineer."><meta name="twitter:description" content="Array.prototype.sort explained, custom comparators, and stability quirks"><meta name="twitter:image" content="https://vaibhavacharya.github.io/og/deep-dive-into-javascript-sorting.png"><link rel="stylesheet" href="/astro/_slug_.BwOLxZBd.css">
+<link rel="stylesheet" href="/astro/_slug_.Bv2fdxJa.css"></head> <body data-astro-cid-jbqbou7q> <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12" data-astro-cid-jbqbou7q> <a href="/writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← writings</a> <article data-astro-cid-jbqbou7q> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]" data-astro-cid-jbqbou7q>Deep Dive into JavaScript Sorting</h1> <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8" data-astro-cid-jbqbou7q> <a href="/" class="link" data-astro-cid-jbqbou7q>Vaibhav Acharya</a>, 6 May 2025  </p> <hr class="border-0 border-t border-rule-solid m-0 mb-8" data-astro-cid-jbqbou7q> <div class="post-body" data-astro-cid-jbqbou7q>  <p>Have you read my <strong><a href="/writings/deep-dive-into-javascript-array-methods/">Deep Dive into JavaScript Array Methods</a></strong>? In that post we used helpers like <code>map</code> and <code>reduce</code>.</p>
 <p>Today we look at another helper: <strong><code>Array.prototype.sort</code></strong>. Sorting sounds easy, but JavaScript has a few hidden rules.</p>
 <p>By the end of this post you will:</p>
 <ol>
@@ -76,4 +88,51 @@ Since <strong>ES2019</strong> JavaScript engines must give you a stable sort.</p
 <li>Benchmark the default sort against a numeric comparator on large arrays.</li>
 <li>Go back to <strong><a href="/writings/functional-programming-in-javascript/">Functional Programming in JavaScript</a></strong> and replace loops with <code>sort</code> plus <code>map</code> or <code>filter</code>.</li>
 <li>Share with a friend who still writes <code>arr.sort((a, b) =&gt; a &gt; b ? 1 : -1)</code></li>
-</ul>  </div> </article> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/writings" class="link">writings</a> </span> <span> <a href="/rss.xml" class="link">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap-index.xml" class="link">sitemap</a> </span> </div> </footer> </main> </body></html>
+</ul>  </div> </article> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/writings" class="link">writings</a> </span> <span> <a href="/rss.xml" class="link">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap-index.xml" class="link">sitemap</a> </span> </div> <div class="mt-2"> <label class="inline-flex items-center font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em]"> <span>theme:</span> <select class="ml-1 bg-transparent font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft outline-none transition-colors duration-[120ms] ease-linear hover:text-ink focus:text-ink" aria-label="Theme" data-theme-select> <option value="system">system</option> <option value="light">light</option> <option value="dark">dark</option> </select> </label> <script>
+    (() => {
+        const root = document.documentElement;
+        const select = document.querySelector("[data-theme-select]");
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        if (!select) return;
+
+        const getStoredTheme = () => {
+            try {
+                return localStorage.getItem("theme") || "system";
+            } catch {
+                return "system";
+            }
+        };
+
+        const storeTheme = (theme) => {
+            try {
+                if (theme === "system") {
+                    localStorage.removeItem("theme");
+                } else {
+                    localStorage.setItem("theme", theme);
+                }
+            } catch {
+                // Ignore storage failures and keep the in-page state working.
+            }
+        };
+
+        const applyTheme = (theme) => {
+            const resolvedTheme = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolvedTheme === "dark");
+            select.value = theme;
+        };
+
+        let selectedTheme = getStoredTheme();
+        applyTheme(selectedTheme);
+
+        select.addEventListener("change", () => {
+            selectedTheme = select.value;
+            storeTheme(selectedTheme);
+            applyTheme(selectedTheme);
+        });
+
+        mediaQuery.addEventListener("change", () => {
+            if (selectedTheme === "system") applyTheme(selectedTheme);
+        });
+    })();
+</script> </div> </footer> </main> </body></html>

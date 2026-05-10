@@ -41,11 +41,7 @@ const postRows = posts.map((post) => ({
             <BackLink label="home" href="/" />
 
             <p class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-3.5 [font-variation-settings:'opsz'_24]">writings</p>
-            <p class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 mb-3">
-                I write rarely. This is the complete archive.
-            </p>
-
-            <RowTable rows={postRows} class="mt-3" />
+            <RowTable rows={postRows} reverse />
 
             <Colophon />
         </main>

@@ -36,6 +36,20 @@ const {
 />
 <meta name="generator" content={Astro.generator} />
 <meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk" />
+<script is:inline>
+    (() => {
+        try {
+            const theme = localStorage.getItem("theme") || "system";
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle(
+                "dark",
+                theme === "dark" || (theme === "system" && prefersDark),
+            );
+        } catch {
+            // Keep the default light theme when theme detection is unavailable.
+        }
+    })();
+</script>
 
 <!-- Umami Analytics -->
 <script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script>

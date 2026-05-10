@@ -6,34 +6,23 @@ interface Row {
     value: string;
     href?: string | null;
     target?: string;
+    current?: boolean;
 }
 
 interface Props {
     rows: Row[];
-    variant?: "work" | "default";
     class?: string;
+    reverse?: boolean;
 }
 
-const { rows, variant = "default", class: className } = Astro.props;
-
-const labelWidthClass =
-    variant === "work"
-        ? "w-[38%] max-sm:w-[44%]"
-        : "w-[30%] max-sm:w-[40%]";
+const { rows, class: className, reverse = false } = Astro.props;
 ---
 
-<table class:list={["w-full border-collapse", className]}>
-    <tbody>
-        {rows.map((row) => (
-            <tr>
-                <td class:list={[
-                    "py-[9px] border-b border-dotted border-rule-dot align-baseline",
-                    "font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft",
-                    labelWidthClass,
-                ]}>
-                    {row.label}
-                </td>
-                <td class="py-[9px] border-b border-dotted border-rule-dot align-baseline font-sans text-[15px] text-ink max-sm:text-sm">
+<ul class:list={["list-none p-0 m-0 flex flex-col", className]}>
+    {rows.map((row) => (
+        reverse ? (
+            <li class="flex items-baseline gap-3 py-[9px]">
+                <span class="font-sans text-[15px] text-ink max-sm:text-sm min-w-0">
                     {row.href ? (
                         <a
                             href={row.href}
@@ -46,8 +35,34 @@ const labelWidthClass =
                     ) : (
                         row.value
                     )}
-                </td>
-            </tr>
-        ))}
-    </tbody>
-</table>
+                </span>
+                <span aria-hidden="true" class="flex-1 border-b-[0.5px] border-dotted border-rule-dot translate-y-[-4px]"></span>
+                <span class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft whitespace-nowrap text-right">
+                    {row.label}
+                </span>
+            </li>
+        ) : (
+            <li class="flex items-baseline gap-3 py-[9px]">
+                <span class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft whitespace-nowrap">
+                    {row.current && <span class="text-accent">currently</span>}
+                    {row.current ? ` ${row.label}` : row.label}
+                </span>
+                <span aria-hidden="true" class="flex-1 border-b-[0.5px] border-dotted border-rule-dot translate-y-[-4px]"></span>
+                <span class="font-sans text-[15px] text-ink max-sm:text-sm min-w-0 text-right">
+                    {row.href ? (
+                        <a
+                            href={row.href}
+                            target={row.target ?? "_blank"}
+                            rel="noreferrer"
+                            class="link"
+                        >
+                            {row.value}
+                        </a>
+                    ) : (
+                        row.value
+                    )}
+                </span>
+            </li>
+        )
+    ))}
+</ul>

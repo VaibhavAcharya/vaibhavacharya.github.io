@@ -2,6 +2,8 @@
 
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* =================================================================== */
 /* Design tokens                                                        */
 /* =================================================================== */
@@ -23,6 +25,18 @@
     /* Accent */
     --color-accent: oklch(0.42 0.1 258);
     --color-accent-50: oklch(0.42 0.1 258 / 50%);
+}
+
+.dark {
+    --color-paper: oklch(0.18 0.006 80);
+    --color-ink: oklch(0.92 0.006 80);
+    --color-ink-muted: oklch(0.78 0.008 80);
+    --color-ink-soft: oklch(0.62 0.01 80);
+    --color-rule-dot: oklch(0.38 0.01 80);
+    --color-rule-solid: oklch(0.34 0.01 80);
+    --color-accent: oklch(0.72 0.11 258);
+    --color-accent-50: oklch(0.72 0.11 258 / 50%);
+    color-scheme: dark;
 }
 
 /* =================================================================== */
