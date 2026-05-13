@@ -1,0 +1,314 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-jbqbou7q> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.github.io/rss.xml"><meta name="generator" content="Astro v5.7.10"><meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk"><script>
+    (() => {
+        try {
+            const theme = localStorage.getItem("theme") || "system";
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle(
+                "dark",
+                theme === "dark" || (theme === "system" && prefersDark),
+            );
+        } catch {
+            // Keep the default light theme when theme detection is unavailable.
+        }
+    })();
+</script><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"></noscript><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.github.io/writings/what-the-fk-is-a-monad-again/"><!-- Primary Meta --><title>What the f**k is a monad again? · Vaibhav Acharya, engineer.</title><meta name="title" content="What the f**k is a monad again? · Vaibhav Acharya, engineer."><meta name="description" content="A funny, plain JavaScript explanation of monads, Maybe, map, chain, Promise, and why the weird box thing is useful."><!-- Open Graph --><meta property="og:type" content="article"><meta property="og:url" content="https://vaibhavacharya.github.io/writings/what-the-fk-is-a-monad-again/"><meta property="og:title" content="What the f**k is a monad again? · Vaibhav Acharya, engineer."><meta property="og:description" content="A funny, plain JavaScript explanation of monads, Maybe, map, chain, Promise, and why the weird box thing is useful."><meta property="og:image" content="https://vaibhavacharya.github.io/og/what-the-fk-is-a-monad-again.png"><meta property="og:locale" content="en_US"><meta property="article:published_time" content="2026-05-12T18:30:00.000Z"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:url" content="https://vaibhavacharya.github.io/writings/what-the-fk-is-a-monad-again/"><meta name="twitter:title" content="What the f**k is a monad again? · Vaibhav Acharya, engineer."><meta name="twitter:description" content="A funny, plain JavaScript explanation of monads, Maybe, map, chain, Promise, and why the weird box thing is useful."><meta name="twitter:image" content="https://vaibhavacharya.github.io/og/what-the-fk-is-a-monad-again.png"><link rel="stylesheet" href="/astro/_slug_.BwOLxZBd.css">
+<link rel="stylesheet" href="/astro/_slug_.Bv2fdxJa.css"></head> <body data-astro-cid-jbqbou7q> <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12" data-astro-cid-jbqbou7q> <a href="/writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← writings</a> <article data-astro-cid-jbqbou7q> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]" data-astro-cid-jbqbou7q>What the f**k is a monad again?</h1> <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8" data-astro-cid-jbqbou7q> <a href="/" class="link" data-astro-cid-jbqbou7q>Vaibhav Acharya</a>, 13 May 2026  </p> <hr class="border-0 border-t border-rule-solid m-0 mb-8" data-astro-cid-jbqbou7q> <div class="post-body" data-astro-cid-jbqbou7q>  <p>I have forgotten what a monad is at least seven times.</p>
+<p>Every time, the same thing happens. I read one explanation. It says a monad is a monoid in the category of endofunctors. I close the tab. I read another explanation. It says monads are burritos.</p>
+<p>So this is the version I want to find the next time I forget.</p>
+<p>No academic jump scare. No burrito. Just JavaScript, a few boxes, and the realisation that <code>Promise.then</code> has been doing monad stuff in front of us the whole time.</p>
+<style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();;(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();</script><astro-island uid="1QHiGr" prefix="r3" component-url="/astro/MonadDemos.nirNcgN3.js" component-export="MonadHero" renderer-url="/astro/client.T-RLldxf.js" props="{}" ssr client="load" opts="{&quot;name&quot;:&quot;MonadHero&quot;,&quot;value&quot;:true}" await-children><div style="border:1px solid oklch(0.85 0.008 80);border-radius:6px;padding:16px;margin:1.6em 0;background:oklch(0.96 0.005 80);overflow:hidden" data-demo="true"><div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(92px, 1fr));gap:10px"><div style="border:1px solid;border-radius:6px;padding:11px 10px;min-height:70px;transition:transform 220ms ease, border-color 220ms ease, background 220ms ease;border-color:oklch(0.55 0.13 170);background:oklch(0.94 0.04 170);transform:translateY(-4px)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.48 0.01 80);font-size:11px;margin-bottom:8px">read</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:14px;font-weight:700;overflow-wrap:anywhere;animation:monad-pop 520ms ease-out;color:oklch(0.24 0.01 80)">&quot;42&quot;</div></div><div style="border:1px solid;border-radius:6px;padding:11px 10px;min-height:70px;transition:transform 220ms ease, border-color 220ms ease, background 220ms ease;border-color:oklch(0.84 0.008 80);background:oklch(0.985 0.003 80);transform:translateY(0)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.48 0.01 80);font-size:11px;margin-bottom:8px">wrap</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:14px;font-weight:700;overflow-wrap:anywhere;animation:none;color:oklch(0.33 0.12 170)">Maybe(42)</div></div><div style="border:1px solid;border-radius:6px;padding:11px 10px;min-height:70px;transition:transform 220ms ease, border-color 220ms ease, background 220ms ease;border-color:oklch(0.84 0.008 80);background:oklch(0.985 0.003 80);transform:translateY(0)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.48 0.01 80);font-size:11px;margin-bottom:8px">map</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:14px;font-weight:700;overflow-wrap:anywhere;animation:none;color:oklch(0.33 0.12 170)">Maybe(84)</div></div><div style="border:1px solid;border-radius:6px;padding:11px 10px;min-height:70px;transition:transform 220ms ease, border-color 220ms ease, background 220ms ease;border-color:oklch(0.84 0.008 80);background:oklch(0.985 0.003 80);transform:translateY(0)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.48 0.01 80);font-size:11px;margin-bottom:8px">bind</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:14px;font-weight:700;overflow-wrap:anywhere;animation:none;color:oklch(0.33 0.12 170)">Maybe(85)</div></div><div style="border:1px solid;border-radius:6px;padding:11px 10px;min-height:70px;transition:transform 220ms ease, border-color 220ms ease, background 220ms ease;border-color:oklch(0.84 0.008 80);background:oklch(0.985 0.003 80);transform:translateY(0)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.48 0.01 80);font-size:11px;margin-bottom:8px">unwrap</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:14px;font-weight:700;overflow-wrap:anywhere;animation:none;color:oklch(0.24 0.01 80)">85</div></div></div><div style="position:relative;height:2px;margin:18px 10px 12px;background:oklch(0.86 0.01 80)"><div style="position:absolute;top:-5px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:oklch(0.52 0.14 170);left:0%;transition:left 520ms ease"></div></div><p style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.48 0.01 80);font-size:11px;line-height:1.55;margin:0">a monad is a rule for moving plain functions through a boxed value without breaking the box.</p><style>
+                @keyframes monad-pop {
+                    0% { transform: scale(0.96); opacity: 0.45; }
+                    60% { transform: scale(1.04); opacity: 1; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+            </style></div><!--astro:end--></astro-island>
+<blockquote>
+<p>A monad is a wrapper around a value, plus a disciplined way to keep chaining work without constantly unwrapping and rewrapping the value yourself.</p>
+</blockquote>
+<hr/>
+<h2 id="0-the-box-is-not-the-point">0. The box is not the point</h2>
+<p>People often say “a monad is a box.”</p>
+<p>That is almost useful, but it misses the part that matters.</p>
+<p><code>42</code> is just a value.</p>
+<p><code>Maybe(42)</code> means the value is 42, in a context where the value might be missing.</p>
+<p><code>Promise(42)</code> means the value is 42, in a context where the value arrives later.</p>
+<p><code>Result(42)</code> means the value is 42, in a context where the operation may have failed.</p>
+<p>The number did not become special. The wrapper added information about how the number should move through the program.</p>
+<p>For practical JavaScript, the useful promise is this:</p>
+<p>You can put a normal value into a context, run normal functions on the value inside it, and chain functions that already return the same context without ending up with <code>Maybe(Maybe(value))</code> or <code>Promise&lt;Promise&lt;value&gt;&gt;</code>.</p>
+<hr/>
+<h2 id="1-why-this-exists-at-all">1. Why this exists at all</h2>
+<p>Real code is rarely a clean pipe of beautiful values.</p>
+<p>Values are missing. JSON is shaped wrong. Users type <code>&quot;banana&quot;</code> into age fields. APIs return <code>null</code>. Division by zero is still division by zero.</p>
+<p>Take a basic nested object:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> user</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    profile: {</span></span>
+<span class="line"><span style="color:#E1E4E8">        address: {</span></span>
+<span class="line"><span style="color:#E1E4E8">            city: </span><span style="color:#9ECBFF">&quot;Pune&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        },</span></span>
+<span class="line"><span style="color:#E1E4E8">    },</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>You want:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">user.profile.address.city.</span><span style="color:#B392F0">toUpperCase</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p>But production wants:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> city</span><span style="color:#F97583"> =</span></span>
+<span class="line"><span style="color:#E1E4E8">    user </span><span style="color:#F97583">&amp;&amp;</span></span>
+<span class="line"><span style="color:#E1E4E8">    user.profile </span><span style="color:#F97583">&amp;&amp;</span></span>
+<span class="line"><span style="color:#E1E4E8">    user.profile.address </span><span style="color:#F97583">&amp;&amp;</span></span>
+<span class="line"><span style="color:#E1E4E8">    user.profile.address.city</span></span>
+<span class="line"><span style="color:#F97583">        ?</span><span style="color:#E1E4E8"> user.profile.address.city.</span><span style="color:#B392F0">toUpperCase</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">        :</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>That code is not hard, exactly. It is just noisy.</p>
+<p>Optional chaining helps:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> city</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> user.profile?.address?.city?.</span><span style="color:#B392F0">toUpperCase</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">??</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>Great. But now imagine every step is a function:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">getProfile</span><span style="color:#E1E4E8">(user);</span></span>
+<span class="line"><span style="color:#B392F0">getAddress</span><span style="color:#E1E4E8">(profile);</span></span>
+<span class="line"><span style="color:#B392F0">getCity</span><span style="color:#E1E4E8">(address);</span></span>
+<span class="line"><span style="color:#B392F0">toUpperCase</span><span style="color:#E1E4E8">(city);</span></span></code></pre>
+<p>Some steps can fail. Some return <code>null</code>. Some return a special result. Some are async. You can either write defensive plumbing everywhere, or put the plumbing in one place and make the pipeline readable again.</p>
+<p>That is the problem monads are trying to solve.</p>
+<hr/>
+<h2 id="2-maybe">2. Maybe</h2>
+<p><code>Maybe</code> represents a value that may not exist.</p>
+<p>It has two cases:</p>
+<ul>
+<li><code>Just(value)</code>: I have the value.</li>
+<li><code>Nothing</code>: I do not have the value.</li>
+</ul>
+<p>Here is a tiny implementation:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> Just</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">value</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> ({</span></span>
+<span class="line"><span style="color:#E1E4E8">    tag: </span><span style="color:#9ECBFF">&quot;Just&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#B392F0">    map</span><span style="color:#E1E4E8">: (</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> Just</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">fn</span><span style="color:#E1E4E8">(value)),</span></span>
+<span class="line"><span style="color:#B392F0">    chain</span><span style="color:#E1E4E8">: (</span><span style="color:#FFAB70">fn</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> fn</span><span style="color:#E1E4E8">(value),</span></span>
+<span class="line"><span style="color:#B392F0">    unwrapOr</span><span style="color:#E1E4E8">: () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> value,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> Nothing</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> ({</span></span>
+<span class="line"><span style="color:#E1E4E8">    tag: </span><span style="color:#9ECBFF">&quot;Nothing&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#B392F0">    map</span><span style="color:#E1E4E8">: () </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> Nothing</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#B392F0">    chain</span><span style="color:#E1E4E8">: () </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> Nothing</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#B392F0">    unwrapOr</span><span style="color:#E1E4E8">: (</span><span style="color:#FFAB70">fallback</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> fallback,</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> fromNullable</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">value</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    value </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> undefined</span><span style="color:#F97583"> ?</span><span style="color:#B392F0"> Nothing</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#B392F0"> Just</span><span style="color:#E1E4E8">(value);</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">fromNullable</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;pune&quot;</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">city</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> city.</span><span style="color:#B392F0">toUpperCase</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">unwrapOr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;unknown&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// &quot;PUNE&quot;</span></span></code></pre>
+<p>And the same code still works when the value is missing:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">fromNullable</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">city</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> city.</span><span style="color:#B392F0">toUpperCase</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">unwrapOr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;unknown&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// &quot;unknown&quot;</span></span></code></pre>
+<p>The important part is not that this is shorter. The important part is that the same pipeline works whether the value exists or not.</p>
+<p><code>Nothing.map</code> does not run the function. It stays <code>Nothing</code>.</p>
+<hr/>
+<h2 id="3-map">3. map</h2>
+<p>You already know this:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">].</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// [2, 4, 6]</span></span></code></pre>
+<p>An array is a context: “many values.”</p>
+<p><code>map</code> sends a normal function into that context. The function receives a plain <code>n</code>, not the whole array. The result comes back in the same kind of context.</p>
+<p><code>Maybe.map</code> does the same thing:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">21</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// Just(42)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Nothing</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// Nothing</span></span></code></pre>
+<p>The function is ordinary:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> double</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>The value is wrapped:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">21</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p><code>map</code> applies the function to the inside value and keeps the result wrapped:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">21</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(double);</span></span>
+<span class="line"><span style="color:#6A737D">// Just(42)</span></span></code></pre>
+<p>That is the useful part of the box metaphor. You are not just storing a value. You are defining how functions move through the wrapper.</p>
+<hr/>
+<h2 id="4-chain">4. chain</h2>
+<p><code>map</code> is perfect when your function returns a normal value:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> double</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">21</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(double);</span></span>
+<span class="line"><span style="color:#6A737D">// Just(42)</span></span></code></pre>
+<p>But some functions already return <code>Maybe</code>.</p>
+<p>Parsing is a good example:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> parseNumber</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">input</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> parsed</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Number</span><span style="color:#E1E4E8">(input);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> Number.</span><span style="color:#B392F0">isFinite</span><span style="color:#E1E4E8">(parsed) </span><span style="color:#F97583">&amp;&amp;</span><span style="color:#E1E4E8"> input.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!==</span><span style="color:#9ECBFF"> &quot;&quot;</span></span>
+<span class="line"><span style="color:#F97583">        ?</span><span style="color:#B392F0"> Just</span><span style="color:#E1E4E8">(parsed)</span></span>
+<span class="line"><span style="color:#F97583">        :</span><span style="color:#B392F0"> Nothing</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>If you use <code>map</code>, you get this:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;42&quot;</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(parseNumber);</span></span>
+<span class="line"><span style="color:#6A737D">// Just(Just(42))</span></span></code></pre>
+<p>Now the wrapper is nested. That is usually not what you want.</p>
+<p>This is why <code>chain</code> exists:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;42&quot;</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(parseNumber);</span></span>
+<span class="line"><span style="color:#6A737D">// Just(42)</span></span></code></pre>
+<p><code>chain</code> runs the function, expects the function to return a <code>Maybe</code>, and then flattens one layer.</p>
+<p>It is also called <code>flatMap</code> or <code>bind</code>.</p>
+<script>(()=>{var a=(s,i,o)=>{let r=async()=>{await(await s())()},t=typeof i.value=="object"?i.value:void 0,c={rootMargin:t==null?void 0:t.rootMargin},n=new IntersectionObserver(e=>{for(let l of e)if(l.isIntersecting){n.disconnect(),r();break}},c);for(let e of o.children)n.observe(e)};(self.Astro||(self.Astro={})).visible=a;window.dispatchEvent(new Event("astro:visible"));})();</script><astro-island uid="2uSlWk" prefix="r4" component-url="/astro/MonadDemos.nirNcgN3.js" component-export="BindFlattenDemo" renderer-url="/astro/client.T-RLldxf.js" props="{}" ssr client="visible" opts="{&quot;name&quot;:&quot;BindFlattenDemo&quot;,&quot;value&quot;:true}" await-children><div style="border:1px solid oklch(0.85 0.008 80);border-radius:6px;padding:16px;margin:1.6em 0;background:oklch(0.96 0.005 80);overflow:hidden" data-demo="true"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.24 0.01 80);font-size:13px;font-weight:700;margin-bottom:4px">map vs chain</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.48 0.01 80);font-size:11px;line-height:1.55;margin:0">chain is what stops your boxes from nesting forever.</div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" style="font-family:var(--font-mono);font-variant-ligatures:none;border:1px solid oklch(0.78 0.01 80);background:oklch(0.98 0.004 80);color:oklch(0.25 0.01 80);border-radius:4px;padding:7px 10px;font-size:12px;cursor:pointer">next</button><button type="button" style="font-family:var(--font-mono);font-variant-ligatures:none;border:1px solid oklch(0.78 0.01 80);background:oklch(0.98 0.004 80);color:oklch(0.25 0.01 80);border-radius:4px;padding:7px 10px;font-size:12px;cursor:pointer">reset</button></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:10px"><div style="border:1px solid;border-radius:6px;padding:12px;min-height:120px;transition:opacity 180ms ease, transform 180ms ease, border-color 180ms ease, background 180ms ease;opacity:1;transform:translateY(-3px);border-color:oklch(0.58 0.12 260);background:oklch(0.95 0.035 260)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.45 0.01 80);font-size:11px;margin-bottom:7px">start</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.28 0.11 260);font-size:16px;font-weight:700;margin-bottom:8px;overflow-wrap:anywhere">Just(2)</div><div style="color:oklch(0.42 0.01 80);font-size:13px;line-height:1.45">a number in a box</div></div><div style="border:1px solid;border-radius:6px;padding:12px;min-height:120px;transition:opacity 180ms ease, transform 180ms ease, border-color 180ms ease, background 180ms ease;opacity:0.25;transform:translateY(0);border-color:oklch(0.86 0.008 80);background:oklch(0.985 0.003 80)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.45 0.01 80);font-size:11px;margin-bottom:7px">map(addOne)</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.28 0.11 260);font-size:16px;font-weight:700;margin-bottom:8px;overflow-wrap:anywhere">Just(3)</div><div style="color:oklch(0.42 0.01 80);font-size:13px;line-height:1.45">plain function, same box</div></div><div style="border:1px solid;border-radius:6px;padding:12px;min-height:120px;transition:opacity 180ms ease, transform 180ms ease, border-color 180ms ease, background 180ms ease;opacity:0.25;transform:translateY(0);border-color:oklch(0.86 0.008 80);background:oklch(0.985 0.003 80)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.45 0.01 80);font-size:11px;margin-bottom:7px">map(safeHalf)</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.28 0.11 260);font-size:16px;font-weight:700;margin-bottom:8px;overflow-wrap:anywhere">Just(Just(1.5))</div><div style="color:oklch(0.42 0.01 80);font-size:13px;line-height:1.45">boxed function result, nested box</div></div><div style="border:1px solid;border-radius:6px;padding:12px;min-height:120px;transition:opacity 180ms ease, transform 180ms ease, border-color 180ms ease, background 180ms ease;opacity:0.25;transform:translateY(0);border-color:oklch(0.86 0.008 80);background:oklch(0.985 0.003 80)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.45 0.01 80);font-size:11px;margin-bottom:7px">chain(safeHalf)</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.28 0.11 260);font-size:16px;font-weight:700;margin-bottom:8px;overflow-wrap:anywhere">Just(1.5)</div><div style="color:oklch(0.42 0.01 80);font-size:13px;line-height:1.45">bind maps, then flattens once</div></div></div></div><!--astro:end--></astro-island>
+<p>Use <code>map</code> when the function returns a plain value. Use <code>chain</code> when the function already returns the same kind of wrapper.</p>
+<hr/>
+<h2 id="5-a-maybe-pipeline">5. A Maybe pipeline</h2>
+<p>Now make a small pipeline where each step can either continue or stop.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> parseNumber</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">input</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> parsed</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> Number</span><span style="color:#E1E4E8">(input);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> Number.</span><span style="color:#B392F0">isFinite</span><span style="color:#E1E4E8">(parsed) </span><span style="color:#F97583">&amp;&amp;</span><span style="color:#E1E4E8"> input.</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!==</span><span style="color:#9ECBFF"> &quot;&quot;</span></span>
+<span class="line"><span style="color:#F97583">        ?</span><span style="color:#B392F0"> Just</span><span style="color:#E1E4E8">(parsed)</span></span>
+<span class="line"><span style="color:#F97583">        :</span><span style="color:#B392F0"> Nothing</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> reciprocal</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> (n </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> ?</span><span style="color:#B392F0"> Nothing</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#B392F0"> Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> /</span><span style="color:#E1E4E8"> n));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> asPercent</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#9ECBFF"> `${</span><span style="color:#9ECBFF">(</span><span style="color:#E1E4E8">n</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 100</span><span style="color:#9ECBFF">).</span><span style="color:#B392F0">toFixed</span><span style="color:#9ECBFF">(</span><span style="color:#79B8FF">2</span><span style="color:#9ECBFF">)</span><span style="color:#9ECBFF">}%`</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>Now the pipeline:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> result</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> fromNullable</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;42&quot;</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(parseNumber)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(reciprocal)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(asPercent)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">unwrapOr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;not a number&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// &quot;2.38%&quot;</span></span></code></pre>
+<p>The code reads like a normal process:</p>
+<ol>
+<li>Start with maybe an input.</li>
+<li>Try parsing it.</li>
+<li>Try taking the reciprocal.</li>
+<li>Format it.</li>
+<li>If anything failed, use a fallback.</li>
+</ol>
+<p>Try the inputs:</p>
+<astro-island uid="KyOvI" prefix="r5" component-url="/astro/MonadDemos.nirNcgN3.js" component-export="MaybePipelineDemo" renderer-url="/astro/client.T-RLldxf.js" props="{}" ssr client="visible" opts="{&quot;name&quot;:&quot;MaybePipelineDemo&quot;,&quot;value&quot;:true}" await-children><div style="border:1px solid oklch(0.85 0.008 80);border-radius:6px;padding:16px;margin:1.6em 0;background:oklch(0.96 0.005 80);overflow:hidden" data-demo="true"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.24 0.01 80);font-size:13px;font-weight:700;margin-bottom:4px">Maybe pipeline</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.48 0.01 80);font-size:11px;line-height:1.55;margin:0">invalid input turns into Nothing once, then every later step politely skips.</div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" style="font-family:var(--font-mono);font-variant-ligatures:none;border:1px solid oklch(0.78 0.01 80);background:oklch(0.92 0.04 170);color:oklch(0.32 0.12 170);border-radius:4px;padding:7px 10px;font-size:12px;cursor:pointer;border-color:oklch(0.55 0.12 170)">42</button><button type="button" style="font-family:var(--font-mono);font-variant-ligatures:none;border:1px solid oklch(0.78 0.01 80);background:oklch(0.98 0.004 80);color:oklch(0.25 0.01 80);border-radius:4px;padding:7px 10px;font-size:12px;cursor:pointer">0</button><button type="button" style="font-family:var(--font-mono);font-variant-ligatures:none;border:1px solid oklch(0.78 0.01 80);background:oklch(0.98 0.004 80);color:oklch(0.25 0.01 80);border-radius:4px;padding:7px 10px;font-size:12px;cursor:pointer">hello</button><button type="button" style="font-family:var(--font-mono);font-variant-ligatures:none;border:1px solid oklch(0.78 0.01 80);background:oklch(0.98 0.004 80);color:oklch(0.25 0.01 80);border-radius:4px;padding:7px 10px;font-size:12px;cursor:pointer">empty</button></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));gap:10px"><div style="border:1px solid;border-radius:6px;padding:12px;min-height:104px;border-color:oklch(0.82 0.03 170);background:oklch(0.975 0.012 170)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.52 0.01 80);font-size:10px;margin-bottom:8px">1</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.45 0.01 80);font-size:11px;margin-bottom:7px">fromNullable(input)</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:16px;font-weight:700;overflow-wrap:anywhere;color:oklch(0.31 0.11 170);animation:monad-fade 260ms ease-out">Just(&quot;42&quot;)</div></div><div style="border:1px solid;border-radius:6px;padding:12px;min-height:104px;border-color:oklch(0.82 0.03 170);background:oklch(0.975 0.012 170)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.52 0.01 80);font-size:10px;margin-bottom:8px">2</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.45 0.01 80);font-size:11px;margin-bottom:7px">chain(parseNumber)</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:16px;font-weight:700;overflow-wrap:anywhere;color:oklch(0.31 0.11 170);animation:monad-fade 260ms ease-out">Just(42)</div></div><div style="border:1px solid;border-radius:6px;padding:12px;min-height:104px;border-color:oklch(0.82 0.03 170);background:oklch(0.975 0.012 170)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.52 0.01 80);font-size:10px;margin-bottom:8px">3</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.45 0.01 80);font-size:11px;margin-bottom:7px">chain(reciprocal)</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:16px;font-weight:700;overflow-wrap:anywhere;color:oklch(0.31 0.11 170);animation:monad-fade 260ms ease-out">Just(0.0238)</div></div><div style="border:1px solid;border-radius:6px;padding:12px;min-height:104px;border-color:oklch(0.82 0.03 170);background:oklch(0.975 0.012 170)"><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.52 0.01 80);font-size:10px;margin-bottom:8px">4</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;color:oklch(0.45 0.01 80);font-size:11px;margin-bottom:7px">map(asPercent)</div><div style="font-family:var(--font-mono);font-variant-ligatures:none;font-size:16px;font-weight:700;overflow-wrap:anywhere;color:oklch(0.31 0.11 170);animation:monad-fade 260ms ease-out">Just(&quot;2.38%&quot;)</div></div></div><style>
+                @keyframes monad-fade {
+                    from { opacity: 0.35; transform: translateY(3px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            </style></div><!--astro:end--></astro-island>
+<p>When the input is <code>&quot;hello&quot;</code>, parsing returns <code>Nothing</code>. After that, the later functions do not run. They do not need to know why. The context carries the failure.</p>
+<p>Success and failure use the same pipeline shape.</p>
+<hr/>
+<h2 id="6-promise-is-closer-than-it-looks">6. Promise is closer than it looks</h2>
+<p>You already use something with the same shape.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#79B8FF">Promise</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#79B8FF"> Promise</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">(console.log);</span></span>
+<span class="line"><span style="color:#6A737D">// 30</span></span></code></pre>
+<p><code>Promise.resolve(2)</code> puts a value into a context: “available later.”</p>
+<p><code>.then(fn)</code> runs <code>fn</code> when the value is ready.</p>
+<p>If <code>fn</code> returns a plain value, Promise wraps it:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#79B8FF">Promise</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// Promise&lt;3&gt;</span></span></code></pre>
+<p>If <code>fn</code> returns another Promise, Promise flattens it:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#79B8FF">Promise</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#79B8FF"> Promise</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">// Promise&lt;20&gt;, not Promise&lt;Promise&lt;20&gt;&gt;</span></span></code></pre>
+<p>That flattening behavior is the important part.</p>
+<p>Arrays do it too:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">].</span><span style="color:#B392F0">flatMap</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> [n, n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">]);</span></span>
+<span class="line"><span style="color:#6A737D">// [1, 10, 2, 20, 3, 30]</span></span></code></pre>
+<p><code>flatMap</code> means “map this function, then flatten one layer.”</p>
+<p>You already understand the behavior. The name is the annoying part.</p>
+<hr/>
+<h2 id="7-the-laws">7. The laws</h2>
+<p>Monad laws sound more dramatic than they are.</p>
+<p>But the idea is simple: chaining should behave predictably.</p>
+<h3 id="law-1-wrap-then-chain-should-equal-calling-the-function">Law 1: wrap, then chain, should equal calling the function</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> Just</span><span style="color:#E1E4E8">(n </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">// same as</span></span>
+<span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>Putting a value into the wrapper should not secretly change it.</p>
+<h3 id="law-2-chain-with-the-wrapper-should-change-nothing">Law 2: chain with the wrapper should change nothing</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(Just);</span></span>
+<span class="line"><span style="color:#6A737D">// Just(3)</span></span></code></pre>
+<p>If your next step only puts the value back in the same wrapper, nothing meaningful happened.</p>
+<h3 id="law-3-grouping-should-not-change-the-result">Law 3: grouping should not change the result</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">m.</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(f).</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(g);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// same result as</span></span>
+<span class="line"><span style="color:#E1E4E8">m.</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">x</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> f</span><span style="color:#E1E4E8">(x).</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(g));</span></span></code></pre>
+<p>This says you can regroup a pipeline without changing what it means.</p>
+<p>That matters because the whole point of this pattern is confidence. If the wrapper follows the laws, you can regroup and refactor chains without changing their meaning.</p>
+<hr/>
+<h2 id="8-do-not-put-everything-in-a-monad">8. Do not put everything in a monad</h2>
+<p>There is a dangerous moment after understanding monads. You will look at normal code and think, “I can improve this.”</p>
+<p>Use this style when the same context keeps leaking everywhere:</p>
+<ul>
+<li>Maybe missing values: <code>Maybe</code>, <code>Option</code>.</li>
+<li>Maybe failed computations: <code>Result</code>, <code>Either</code>.</li>
+<li>Values from the future: <code>Promise</code>, <code>Task</code>.</li>
+<li>Many possible values: <code>Array</code>.</li>
+<li>Parsing chains.</li>
+<li>Validation chains.</li>
+</ul>
+<p>Do not use it when a plain <code>if</code> is clearer.</p>
+<p>Do not build <code>Maybe</code> just to replace one optional chain.</p>
+<p>Do not make your team decode a new abstraction during a bug fix.</p>
+<p>Good abstraction removes repeated pain. Bad abstraction makes ordinary code harder to read.</p>
+<hr/>
+<h2 id="9-the-version-to-remember">9. The version to remember</h2>
+<p>Here is the whole thing:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">fromNullable</span><span style="color:#E1E4E8">(rawInput)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(cleanText)          </span><span style="color:#6A737D">// plain value -&gt; plain value</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(parseNumber)      </span><span style="color:#6A737D">// plain value -&gt; Maybe(value)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">chain</span><span style="color:#E1E4E8">(reciprocal)       </span><span style="color:#6A737D">// plain value -&gt; Maybe(value)</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(asPercent)          </span><span style="color:#6A737D">// plain value -&gt; plain value</span></span>
+<span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">unwrapOr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;invalid&quot;</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p><code>map</code> keeps you in the wrapper.</p>
+<p><code>chain</code> keeps you in the wrapper without nesting wrappers.</p>
+<p><code>unwrapOr</code> leaves the wrapper at the edge of the program, where messy reality belongs.</p>
+<p>That is a monad in useful programmer terms:</p>
+<blockquote>
+<p>A context for a value, plus a way to keep chaining functions through that context without losing your mind.</p>
+</blockquote>
+<p>Just a disciplined way to move through annoying plumbing without writing the plumbing everywhere.</p>  </div> </article> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/writings" class="link">writings</a> </span> <span> <a href="/rss.xml" class="link">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap.xml" class="link">sitemap</a> </span> </div> <div class="mt-2"> <label class="inline-flex items-center font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em]"> <span>theme:</span> <select class="ml-1 bg-transparent font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft outline-none transition-colors duration-[120ms] ease-linear hover:text-ink focus:text-ink" aria-label="Theme" data-theme-select> <option value="system">system</option> <option value="light">light</option> <option value="dark">dark</option> </select> </label> <script>
+    (() => {
+        const root = document.documentElement;
+        const select = document.querySelector("[data-theme-select]");
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        if (!select) return;
+
+        const getStoredTheme = () => {
+            try {
+                return localStorage.getItem("theme") || "system";
+            } catch {
+                return "system";
+            }
+        };
+
+        const storeTheme = (theme) => {
+            try {
+                if (theme === "system") {
+                    localStorage.removeItem("theme");
+                } else {
+                    localStorage.setItem("theme", theme);
+                }
+            } catch {
+                // Ignore storage failures and keep the in-page state working.
+            }
+        };
+
+        const applyTheme = (theme) => {
+            const resolvedTheme = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolvedTheme === "dark");
+            select.value = theme;
+        };
+
+        let selectedTheme = getStoredTheme();
+        applyTheme(selectedTheme);
+
+        select.addEventListener("change", () => {
+            selectedTheme = select.value;
+            storeTheme(selectedTheme);
+            applyTheme(selectedTheme);
+        });
+
+        mediaQuery.addEventListener("change", () => {
+            if (selectedTheme === "system") applyTheme(selectedTheme);
+        });
+    })();
+</script> </div> </footer> </main> </body></html>

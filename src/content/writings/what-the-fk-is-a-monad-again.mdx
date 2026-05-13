@@ -1,0 +1,434 @@
+---
+title: "What the f**k is a monad again?"
+description: "A funny, plain JavaScript explanation of monads, Maybe, map, chain, Promise, and why the weird box thing is useful."
+pubDate: "May 13 2026"
+---
+
+import {
+    MonadHero,
+    MaybePipelineDemo,
+    BindFlattenDemo,
+} from "../../components/demos/MonadDemos";
+
+I have forgotten what a monad is at least seven times.
+
+Every time, the same thing happens. I read one explanation. It says a monad is a monoid in the category of endofunctors. I close the tab. I read another explanation. It says monads are burritos.
+
+So this is the version I want to find the next time I forget.
+
+No academic jump scare. No burrito. Just JavaScript, a few boxes, and the realisation that `Promise.then` has been doing monad stuff in front of us the whole time.
+
+<MonadHero client:load />
+
+> A monad is a wrapper around a value, plus a disciplined way to keep chaining work without constantly unwrapping and rewrapping the value yourself.
+
+---
+
+## 0. The box is not the point
+
+People often say "a monad is a box."
+
+That is almost useful, but it misses the part that matters.
+
+`42` is just a value.
+
+`Maybe(42)` means the value is 42, in a context where the value might be missing.
+
+`Promise(42)` means the value is 42, in a context where the value arrives later.
+
+`Result(42)` means the value is 42, in a context where the operation may have failed.
+
+The number did not become special. The wrapper added information about how the number should move through the program.
+
+For practical JavaScript, the useful promise is this:
+
+You can put a normal value into a context, run normal functions on the value inside it, and chain functions that already return the same context without ending up with `Maybe(Maybe(value))` or `Promise<Promise<value>>`.
+
+---
+
+## 1. Why this exists at all
+
+Real code is rarely a clean pipe of beautiful values.
+
+Values are missing. JSON is shaped wrong. Users type `"banana"` into age fields. APIs return `null`. Division by zero is still division by zero.
+
+Take a basic nested object:
+
+```js
+const user = {
+    profile: {
+        address: {
+            city: "Pune",
+        },
+    },
+};
+```
+
+You want:
+
+```js
+user.profile.address.city.toUpperCase();
+```
+
+But production wants:
+
+```js
+const city =
+    user &&
+    user.profile &&
+    user.profile.address &&
+    user.profile.address.city
+        ? user.profile.address.city.toUpperCase()
+        : null;
+```
+
+That code is not hard, exactly. It is just noisy.
+
+Optional chaining helps:
+
+```js
+const city = user.profile?.address?.city?.toUpperCase() ?? null;
+```
+
+Great. But now imagine every step is a function:
+
+```js
+getProfile(user);
+getAddress(profile);
+getCity(address);
+toUpperCase(city);
+```
+
+Some steps can fail. Some return `null`. Some return a special result. Some are async. You can either write defensive plumbing everywhere, or put the plumbing in one place and make the pipeline readable again.
+
+That is the problem monads are trying to solve.
+
+---
+
+## 2. Maybe
+
+`Maybe` represents a value that may not exist.
+
+It has two cases:
+
+- `Just(value)`: I have the value.
+- `Nothing`: I do not have the value.
+
+Here is a tiny implementation:
+
+```js
+const Just = (value) => ({
+    tag: "Just",
+    map: (fn) => Just(fn(value)),
+    chain: (fn) => fn(value),
+    unwrapOr: () => value,
+});
+
+const Nothing = () => ({
+    tag: "Nothing",
+    map: () => Nothing(),
+    chain: () => Nothing(),
+    unwrapOr: (fallback) => fallback,
+});
+
+const fromNullable = (value) =>
+    value === null || value === undefined ? Nothing() : Just(value);
+```
+
+```js
+fromNullable("pune")
+    .map((city) => city.toUpperCase())
+    .unwrapOr("unknown");
+// "PUNE"
+```
+
+And the same code still works when the value is missing:
+
+```js
+fromNullable(null)
+    .map((city) => city.toUpperCase())
+    .unwrapOr("unknown");
+// "unknown"
+```
+
+The important part is not that this is shorter. The important part is that the same pipeline works whether the value exists or not.
+
+`Nothing.map` does not run the function. It stays `Nothing`.
+
+---
+
+## 3. map
+
+You already know this:
+
+```js
+[1, 2, 3].map((n) => n * 2);
+// [2, 4, 6]
+```
+
+An array is a context: "many values."
+
+`map` sends a normal function into that context. The function receives a plain `n`, not the whole array. The result comes back in the same kind of context.
+
+`Maybe.map` does the same thing:
+
+```js
+Just(21).map((n) => n * 2);
+// Just(42)
+
+Nothing().map((n) => n * 2);
+// Nothing
+```
+
+The function is ordinary:
+
+```js
+const double = (n) => n * 2;
+```
+
+The value is wrapped:
+
+```js
+Just(21);
+```
+
+`map` applies the function to the inside value and keeps the result wrapped:
+
+```js
+Just(21).map(double);
+// Just(42)
+```
+
+That is the useful part of the box metaphor. You are not just storing a value. You are defining how functions move through the wrapper.
+
+---
+
+## 4. chain
+
+`map` is perfect when your function returns a normal value:
+
+```js
+const double = (n) => n * 2;
+
+Just(21).map(double);
+// Just(42)
+```
+
+But some functions already return `Maybe`.
+
+Parsing is a good example:
+
+```js
+const parseNumber = (input) => {
+    const parsed = Number(input);
+    return Number.isFinite(parsed) && input.trim() !== ""
+        ? Just(parsed)
+        : Nothing();
+};
+```
+
+If you use `map`, you get this:
+
+```js
+Just("42").map(parseNumber);
+// Just(Just(42))
+```
+
+Now the wrapper is nested. That is usually not what you want.
+
+This is why `chain` exists:
+
+```js
+Just("42").chain(parseNumber);
+// Just(42)
+```
+
+`chain` runs the function, expects the function to return a `Maybe`, and then flattens one layer.
+
+It is also called `flatMap` or `bind`.
+
+<BindFlattenDemo client:visible />
+
+Use `map` when the function returns a plain value. Use `chain` when the function already returns the same kind of wrapper.
+
+---
+
+## 5. A Maybe pipeline
+
+Now make a small pipeline where each step can either continue or stop.
+
+```js
+const parseNumber = (input) => {
+    const parsed = Number(input);
+    return Number.isFinite(parsed) && input.trim() !== ""
+        ? Just(parsed)
+        : Nothing();
+};
+
+const reciprocal = (n) => (n === 0 ? Nothing() : Just(1 / n));
+
+const asPercent = (n) => `${(n * 100).toFixed(2)}%`;
+```
+
+Now the pipeline:
+
+```js
+const result = fromNullable("42")
+    .chain(parseNumber)
+    .chain(reciprocal)
+    .map(asPercent)
+    .unwrapOr("not a number");
+
+// "2.38%"
+```
+
+The code reads like a normal process:
+
+1. Start with maybe an input.
+2. Try parsing it.
+3. Try taking the reciprocal.
+4. Format it.
+5. If anything failed, use a fallback.
+
+Try the inputs:
+
+<MaybePipelineDemo client:visible />
+
+When the input is `"hello"`, parsing returns `Nothing`. After that, the later functions do not run. They do not need to know why. The context carries the failure.
+
+Success and failure use the same pipeline shape.
+
+---
+
+## 6. Promise is closer than it looks
+
+You already use something with the same shape.
+
+```js
+Promise.resolve(2)
+    .then((n) => n + 1)
+    .then((n) => Promise.resolve(n * 10))
+    .then(console.log);
+// 30
+```
+
+`Promise.resolve(2)` puts a value into a context: "available later."
+
+`.then(fn)` runs `fn` when the value is ready.
+
+If `fn` returns a plain value, Promise wraps it:
+
+```js
+Promise.resolve(2).then((n) => n + 1);
+// Promise<3>
+```
+
+If `fn` returns another Promise, Promise flattens it:
+
+```js
+Promise.resolve(2).then((n) => Promise.resolve(n * 10));
+// Promise<20>, not Promise<Promise<20>>
+```
+
+That flattening behavior is the important part.
+
+Arrays do it too:
+
+```js
+[1, 2, 3].flatMap((n) => [n, n * 10]);
+// [1, 10, 2, 20, 3, 30]
+```
+
+`flatMap` means "map this function, then flatten one layer."
+
+You already understand the behavior. The name is the annoying part.
+
+---
+
+## 7. The laws
+
+Monad laws sound more dramatic than they are.
+
+But the idea is simple: chaining should behave predictably.
+
+### Law 1: wrap, then chain, should equal calling the function
+
+```js
+Just(3).chain((n) => Just(n + 1));
+// same as
+Just(4);
+```
+
+Putting a value into the wrapper should not secretly change it.
+
+### Law 2: chain with the wrapper should change nothing
+
+```js
+Just(3).chain(Just);
+// Just(3)
+```
+
+If your next step only puts the value back in the same wrapper, nothing meaningful happened.
+
+### Law 3: grouping should not change the result
+
+```js
+m.chain(f).chain(g);
+
+// same result as
+m.chain((x) => f(x).chain(g));
+```
+
+This says you can regroup a pipeline without changing what it means.
+
+That matters because the whole point of this pattern is confidence. If the wrapper follows the laws, you can regroup and refactor chains without changing their meaning.
+
+---
+
+## 8. Do not put everything in a monad
+
+There is a dangerous moment after understanding monads. You will look at normal code and think, "I can improve this."
+
+Use this style when the same context keeps leaking everywhere:
+
+- Maybe missing values: `Maybe`, `Option`.
+- Maybe failed computations: `Result`, `Either`.
+- Values from the future: `Promise`, `Task`.
+- Many possible values: `Array`.
+- Parsing chains.
+- Validation chains.
+
+Do not use it when a plain `if` is clearer.
+
+Do not build `Maybe` just to replace one optional chain.
+
+Do not make your team decode a new abstraction during a bug fix.
+
+Good abstraction removes repeated pain. Bad abstraction makes ordinary code harder to read.
+
+---
+
+## 9. The version to remember
+
+Here is the whole thing:
+
+```js
+fromNullable(rawInput)
+    .map(cleanText)          // plain value -> plain value
+    .chain(parseNumber)      // plain value -> Maybe(value)
+    .chain(reciprocal)       // plain value -> Maybe(value)
+    .map(asPercent)          // plain value -> plain value
+    .unwrapOr("invalid");
+```
+
+`map` keeps you in the wrapper.
+
+`chain` keeps you in the wrapper without nesting wrappers.
+
+`unwrapOr` leaves the wrapper at the edge of the program, where messy reality belongs.
+
+That is a monad in useful programmer terms:
+
+> A context for a value, plus a way to keep chaining functions through that context without losing your mind.
+
+Just a disciplined way to move through annoying plumbing without writing the plumbing everywhere.
