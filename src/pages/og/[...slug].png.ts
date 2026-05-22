@@ -39,14 +39,14 @@ export async function getStaticPaths() {
             params: { slug: "index" },
             props: {
                 title: "Vaibhav Acharya, engineer.",
-                meta: "vaibhavacharya.github.io",
+                meta: "vaibhavacharya.com",
             },
         },
         ...posts.map((post) => ({
             params: { slug: post.id },
             props: {
                 title: post.data.title + ".",
-                meta: `${formatPubDate(post.data.pubDate)}  ·  vaibhavacharya.github.io`,
+                meta: `${formatPubDate(post.data.pubDate)}  ·  vaibhavacharya.com`,
             },
         })),
     ];

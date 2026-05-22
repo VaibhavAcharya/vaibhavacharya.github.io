@@ -5,7 +5,7 @@
 
 type OgProps = {
     title: string;
-    meta: string; // "7 May 2025  ·  vaibhavacharya.github.io" or just the domain on home
+    meta: string; // "7 May 2025  ·  vaibhavacharya.com" or just the domain on home
 };
 
 // sRGB hex equivalents of the spec's OKLCH tokens, computed via culori.

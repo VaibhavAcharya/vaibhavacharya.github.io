@@ -7,7 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
-    site: "https://vaibhavacharya.github.io",
+    site: "https://vaibhavacharya.com",
 
     output: "static",
     outDir: "./docs",

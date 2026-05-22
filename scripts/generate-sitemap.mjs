@@ -1,7 +1,7 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const site = "https://vaibhavacharya.github.io";
+const site = "https://vaibhavacharya.com";
 const outDir = path.resolve("docs");
 const contentDir = path.resolve("src/content/writings");
 const sitemapPath = path.join(outDir, "sitemap.xml");
