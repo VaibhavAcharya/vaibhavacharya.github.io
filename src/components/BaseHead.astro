@@ -1,14 +1,17 @@
 ---
 // src/components/BaseHead.astro
 import "../styles/global.css";
-import { SITE_TITLE } from "../consts";
+import { SITE_TITLE, TWITTER_HANDLE } from "../consts";
 
 interface Props {
     title: string;
     description: string;
     image?: string;
+    imageAlt?: string;
     type?: "website" | "article";
     publishedDate?: Date;
+    modifiedDate?: Date;
+    jsonLd?: Record<string, unknown>;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -17,8 +20,11 @@ const {
     title,
     description,
     image = "/og/index.png",
+    imageAlt = title,
     type = "website",
     publishedDate,
+    modifiedDate,
+    jsonLd,
 } = Astro.props;
 ---
 
@@ -79,14 +85,25 @@ const {
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={new URL(image, Astro.url)} />
-<meta property="og:locale" content="en_US" />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:locale" content="en_IN" />
 {publishedDate && (
     <meta property="article:published_time" content={publishedDate.toISOString()} />
+)}
+{modifiedDate && (
+    <meta property="article:modified_time" content={modifiedDate.toISOString()} />
 )}
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:creator" content={TWITTER_HANDLE} />
 <meta name="twitter:url" content={Astro.url} />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={new URL(image, Astro.url)} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+<!-- Structured Data -->
+{jsonLd && (
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd).replaceAll("<", "\\u003c")} />
+)}

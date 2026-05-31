@@ -4,11 +4,26 @@ import type { CollectionEntry } from "astro:content";
 import BaseHead from "../components/BaseHead.astro";
 import BackLink from "../components/BackLink.astro";
 import Colophon from "../components/Colophon.astro";
-import { SITE_TITLE } from "../consts";
+import { SITE_TITLE, AUTHOR } from "../consts";
 
 type Props = CollectionEntry<"writings">["data"] & { slug: string };
 
 const { title, description, pubDate, updatedDate, slug } = Astro.props;
+
+const postUrl = new URL(`/writings/${slug}/`, Astro.site).href;
+
+const blogPostingLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description,
+    url: postUrl,
+    mainEntityOfPage: postUrl,
+    image: new URL(`/og/${slug}.png`, Astro.site).href,
+    datePublished: pubDate.toISOString(),
+    ...(updatedDate && { dateModified: updatedDate.toISOString() }),
+    author: { "@type": "Person", name: AUTHOR.name, url: Astro.site?.href },
+};
 
 const formattedDate = pubDate.toLocaleDateString("en-GB", {
     day: "numeric",
@@ -16,24 +31,28 @@ const formattedDate = pubDate.toLocaleDateString("en-GB", {
     year: "numeric",
 });
 
-const formattedUpdated = updatedDate
-    ? updatedDate.toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-      })
-    : null;
+const formattedUpdated =
+    updatedDate && updatedDate.valueOf() > pubDate.valueOf()
+        ? updatedDate.toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+          })
+        : null;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
     <head>
         <BaseHead
             title={`${title} · ${SITE_TITLE}`}
             description={description}
             image={`/og/${slug}.png`}
+            imageAlt={title}
             type="article"
             publishedDate={pubDate}
+            modifiedDate={updatedDate}
+            jsonLd={blogPostingLd}
         />
     </head>
     <body>

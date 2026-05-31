@@ -2,8 +2,19 @@
 import BaseHead from "../components/BaseHead.astro";
 import Colophon from "../components/Colophon.astro";
 import RowTable from "../components/RowTable.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from "../consts";
 import { getCollection } from "astro:content";
+
+const personLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: AUTHOR.name,
+    jobTitle: AUTHOR.jobTitle,
+    url: Astro.site?.href,
+    description: SITE_DESCRIPTION,
+    worksFor: { "@type": "Organization", name: "Netlify", url: "https://netlify.com" },
+    sameAs: AUTHOR.sameAs,
+};
 
 const workRows = [
     { label: "software engineer", value: "Netlify", href: "https://netlify.com", current: true },
@@ -45,9 +56,9 @@ const writingRows = latestPosts.map((post) => ({
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
     <head>
-        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+        <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} jsonLd={personLd} />
     </head>
     <body>
         <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12">
