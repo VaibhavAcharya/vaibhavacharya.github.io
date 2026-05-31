@@ -11,13 +11,11 @@ const posts = (await getCollection("writings")).sort(
 );
 
 function formatShortDate(d: Date): string {
-    return d
-        .toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-        })
-        .toLowerCase();
+    return d.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
 }
 
 const postRows = posts.map((post) => ({

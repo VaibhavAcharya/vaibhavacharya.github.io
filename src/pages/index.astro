@@ -34,13 +34,11 @@ const connectRows = [
 ];
 
 function formatShortDate(d: Date): string {
-    return d
-        .toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-        })
-        .toLowerCase();
+    return d.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
 }
 
 const latestPosts = (await getCollection("writings"))
