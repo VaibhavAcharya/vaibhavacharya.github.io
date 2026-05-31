@@ -24,7 +24,7 @@ const literataItalic = readFileSync(LITERATA_ITALIC_PATH);
 const cascadia = readFileSync(CASCADIA_PATH);
 
 function formatPubDate(d: Date): string {
-    return d.toLocaleDateString("en-GB", {
+    return d.toLocaleDateString("en-IN", {
         day: "numeric",
         month: "long",
         year: "numeric",

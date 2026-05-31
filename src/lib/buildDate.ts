@@ -5,7 +5,7 @@ export const BUILD_DATE: Date = new Date();
 
 export function formatBuildDate(d: Date = BUILD_DATE): string {
     // e.g. "17 April 2026"
-    return d.toLocaleDateString("en-GB", {
+    return d.toLocaleDateString("en-IN", {
         day: "numeric",
         month: "long",
         year: "numeric",

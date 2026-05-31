@@ -12,7 +12,7 @@ const posts = (await getCollection("writings")).sort(
 
 function formatShortDate(d: Date): string {
     return d
-        .toLocaleDateString("en-US", {
+        .toLocaleDateString("en-IN", {
             day: "numeric",
             month: "short",
             year: "numeric",

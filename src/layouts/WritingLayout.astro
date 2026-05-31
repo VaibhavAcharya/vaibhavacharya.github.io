@@ -25,7 +25,7 @@ const blogPostingLd = {
     author: { "@type": "Person", name: AUTHOR.name, url: Astro.site?.href },
 };
 
-const formattedDate = pubDate.toLocaleDateString("en-GB", {
+const formattedDate = pubDate.toLocaleDateString("en-IN", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -33,7 +33,7 @@ const formattedDate = pubDate.toLocaleDateString("en-GB", {
 
 const formattedUpdated =
     updatedDate && updatedDate.valueOf() > pubDate.valueOf()
-        ? updatedDate.toLocaleDateString("en-GB", {
+        ? updatedDate.toLocaleDateString("en-IN", {
               day: "numeric",
               month: "long",
               year: "numeric",
