@@ -1,0 +1,67 @@
+---
+title: "TCP vs UDP, and When to Reach for Each"
+description: "TCP is a reliable byte stream, UDP is fire-and-forget messages. The short version, with Node socket examples."
+pubDate: "Jun 20 2026"
+updatedDate: "Jun 20 2026"
+---
+
+Loading this page used TCP. Resolving the domain to an IP first used UDP. Two protocols, one request, picked for different jobs.
+
+The usual line is "TCP is reliable, UDP is fast." True enough to pass an interview, shallow enough to lead you to the wrong choice.
+
+---
+
+## TCP is a phone call
+
+Both sides shake hands before any data moves:
+
+```
+client  ──  SYN     ──▶  server
+client  ◀── SYN-ACK ──   server
+client  ──  ACK     ──▶  server   connected
+```
+
+After that, TCP numbers every byte, acknowledges what arrives, resends what gets lost, and slows down when the network is congested. You program against a clean abstraction: an ordered stream of bytes that either arrives intact or fails loudly.
+
+```js
+import net from "node:net";
+
+net.createServer((socket) => {
+    socket.on("data", (chunk) => socket.write(chunk)); // echo
+}).listen(4000);
+```
+
+The catch: TCP has **no message boundaries**. Send `"hello"` then `"world"` and one `data` event might fire with `"helloworld"`, or split as `"hel"` then `"loworld"`. You get ordering for free and pay for it by framing your own messages (a delimiter or a length prefix).
+
+## UDP is a postcard
+
+No handshake, no ACKs, no retransmission. Send it and walk away. A datagram might be lost, duplicated, or arrive out of order, and nobody tells you. The header is 8 bytes vs TCP's 20+.
+
+```js
+import dgram from "node:dgram";
+
+const server = dgram.createSocket("udp4");
+server.on("message", (msg, rinfo) => server.send(msg, rinfo.port, rinfo.address));
+server.bind(4000);
+```
+
+The one thing UDP guarantees: each `message` is exactly one whole datagram. **UDP keeps message boundaries; TCP does not.**
+
+## Head-of-line blocking
+
+Because TCP delivers strictly in order, one lost segment stalls every segment behind it until it is resent. Great for a file (useless out of order), wrong for a live call (the resent packet is already stale, you would rather skip it). This is why HTTP/3 runs on UDP and rebuilds only the reliability it wants. More on that in [QUIC, TCP rebuilt on UDP](/writings/quic/).
+
+---
+
+## Which one?
+
+| | TCP | UDP |
+|---|---|---|
+| Delivery | Guaranteed or errors | Best effort |
+| Ordering | In order | As they arrive |
+| Boundaries | Byte stream, you frame | One datagram per message |
+| Overhead | 20+ byte header | 8 byte header |
+
+Default to **TCP**: web, APIs, files, anything where a missing byte corrupts the result.
+
+Use **UDP** when late data is worthless: DNS, live video and voice, games, telemetry. The deciding question is not "do I want reliability" but **what should happen to data that arrives late.** Worth waiting for, use TCP. Useless once late, UDP lets you move on.

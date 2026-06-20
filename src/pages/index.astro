@@ -43,7 +43,7 @@ function formatShortDate(d: Date): string {
 
 const latestPosts = (await getCollection("writings"))
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    .slice(0, 3);
+    .slice(0, 5);
 
 const writingRows = latestPosts.map((post) => ({
     label: formatShortDate(post.data.pubDate),

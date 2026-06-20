@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en-IN" data-astro-cid-jbqbou7q> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.com/rss.xml"><meta name="generator" content="Astro v5.7.10"><meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk"><script>
+    (() => {
+        try {
+            const theme = localStorage.getItem("theme") || "system";
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle(
+                "dark",
+                theme === "dark" || (theme === "system" && prefersDark),
+            );
+        } catch {
+            // Keep the default light theme when theme detection is unavailable.
+        }
+    })();
+</script><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"></noscript><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.com/writings/quic/"><!-- Primary Meta --><title>QUIC, TCP Rebuilt on UDP · Vaibhav Acharya, engineer.</title><meta name="title" content="QUIC, TCP Rebuilt on UDP · Vaibhav Acharya, engineer."><meta name="description" content="What you get when you rebuild TCP's reliability on top of UDP in user space, and drop the parts that hurt."><!-- Open Graph --><meta property="og:type" content="article"><meta property="og:url" content="https://vaibhavacharya.com/writings/quic/"><meta property="og:title" content="QUIC, TCP Rebuilt on UDP · Vaibhav Acharya, engineer."><meta property="og:description" content="What you get when you rebuild TCP's reliability on top of UDP in user space, and drop the parts that hurt."><meta property="og:image" content="https://vaibhavacharya.com/og/quic.png"><meta property="og:image:alt" content="QUIC, TCP Rebuilt on UDP"><meta property="og:locale" content="en_IN"><meta property="article:published_time" content="2026-06-19T18:30:00.000Z"><meta property="article:modified_time" content="2026-06-19T18:30:00.000Z"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@VaibhavAcharya_"><meta name="twitter:url" content="https://vaibhavacharya.com/writings/quic/"><meta name="twitter:title" content="QUIC, TCP Rebuilt on UDP · Vaibhav Acharya, engineer."><meta name="twitter:description" content="What you get when you rebuild TCP's reliability on top of UDP in user space, and drop the parts that hurt."><meta name="twitter:image" content="https://vaibhavacharya.com/og/quic.png"><meta name="twitter:image:alt" content="QUIC, TCP Rebuilt on UDP"><!-- Structured Data --><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"QUIC, TCP Rebuilt on UDP","description":"What you get when you rebuild TCP's reliability on top of UDP in user space, and drop the parts that hurt.","url":"https://vaibhavacharya.com/writings/quic/","mainEntityOfPage":"https://vaibhavacharya.com/writings/quic/","image":"https://vaibhavacharya.com/og/quic.png","datePublished":"2026-06-19T18:30:00.000Z","dateModified":"2026-06-19T18:30:00.000Z","author":{"@type":"Person","name":"Vaibhav Acharya","url":"https://vaibhavacharya.com/","sameAs":["https://github.com/VaibhavAcharya","https://x.com/VaibhavAcharya_","https://bsky.app/profile/vaibhavacharya.bsky.social","https://www.linkedin.com/in/vaibhav-acharya"]},"publisher":{"@type":"Person","name":"Vaibhav Acharya","url":"https://vaibhavacharya.com/","sameAs":["https://github.com/VaibhavAcharya","https://x.com/VaibhavAcharya_","https://bsky.app/profile/vaibhavacharya.bsky.social","https://www.linkedin.com/in/vaibhav-acharya"]}}</script><link rel="stylesheet" href="/astro/_slug_.BfKmlMvt.css">
+<link rel="stylesheet" href="/astro/_slug_.Bv2fdxJa.css"></head> <body data-astro-cid-jbqbou7q> <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12" data-astro-cid-jbqbou7q> <a href="/writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← <span class="link">writings</span></a> <article data-astro-cid-jbqbou7q> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]" data-astro-cid-jbqbou7q>QUIC, TCP Rebuilt on UDP</h1> <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8" data-astro-cid-jbqbou7q> <a href="/" class="link" data-astro-cid-jbqbou7q>Vaibhav Acharya</a>, 20 June 2026  </p> <hr class="border-0 border-t border-rule-solid m-0 mb-8" data-astro-cid-jbqbou7q> <div class="post-body" data-astro-cid-jbqbou7q>  <p>QUIC is what you get if you take TCP’s reliability, rebuild it on top of <a href="/writings/tcp-vs-udp/">UDP</a>, and drop the parts that hurt. It is the transport under <a href="/writings/http-versions/">HTTP/3</a>, standardised in 2021.</p>
+<p>The obvious question first: why build on UDP, the unreliable one?</p>
+<hr/>
+<h2 id="why-udp">Why UDP</h2>
+<p>TCP lives in the operating system kernel, and the network is full of middleboxes that assume its exact shape. Changing TCP means upgrading every OS and hoping no router mangles your new options. It has ossified.</p>
+<p>UDP is a thin envelope. QUIC rides inside it and lives in <strong>user space</strong>, in the application, so it can ship fixes as fast as a browser updates. UDP is the escape hatch, not the goal.</p>
+<h2 id="independent-streams">Independent streams</h2>
+<p>This is the headline. <a href="/writings/http-versions/">HTTP/2 multiplexes streams over one TCP connection, but TCP delivers bytes in order, so one lost packet stalls every stream</a>.</p>
+<p>QUIC makes each stream independent at the transport layer. A lost packet only blocks the stream it belonged to. The others keep flowing. Transport-level head-of-line blocking is gone.</p>
+<h2 id="one-handshake-not-two">One handshake, not two</h2>
+<p>TCP plus TLS means two handshakes in sequence: the TCP three-way, then the TLS exchange.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>TCP + TLS              QUIC</span></span>
+<span class="line"><span>  SYN  ──▶                Initial + crypto  ──▶</span></span>
+<span class="line"><span>  ◀── SYN-ACK             ◀── response + keys (+ data)</span></span>
+<span class="line"><span>  ACK  ──▶</span></span>
+<span class="line"><span>  TLS hello ──▶</span></span>
+<span class="line"><span>  ...</span></span>
+<span class="line"><span>  2 round trips          1 round trip (0 if resumed)</span></span></code></pre>
+<p>QUIC folds transport setup and TLS 1.3 into one step. New connections take one round trip, resumed ones take zero. Encryption is not optional; every QUIC connection is encrypted.</p>
+<h2 id="connection-migration">Connection migration</h2>
+<p>TCP identifies a connection by the four-tuple: source IP, source port, destination IP, destination port. Change your IP, say walking from wifi to cellular, and the connection breaks and reconnects.</p>
+<p>QUIC tags each connection with a <strong>connection ID</strong> instead. Your IP changes, the ID does not, and the connection survives the switch.</p>
+<hr/>
+<p>The cost is real: more CPU than TCP (user space, plus per-packet encryption), and some networks throttle or block UDP. For the web, where setup latency and lossy mobile links dominate, the trade pays off. That is why HTTP/3 runs on it.</p>  </div> </article> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/writings" class="link">writings</a> </span> <span> <a href="/rss.xml" class="link">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap.xml" class="link">sitemap</a> </span> </div> <div class="mt-2"> <label class="inline-flex items-center font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em]"> <span>theme:</span> <select class="ml-1 bg-transparent font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft outline-none transition-colors duration-[120ms] ease-linear hover:text-ink focus:text-ink" aria-label="Theme" data-theme-select> <option value="system">system</option> <option value="light">light</option> <option value="dark">dark</option> </select> </label> <script>
+    (() => {
+        const root = document.documentElement;
+        const select = document.querySelector("[data-theme-select]");
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        if (!select) return;
+
+        const getStoredTheme = () => {
+            try {
+                return localStorage.getItem("theme") || "system";
+            } catch {
+                return "system";
+            }
+        };
+
+        const storeTheme = (theme) => {
+            try {
+                if (theme === "system") {
+                    localStorage.removeItem("theme");
+                } else {
+                    localStorage.setItem("theme", theme);
+                }
+            } catch {
+                // Ignore storage failures and keep the in-page state working.
+            }
+        };
+
+        const applyTheme = (theme) => {
+            const resolvedTheme = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolvedTheme === "dark");
+            select.value = theme;
+        };
+
+        let selectedTheme = getStoredTheme();
+        applyTheme(selectedTheme);
+
+        select.addEventListener("change", () => {
+            selectedTheme = select.value;
+            storeTheme(selectedTheme);
+            applyTheme(selectedTheme);
+        });
+
+        mediaQuery.addEventListener("change", () => {
+            if (selectedTheme === "system") applyTheme(selectedTheme);
+        });
+    })();
+</script> </div> </footer> </main> </body></html>

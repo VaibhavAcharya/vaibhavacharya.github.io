@@ -1,0 +1,48 @@
+---
+title: "HTTP Versions, From 0.9 to 3"
+description: "Every HTTP version exists to fix the bottleneck the last one created. The whole arc, briefly."
+pubDate: "Jun 20 2026"
+updatedDate: "Jun 20 2026"
+---
+
+Every HTTP version exists to fix a bottleneck the last one created. The whole arc takes a few minutes.
+
+---
+
+## HTTP/0.9 (1991)
+
+The entire protocol was one line:
+
+```
+GET /index.html
+```
+
+The server sent back raw HTML and closed the connection. No headers, no status codes, no other methods. That was it.
+
+## HTTP/1.0 (1996)
+
+Added the things you think of as HTTP: headers, status codes (`200`, `404`), `Content-Type` so you could send images and not just HTML, and methods beyond `GET`. The flaw: one request per TCP connection. Every image on a page paid for a fresh handshake.
+
+## HTTP/1.1 (1997)
+
+Made connections **persistent**, so many requests reuse one TCP connection, and required the `Host` header, which let one server host many sites. Responses still come back in request order, so one slow response blocks the rest. Browsers worked around it by opening ~6 connections per origin.
+
+## HTTP/2 (2015)
+
+Went binary and added **multiplexing**: many requests and responses interleaved over a single connection, killing the 6-connection hack. Plus header compression. But it still rides TCP, and TCP delivers bytes in order, so one lost packet stalls every stream. Head-of-line blocking just moved down a layer.
+
+## HTTP/3 (2022)
+
+Dropped TCP for [QUIC](/writings/quic/), which runs on UDP (see [TCP vs UDP](/writings/tcp-vs-udp/)). Each stream is independent at the transport layer, so a lost packet only blocks its own stream. The handshake is faster, and a connection survives switching networks (wifi to cellular) instead of breaking.
+
+---
+
+| Version | Year | What it added |
+|---|---|---|
+| 0.9 | 1991 | `GET`, raw HTML, nothing else |
+| 1.0 | 1996 | Headers, status codes, content types |
+| 1.1 | 1997 | Persistent connections, `Host` header |
+| 2 | 2015 | Binary framing, multiplexing, header compression |
+| 3 | 2022 | QUIC over UDP, independent streams |
+
+The pattern is one chase: every version pushes head-of-line blocking down a layer. 1.1 fixed connections, 2 fixed the HTTP layer, 3 fixed the transport itself.

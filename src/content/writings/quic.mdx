@@ -1,0 +1,50 @@
+---
+title: "QUIC, TCP Rebuilt on UDP"
+description: "What you get when you rebuild TCP's reliability on top of UDP in user space, and drop the parts that hurt."
+pubDate: "Jun 20 2026"
+updatedDate: "Jun 20 2026"
+---
+
+QUIC is what you get if you take TCP's reliability, rebuild it on top of [UDP](/writings/tcp-vs-udp/), and drop the parts that hurt. It is the transport under [HTTP/3](/writings/http-versions/), standardised in 2021.
+
+The obvious question first: why build on UDP, the unreliable one?
+
+---
+
+## Why UDP
+
+TCP lives in the operating system kernel, and the network is full of middleboxes that assume its exact shape. Changing TCP means upgrading every OS and hoping no router mangles your new options. It has ossified.
+
+UDP is a thin envelope. QUIC rides inside it and lives in **user space**, in the application, so it can ship fixes as fast as a browser updates. UDP is the escape hatch, not the goal.
+
+## Independent streams
+
+This is the headline. [HTTP/2 multiplexes streams over one TCP connection, but TCP delivers bytes in order, so one lost packet stalls every stream](/writings/http-versions/).
+
+QUIC makes each stream independent at the transport layer. A lost packet only blocks the stream it belonged to. The others keep flowing. Transport-level head-of-line blocking is gone.
+
+## One handshake, not two
+
+TCP plus TLS means two handshakes in sequence: the TCP three-way, then the TLS exchange.
+
+```
+TCP + TLS              QUIC
+  SYN  ──▶                Initial + crypto  ──▶
+  ◀── SYN-ACK             ◀── response + keys (+ data)
+  ACK  ──▶
+  TLS hello ──▶
+  ...
+  2 round trips          1 round trip (0 if resumed)
+```
+
+QUIC folds transport setup and TLS 1.3 into one step. New connections take one round trip, resumed ones take zero. Encryption is not optional; every QUIC connection is encrypted.
+
+## Connection migration
+
+TCP identifies a connection by the four-tuple: source IP, source port, destination IP, destination port. Change your IP, say walking from wifi to cellular, and the connection breaks and reconnects.
+
+QUIC tags each connection with a **connection ID** instead. Your IP changes, the ID does not, and the connection survives the switch.
+
+---
+
+The cost is real: more CPU than TCP (user space, plus per-packet encryption), and some networks throttle or block UDP. For the web, where setup latency and lossy mobile links dominate, the trade pays off. That is why HTTP/3 runs on it.

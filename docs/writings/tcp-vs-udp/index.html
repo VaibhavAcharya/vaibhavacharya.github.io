@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en-IN" data-astro-cid-jbqbou7q> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.com/rss.xml"><meta name="generator" content="Astro v5.7.10"><meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk"><script>
+    (() => {
+        try {
+            const theme = localStorage.getItem("theme") || "system";
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle(
+                "dark",
+                theme === "dark" || (theme === "system" && prefersDark),
+            );
+        } catch {
+            // Keep the default light theme when theme detection is unavailable.
+        }
+    })();
+</script><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"></noscript><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.com/writings/tcp-vs-udp/"><!-- Primary Meta --><title>TCP vs UDP, and When to Reach for Each · Vaibhav Acharya, engineer.</title><meta name="title" content="TCP vs UDP, and When to Reach for Each · Vaibhav Acharya, engineer."><meta name="description" content="TCP is a reliable byte stream, UDP is fire-and-forget messages. The short version, with Node socket examples."><!-- Open Graph --><meta property="og:type" content="article"><meta property="og:url" content="https://vaibhavacharya.com/writings/tcp-vs-udp/"><meta property="og:title" content="TCP vs UDP, and When to Reach for Each · Vaibhav Acharya, engineer."><meta property="og:description" content="TCP is a reliable byte stream, UDP is fire-and-forget messages. The short version, with Node socket examples."><meta property="og:image" content="https://vaibhavacharya.com/og/tcp-vs-udp.png"><meta property="og:image:alt" content="TCP vs UDP, and When to Reach for Each"><meta property="og:locale" content="en_IN"><meta property="article:published_time" content="2026-06-19T18:30:00.000Z"><meta property="article:modified_time" content="2026-06-19T18:30:00.000Z"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@VaibhavAcharya_"><meta name="twitter:url" content="https://vaibhavacharya.com/writings/tcp-vs-udp/"><meta name="twitter:title" content="TCP vs UDP, and When to Reach for Each · Vaibhav Acharya, engineer."><meta name="twitter:description" content="TCP is a reliable byte stream, UDP is fire-and-forget messages. The short version, with Node socket examples."><meta name="twitter:image" content="https://vaibhavacharya.com/og/tcp-vs-udp.png"><meta name="twitter:image:alt" content="TCP vs UDP, and When to Reach for Each"><!-- Structured Data --><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"TCP vs UDP, and When to Reach for Each","description":"TCP is a reliable byte stream, UDP is fire-and-forget messages. The short version, with Node socket examples.","url":"https://vaibhavacharya.com/writings/tcp-vs-udp/","mainEntityOfPage":"https://vaibhavacharya.com/writings/tcp-vs-udp/","image":"https://vaibhavacharya.com/og/tcp-vs-udp.png","datePublished":"2026-06-19T18:30:00.000Z","dateModified":"2026-06-19T18:30:00.000Z","author":{"@type":"Person","name":"Vaibhav Acharya","url":"https://vaibhavacharya.com/","sameAs":["https://github.com/VaibhavAcharya","https://x.com/VaibhavAcharya_","https://bsky.app/profile/vaibhavacharya.bsky.social","https://www.linkedin.com/in/vaibhav-acharya"]},"publisher":{"@type":"Person","name":"Vaibhav Acharya","url":"https://vaibhavacharya.com/","sameAs":["https://github.com/VaibhavAcharya","https://x.com/VaibhavAcharya_","https://bsky.app/profile/vaibhavacharya.bsky.social","https://www.linkedin.com/in/vaibhav-acharya"]}}</script><link rel="stylesheet" href="/astro/_slug_.BfKmlMvt.css">
+<link rel="stylesheet" href="/astro/_slug_.Bv2fdxJa.css"></head> <body data-astro-cid-jbqbou7q> <main class="max-w-[580px] w-full mx-auto px-10 pt-20 pb-18 flex flex-col max-sm:px-6 max-sm:pt-14 max-sm:pb-12" data-astro-cid-jbqbou7q> <a href="/writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← <span class="link">writings</span></a> <article data-astro-cid-jbqbou7q> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]" data-astro-cid-jbqbou7q>TCP vs UDP, and When to Reach for Each</h1> <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8" data-astro-cid-jbqbou7q> <a href="/" class="link" data-astro-cid-jbqbou7q>Vaibhav Acharya</a>, 20 June 2026  </p> <hr class="border-0 border-t border-rule-solid m-0 mb-8" data-astro-cid-jbqbou7q> <div class="post-body" data-astro-cid-jbqbou7q>  <p>Loading this page used TCP. Resolving the domain to an IP first used UDP. Two protocols, one request, picked for different jobs.</p>
+<p>The usual line is “TCP is reliable, UDP is fast.” True enough to pass an interview, shallow enough to lead you to the wrong choice.</p>
+<hr/>
+<h2 id="tcp-is-a-phone-call">TCP is a phone call</h2>
+<p>Both sides shake hands before any data moves:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>client  ──  SYN     ──▶  server</span></span>
+<span class="line"><span>client  ◀── SYN-ACK ──   server</span></span>
+<span class="line"><span>client  ──  ACK     ──▶  server   connected</span></span></code></pre>
+<p>After that, TCP numbers every byte, acknowledges what arrives, resends what gets lost, and slows down when the network is congested. You program against a clean abstraction: an ordered stream of bytes that either arrives intact or fails loudly.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> net </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &quot;node:net&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">net.</span><span style="color:#B392F0">createServer</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">socket</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    socket.</span><span style="color:#B392F0">on</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;data&quot;</span><span style="color:#E1E4E8">, (</span><span style="color:#FFAB70">chunk</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> socket.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(chunk)); </span><span style="color:#6A737D">// echo</span></span>
+<span class="line"><span style="color:#E1E4E8">}).</span><span style="color:#B392F0">listen</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">4000</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>The catch: TCP has <strong>no message boundaries</strong>. Send <code>&quot;hello&quot;</code> then <code>&quot;world&quot;</code> and one <code>data</code> event might fire with <code>&quot;helloworld&quot;</code>, or split as <code>&quot;hel&quot;</code> then <code>&quot;loworld&quot;</code>. You get ordering for free and pay for it by framing your own messages (a delimiter or a length prefix).</p>
+<h2 id="udp-is-a-postcard">UDP is a postcard</h2>
+<p>No handshake, no ACKs, no retransmission. Send it and walk away. A datagram might be lost, duplicated, or arrive out of order, and nobody tells you. The header is 8 bytes vs TCP’s 20+.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> dgram </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &quot;node:dgram&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> server</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> dgram.</span><span style="color:#B392F0">createSocket</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;udp4&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">server.</span><span style="color:#B392F0">on</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;message&quot;</span><span style="color:#E1E4E8">, (</span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">rinfo</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> server.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(msg, rinfo.port, rinfo.address));</span></span>
+<span class="line"><span style="color:#E1E4E8">server.</span><span style="color:#B392F0">bind</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">4000</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>The one thing UDP guarantees: each <code>message</code> is exactly one whole datagram. <strong>UDP keeps message boundaries; TCP does not.</strong></p>
+<h2 id="head-of-line-blocking">Head-of-line blocking</h2>
+<p>Because TCP delivers strictly in order, one lost segment stalls every segment behind it until it is resent. Great for a file (useless out of order), wrong for a live call (the resent packet is already stale, you would rather skip it). This is why HTTP/3 runs on UDP and rebuilds only the reliability it wants. More on that in <a href="/writings/quic/">QUIC, TCP rebuilt on UDP</a>.</p>
+<hr/>
+<h2 id="which-one">Which one?</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th></th><th>TCP</th><th>UDP</th></tr></thead><tbody><tr><td>Delivery</td><td>Guaranteed or errors</td><td>Best effort</td></tr><tr><td>Ordering</td><td>In order</td><td>As they arrive</td></tr><tr><td>Boundaries</td><td>Byte stream, you frame</td><td>One datagram per message</td></tr><tr><td>Overhead</td><td>20+ byte header</td><td>8 byte header</td></tr></tbody></table>
+<p>Default to <strong>TCP</strong>: web, APIs, files, anything where a missing byte corrupts the result.</p>
+<p>Use <strong>UDP</strong> when late data is worthless: DNS, live video and voice, games, telemetry. The deciding question is not “do I want reliability” but <strong>what should happen to data that arrives late.</strong> Worth waiting for, use TCP. Useless once late, UDP lets you move on.</p>  </div> </article> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/writings" class="link">writings</a> </span> <span> <a href="/rss.xml" class="link">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap.xml" class="link">sitemap</a> </span> </div> <div class="mt-2"> <label class="inline-flex items-center font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em]"> <span>theme:</span> <select class="ml-1 bg-transparent font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft outline-none transition-colors duration-[120ms] ease-linear hover:text-ink focus:text-ink" aria-label="Theme" data-theme-select> <option value="system">system</option> <option value="light">light</option> <option value="dark">dark</option> </select> </label> <script>
+    (() => {
+        const root = document.documentElement;
+        const select = document.querySelector("[data-theme-select]");
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        if (!select) return;
+
+        const getStoredTheme = () => {
+            try {
+                return localStorage.getItem("theme") || "system";
+            } catch {
+                return "system";
+            }
+        };
+
+        const storeTheme = (theme) => {
+            try {
+                if (theme === "system") {
+                    localStorage.removeItem("theme");
+                } else {
+                    localStorage.setItem("theme", theme);
+                }
+            } catch {
+                // Ignore storage failures and keep the in-page state working.
+            }
+        };
+
+        const applyTheme = (theme) => {
+            const resolvedTheme = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolvedTheme === "dark");
+            select.value = theme;
+        };
+
+        let selectedTheme = getStoredTheme();
+        applyTheme(selectedTheme);
+
+        select.addEventListener("change", () => {
+            selectedTheme = select.value;
+            storeTheme(selectedTheme);
+            applyTheme(selectedTheme);
+        });
+
+        mediaQuery.addEventListener("change", () => {
+            if (selectedTheme === "system") applyTheme(selectedTheme);
+        });
+    })();
+</script> </div> </footer> </main> </body></html>
