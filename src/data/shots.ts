@@ -1,4 +1,3 @@
-// src/data/shots.ts
 // The galleries that hang in the right margin of the ledger. A gallery is keyed
 // by the entry's `media`, or by its ProductHunt slug where it has one, so a
 // project does not need a launch to have pictures.

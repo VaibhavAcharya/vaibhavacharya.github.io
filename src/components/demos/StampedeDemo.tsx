@@ -306,7 +306,6 @@ export function StampedeDemo() {
                     );
                 })}
 
-                {/* Cache box */}
                 <div
                     style={{
                         position: "absolute", left: "35%", top: "50%",
@@ -338,7 +337,6 @@ export function StampedeDemo() {
                     </span>
                 </div>
 
-                {/* Database box */}
                 <div
                     style={{
                         position: "absolute", left: "80%", top: "50%",
@@ -367,7 +365,6 @@ export function StampedeDemo() {
                     </span>
                 </div>
 
-                {/* Phase label */}
                 <div style={{
                     position: "absolute", bottom: 8, left: "50%",
                     transform: "translateX(-50%)", ...mono,

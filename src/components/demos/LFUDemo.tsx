@@ -182,7 +182,6 @@ export function LFUDemo() {
             onReset={reset}
             isPlaying={isPlaying}
         >
-            {/* Mode tabs */}
             <div
                 style={{
                     display: "flex",
@@ -219,7 +218,6 @@ export function LFUDemo() {
                 ))}
             </div>
 
-            {/* Cache slots */}
             <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                 {Array.from({ length: CAPACITY }).map((_, i) => {
                     const entry = items[i];
@@ -292,10 +290,8 @@ export function LFUDemo() {
                 })}
             </div>
 
-            {/* Message */}
             <p style={messageStyle}>{message}</p>
 
-            {/* Sequence preview */}
             <div
                 style={{
                     fontFamily: "var(--font-mono)",
@@ -323,7 +319,6 @@ export function LFUDemo() {
                 ))}
             </div>
 
-            {/* Request buttons */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {KEYS.map((key) => (
                     <button

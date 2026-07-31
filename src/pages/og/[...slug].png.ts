@@ -1,4 +1,3 @@
-// src/pages/og/[...slug].png.ts
 // Prerendered OG PNGs. One per route: index + each writing post.
 
 import type { APIRoute } from "astro";

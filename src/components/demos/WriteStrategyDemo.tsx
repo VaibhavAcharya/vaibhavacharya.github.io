@@ -149,7 +149,6 @@ export function WriteStrategyDemo() {
             caption="Write-through sends data everywhere before responding. Write-back responds fast but risks loss."
             onReset={reset}
         >
-            {/* Strategy toggle */}
             <div
                 style={{
                     display: "flex",
@@ -188,7 +187,6 @@ export function WriteStrategyDemo() {
                 ))}
             </div>
 
-            {/* Flow diagram - flexbox layout */}
             <div style={{ position: "relative", marginBottom: 16 }}>
                 <div
                     style={{
@@ -197,7 +195,6 @@ export function WriteStrategyDemo() {
                         gap: 0,
                     }}
                 >
-                    {/* Client */}
                     <div
                         style={{
                             ...boxStyle,
@@ -210,7 +207,6 @@ export function WriteStrategyDemo() {
 
                     <div style={arrowStyle}>{"\u2192"}</div>
 
-                    {/* Cache */}
                     <div
                         style={{
                             ...boxStyle,
@@ -252,7 +248,6 @@ export function WriteStrategyDemo() {
 
                     <div style={arrowStyle}>{"\u2192"}</div>
 
-                    {/* Database */}
                     <div
                         style={{
                             ...boxStyle,
@@ -284,7 +279,6 @@ export function WriteStrategyDemo() {
                     </div>
                 </div>
 
-                {/* Animated dot */}
                 {phase !== "idle" && phase !== "crash" && (
                     <div
                         style={{
@@ -302,7 +296,6 @@ export function WriteStrategyDemo() {
                 )}
             </div>
 
-            {/* Latency */}
             <div
                 style={{
                     ...mono,
@@ -314,7 +307,6 @@ export function WriteStrategyDemo() {
                 response: {latency > 0 ? `${latency}ms` : "\u2014"}
             </div>
 
-            {/* Action buttons */}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button
                     onClick={handleWrite}

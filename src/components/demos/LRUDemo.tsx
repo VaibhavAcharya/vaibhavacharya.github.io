@@ -112,7 +112,6 @@ export function LRUDemo() {
             onReset={reset}
             isPlaying={isPlaying}
         >
-            {/* Labels */}
             <div
                 style={{
                     display: "flex",
@@ -128,7 +127,6 @@ export function LRUDemo() {
                 <span>evict me</span>
             </div>
 
-            {/* Cache slots with arrows */}
             <div
                 style={{
                     display: "flex",
@@ -195,10 +193,8 @@ export function LRUDemo() {
                 })}
             </div>
 
-            {/* Message */}
             <p style={messageStyle}>{message}</p>
 
-            {/* Auto-play sequence preview */}
             <div
                 style={{
                     fontFamily: "var(--font-mono)",
@@ -226,7 +222,6 @@ export function LRUDemo() {
                 ))}
             </div>
 
-            {/* Manual request buttons */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {KEYS.map((key) => (
                     <button

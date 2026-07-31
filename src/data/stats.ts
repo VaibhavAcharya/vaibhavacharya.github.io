@@ -1,4 +1,3 @@
-// src/data/stats.ts
 // Reads the build-time snapshot in stats.json and turns it into the line of
 // numbers under a ledger row. An entry names its repo, its package and its
 // launch; every count comes from the last build. See scripts/fetch-stats.mjs.

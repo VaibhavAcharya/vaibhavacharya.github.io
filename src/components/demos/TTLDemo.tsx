@@ -122,7 +122,6 @@ export function TTLDemo() {
             }
             onReset={reset}
         >
-            {/* Mode toggle */}
             <div
                 style={{
                     display: "flex",
@@ -159,7 +158,6 @@ export function TTLDemo() {
                 ))}
             </div>
 
-            {/* Cache slots with countdown */}
             <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                 {Array.from({ length: CAPACITY }).map((_, i) => {
                     const entry = items[i];
@@ -227,10 +225,8 @@ export function TTLDemo() {
                 })}
             </div>
 
-            {/* Message */}
             <p style={messageStyle}>{message}</p>
 
-            {/* TTL selector */}
             <div
                 style={{
                     display: "flex",
@@ -276,7 +272,6 @@ export function TTLDemo() {
                 ))}
             </div>
 
-            {/* Add buttons */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {KEYS.map((key) => (
                     <button

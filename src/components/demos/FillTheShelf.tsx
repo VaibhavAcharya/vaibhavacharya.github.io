@@ -67,7 +67,6 @@ export function FillTheShelf() {
             stats={stats}
             onReset={reset}
         >
-            {/* Cache slots */}
             <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                 {Array.from({ length: CAPACITY }).map((_, i) => {
                     const item = items[i];
@@ -108,10 +107,8 @@ export function FillTheShelf() {
                 })}
             </div>
 
-            {/* Message */}
             <p style={messageStyle}>{message}</p>
 
-            {/* Request buttons */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {KEYS.map((key) => (
                     <button

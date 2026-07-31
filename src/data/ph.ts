@@ -1,4 +1,3 @@
-// src/data/ph.ts
 // ProductHunt links and badges. The official badge endpoint takes the product
 // slug where it documents a numeric post id, so the count inside the badge stays
 // live and there is no id to keep in sync.

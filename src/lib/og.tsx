@@ -1,4 +1,3 @@
-// src/lib/og.tsx
 // Satori JSX template. Returns a React element describing the OG PNG layout.
 // Colours are hex equivalents of the spec's OKLCH values (satori is inconsistent
 // about oklch support, so hex is safer).
@@ -33,7 +32,6 @@ export function renderOg({ title, meta }: OgProps) {
                 fontFamily: "Cascadia Code",
             }}
         >
-            {/* Masthead, top-left */}
             <div
                 style={{
                     fontFamily: "Cascadia Code",
@@ -45,7 +43,6 @@ export function renderOg({ title, meta }: OgProps) {
                 vaibhav acharya
             </div>
 
-            {/* Navy tick, top-right */}
             <div
                 style={{
                     position: "absolute",
@@ -60,7 +57,6 @@ export function renderOg({ title, meta }: OgProps) {
             {/* Spacer pushes title to the bottom half */}
             <div style={{ flex: 1 }} />
 
-            {/* Title */}
             <div
                 style={{
                     fontFamily: "Literata",
@@ -86,7 +82,6 @@ export function renderOg({ title, meta }: OgProps) {
                 }}
             />
 
-            {/* Meta */}
             <div
                 style={{
                     marginTop: "18px",

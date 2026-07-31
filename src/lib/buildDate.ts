@@ -1,4 +1,3 @@
-// src/lib/buildDate.ts
 // Captured at module-load time, which in Astro is build time for SSG.
 
 export const BUILD_DATE: Date = new Date();

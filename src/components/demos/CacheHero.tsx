@@ -99,7 +99,6 @@ export function CacheHero() {
                             height: 20,
                         }}
                     >
-                        {/* Key */}
                         <span
                             style={{
                                 ...mono,
@@ -116,7 +115,6 @@ export function CacheHero() {
                             {bar.key}
                         </span>
 
-                        {/* Track */}
                         <div
                             style={{
                                 flex: 1,
@@ -138,7 +136,6 @@ export function CacheHero() {
                             />
                         </div>
 
-                        {/* Response time */}
                         <span
                             style={{
                                 ...mono,
@@ -154,7 +151,6 @@ export function CacheHero() {
                             {bar.ms}ms
                         </span>
 
-                        {/* Hit/miss label */}
                         <span
                             style={{
                                 ...mono,
