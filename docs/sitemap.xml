@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://vaibhavacharya.com/</loc>
-        <lastmod>2026-06-20</lastmod>
+        <lastmod>2026-07-31</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
@@ -45,6 +45,12 @@
     <url>
         <loc>https://vaibhavacharya.com/writings/javascript-closures-and-scope/</loc>
         <lastmod>2025-05-07</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://vaibhavacharya.com/writings/mcps-skills-and-clis/</loc>
+        <lastmod>2026-07-31</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
     </url>

@@ -1,0 +1,26 @@
+---
+title: "MCPs, Skills and CLIs"
+description: "A teammate asked if Skills replace MCP. They don't, and the CLI half of that argument turned out to be the interesting part."
+pubDate: "Jul 31 2026"
+updatedDate: "Jul 31 2026"
+---
+
+A teammate asked me whether Skills are a good replacement for MCP. I said no, then spent far too long explaining why, so here is the short version.
+
+In March, Perplexity's CTO said at their Ask conference that they were deprioritising MCP internally, and [Garry Tan posted](https://x.com/garrytan/status/2031910564344262988) that "it eats too much context window and you have to toggle it on and off and the auth sucks" before replacing it with a Playwright CLI wrapper. [Skills](https://www.anthropic.com/news/skills) had shipped in Oct 2025 and [Simon Willison](https://simonwillison.net/2025/Oct/16/claude-skills/) had already called them maybe a bigger deal than MCP, so Skills was the obvious thing to point at instead.
+
+The Perplexity part is weaker than it sounds. What they dropped was mostly stdio, the kind where the MCP server runs as a process on your own machine, which is the one case a CLI can cover anyway. He said it was a choice for their own team, and there is no transcript anywhere. Everything I found was someone quoting someone else.
+
+The two barely overlap though.
+
+A skill is a markdown file. It says how you want a job done, costs about thirty tokens until something pulls it in, and cannot call anything by itself. MCP is a server behind a connection, with auth and a schema, and no idea what you are trying to accomplish. Put a skill next to a CLI and you get the same split: instructions, plus something that can actually run.
+
+[Scalekit benchmarked](https://www.scalekit.com/blog/mcp-vs-cli-use) "what language is this repo?" at 1,365 tokens through the `gh` CLI and 44,026 through the GitHub MCP server, 32x for the same answer. But that measures eager loading. Anthropic's [tool search](https://www.anthropic.com/engineering/advanced-tool-use) claims an 85% cut in definition tokens, and [code execution](https://www.anthropic.com/engineering/code-execution-with-mcp) took their example workflow from 150k to 2k. Load both the same way and the gap gets much smaller.
+
+The half I keep coming back to is the CLI.
+
+`--help` is a list of flags and it never says which flag you want. An agent reading `gh --help` still does not know to check state before mutating it, that an unbounded query will flood the window, that you want JSON and not the pretty table, or that this repo squashes and the other one does not. In that same benchmark, an 800-token file of `gh` tips cut tool calls and latency by about a third against the same CLI with no skill, the best return of anything they tested. Models already know `git` and `gh` from training. What they miss is local convention, and that is what a skill carries.
+
+MCP keeps everything with nothing to run locally. Services with no CLI and no install. Per-user OAuth, where the agent acts as different people against one server. Clients with no shell at all, which every CLI-first argument assumes you have. As [someone in the thread](https://news.ycombinator.com/item?id=48332216) said, there is no chance you convince Walmart to fund and release a `wmctl` for searching and buying products, and no chance for your regional pizza chain either.
+
+So my answer was keep both. Write the skill either way. The CLI or the MCP server is just what it reaches for.
