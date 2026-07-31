@@ -1,22 +1,18 @@
 ---
 // src/components/Colophon.astro
-import ThemeToggle from "./ThemeToggle.astro";
 ---
 
 <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]">
     <div class="flex justify-between gap-4 py-1">
         <span>
-            <a href="/" class="link">home</a>
+            <a href="/" class="link" data-umami-event="footer" data-umami-event-target="home">home</a>
             <span class="mx-1.5 text-rule-dot">&middot;</span>
-            <a href="/writings" class="link">writings</a>
+            <a href="/#writings" class="link" data-umami-event="footer" data-umami-event-target="writings">writings</a>
         </span>
         <span>
-            <a href="/rss.xml" class="link">rss</a>
+            <a href="/rss.xml" class="link" data-umami-event="footer" data-umami-event-target="rss">rss</a>
             <span class="mx-1.5 text-rule-dot">&middot;</span>
-            <a href="/sitemap.xml" class="link">sitemap</a>
+            <a href="/sitemap.xml" class="link" data-umami-event="footer" data-umami-event-target="sitemap">sitemap</a>
         </span>
-    </div>
-    <div class="mt-2">
-        <ThemeToggle />
     </div>
 </footer>

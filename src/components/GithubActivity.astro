@@ -1,0 +1,88 @@
+---
+// src/components/GithubActivity.astro
+// Contribution calendar, rendered as one inline SVG from the build-time snapshot in
+// src/data/github-activity.json. No client-side requests, no runtime JS.
+
+import activity from "../data/github-activity.json";
+
+const CELL = 10;
+const GAP = 3;
+const PITCH = CELL + GAP;
+
+const weeks = activity.weeks;
+const width = weeks.length * PITCH - GAP;
+const height = 7 * PITCH - GAP;
+
+const counts = weeks
+    .flat()
+    .map((day) => day.count)
+    .filter((count) => count > 0)
+    .sort((a, b) => a - b);
+
+const quartile = (fraction: number) =>
+    counts.length ? counts[Math.floor(counts.length * fraction)] : 0;
+
+const thresholds = [quartile(0.25), quartile(0.5), quartile(0.75)];
+
+function levelFor(count: number): number {
+    if (count <= 0) return 0;
+    return thresholds.findIndex((threshold) => count <= threshold) + 1 || 4;
+}
+
+function fullDate(date: string): string {
+    return new Date(date).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
+}
+
+const total = activity.totalContributions.toLocaleString("en-IN");
+---
+
+<div data-print-hide>
+    <svg
+        viewBox={`0 0 ${width} ${height}`}
+        width="100%"
+        role="img"
+        aria-label={`${total} GitHub contributions between ${fullDate(activity.start)} and ${fullDate(activity.end)}`}
+        class="block h-auto overflow-visible"
+    >
+        {weeks.map((week, weekIndex) =>
+            week.map((day) => (
+                <rect
+                    x={weekIndex * PITCH}
+                    y={new Date(day.date).getUTCDay() * PITCH}
+                    width={CELL}
+                    height={CELL}
+                    rx="2"
+                    class={`lv-${levelFor(day.count)}`}
+                >
+                    <title>{`${day.count} on ${fullDate(day.date)}`}</title>
+                </rect>
+            )),
+        )}
+    </svg>
+</div>
+
+<style>
+    .lv-0 {
+        fill: var(--color-rule-dot);
+        opacity: 0.22;
+    }
+    .lv-1 {
+        fill: var(--color-accent);
+        opacity: 0.35;
+    }
+    .lv-2 {
+        fill: var(--color-accent);
+        opacity: 0.54;
+    }
+    .lv-3 {
+        fill: var(--color-accent);
+        opacity: 0.76;
+    }
+    .lv-4 {
+        fill: var(--color-accent);
+    }
+</style>

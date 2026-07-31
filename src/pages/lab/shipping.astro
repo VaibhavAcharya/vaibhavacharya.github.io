@@ -1,0 +1,130 @@
+---
+// src/pages/lab/shipping.astro
+// Scratch page for trying out collapsed states of the shipping ledger. Same
+// rows and same type in every variant, so only the disclosure differs.
+
+import BaseHead from "../../components/BaseHead.astro";
+import BackLink from "../../components/BackLink.astro";
+import Colophon from "../../components/Colophon.astro";
+import ThemeToggle from "../../components/ThemeToggle.astro";
+import ShippingFold from "../../components/FoldedLedger.astro";
+import ShippingContents from "../../components/shipping/ShippingContents.astro";
+import ShippingSpine from "../../components/shipping/ShippingSpine.astro";
+import ShippingTabs from "../../components/shipping/ShippingTabs.astro";
+import ShippingFootnotes from "../../components/shipping/ShippingFootnotes.astro";
+import { SITE_TITLE } from "../../consts";
+import { SHIPPING_GROUPS } from "../../data/resume";
+import "../../styles/print.css";
+
+const LEDGER_TITLE = "fun shipping on the side";
+
+const variants = [
+    {
+        n: "01",
+        name: "the fold",
+        note: "The list stays flat and a fold line cuts across it. Four rows sit above, the last one fading into the crease, and the rest are tucked behind it. The toggle moves to the bottom once it opens.",
+        facts: "collapsed to 4 rows · one toggle · group labels dropped",
+        Component: ShippingFold,
+    },
+    {
+        n: "02",
+        name: "the contents",
+        note: "Each group becomes a leader line carrying its count and first names, so the section reads as a table of contents. Groups open on their own, and several can stay open at once.",
+        facts: "collapsed to 6 lines · six toggles · groups kept",
+        Component: ShippingContents,
+    },
+    {
+        n: "03",
+        name: "the spine",
+        note: "One tick per project, grouped under the year it started. Picking a tick swaps the entry in the slot below, and the slot is sized to the longest entry so nothing shifts.",
+        facts: "collapsed to 2 lines + 1 row · reads chronologically · one entry at a time",
+        Component: ShippingSpine,
+    },
+    {
+        n: "04",
+        name: "index tabs",
+        note: "Groups turn into tabs and only one block is on the page at a time. Numbering stays continuous across tabs, so they read as slices of one ledger rather than five lists.",
+        facts: "collapsed to 1 or 2 lines + 1 group · groups as tabs · height varies by group",
+        Component: ShippingTabs,
+    },
+    {
+        n: "05",
+        name: "footnotes",
+        note: "Everything collapses into one run of names numbered like footnote markers. Picking a name pulls that entry out underneath the run, where a footnote would sit.",
+        facts: "collapsed to 5 lines · every name visible · one entry at a time",
+        Component: ShippingFootnotes,
+    },
+];
+---
+
+<!doctype html>
+<html lang="en-IN">
+    <head>
+        <BaseHead
+            title={`lab · shipping · ${SITE_TITLE}`}
+            description="Experiments with collapsed states for the shipping ledger."
+        />
+        <meta name="robots" content="noindex, nofollow" />
+    </head>
+    <body>
+        <ThemeToggle />
+        <main class="max-w-[580px] w-full mx-auto px-10 pt-14 pb-18 flex flex-col max-sm:px-6 max-sm:pt-10 max-sm:pb-12">
+            <BackLink label="home" href="/" />
+
+            <p class="font-serif italic font-normal text-[17px] text-accent mb-3.5 [font-variation-settings:'opsz'_24]">
+                lab · shipping
+            </p>
+            <p class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0">
+                Five ways to fold the shipping ledger down so it stops eating the
+                home page. Same rows, same type, same column width as the real
+                page. Only the way they open differs.
+            </p>
+            <p class="font-mono [font-variant-ligatures:none] text-[11px] leading-[1.7] tracking-[0.02em] text-ink-soft max-w-[62ch] m-0 mt-3">
+                all five are CSS only, keyboard reachable, and drop-in for the
+                &lt;Ledger&gt; call on the home page
+            </p>
+
+            {variants.map(({ n, name, note, facts, Component }) => (
+                <article class="variant">
+                    <div class="grid grid-cols-[26px_1fr] gap-x-3">
+                        <span class="font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.02em] text-accent pt-[5px]">
+                            {n}
+                        </span>
+                        <div>
+                            <h2 class="font-serif italic font-normal text-[17px] text-ink m-0 [font-variation-settings:'opsz'_24]">
+                                {name}
+                            </h2>
+                            <p class="font-sans text-[14px] leading-[1.6] text-ink-muted max-w-[62ch] m-0 mt-1.5">
+                                {note}
+                            </p>
+                            <p class="font-mono [font-variant-ligatures:none] text-[10.5px] leading-[1.6] tracking-[0.04em] text-rule-dot m-0 mt-2">
+                                {facts}
+                            </p>
+                        </div>
+                    </div>
+
+                    <Component title={LEDGER_TITLE} groups={SHIPPING_GROUPS} printLimit={12} />
+                </article>
+            ))}
+
+            <Colophon />
+        </main>
+    </body>
+</html>
+
+<style>
+    .variant {
+        margin-top: 44px;
+    }
+
+    .variant + .variant {
+        padding-top: 40px;
+        border-top: 0.5px solid var(--color-rule-solid);
+    }
+
+    /* The variants carry the home page's heading margin; the lab chrome above
+       them already supplies the gap. */
+    .variant :global([data-resume-heading]) {
+        margin-top: 22px;
+    }
+</style>

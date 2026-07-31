@@ -1,0 +1,23 @@
+---
+// src/components/ResumeSection.astro
+// A titled block of resume entries, in one column on screen and in print.
+
+import ResumeEntry from "./ResumeEntry.astro";
+import type { Entry } from "../data/resume";
+
+interface Props {
+    title: string;
+    entries: Entry[];
+}
+
+const { title, entries } = Astro.props;
+---
+
+<section data-resume-section>
+    <h2 data-resume-heading class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-1.5 [font-variation-settings:'opsz'_24]">
+        {title}
+    </h2>
+    <div>
+        {entries.map((entry) => <ResumeEntry {...entry} />)}
+    </div>
+</section>

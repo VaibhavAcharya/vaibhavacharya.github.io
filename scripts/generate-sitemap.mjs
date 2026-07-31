@@ -5,8 +5,9 @@ const site = "https://vaibhavacharya.com";
 const outDir = path.resolve("docs");
 const contentDir = path.resolve("src/content/writings");
 const sitemapPath = path.join(outDir, "sitemap.xml");
-const ignoredDirectories = new Set(["astro", "og"]);
+const ignoredDirectories = new Set(["astro", "og", "lab"]);
 const ignoredFiles = new Set(["404.html"]);
+const ignoredRoutes = new Set(["/writings/"]);
 
 const routeDefaults = {
     home: { changefreq: "weekly", priority: "1.0" },
@@ -170,6 +171,7 @@ const [htmlFiles, writings] = await Promise.all([
 ]);
 const entries = htmlFiles
     .map(toRoute)
+    .filter((route) => !ignoredRoutes.has(route))
     .sort((a, b) => toUrl(a).localeCompare(toUrl(b)))
     .map((route) =>
         createSitemapEntry(route, metadataForRoute(route, writings)),

@@ -1,0 +1,116 @@
+---
+// src/components/RowMarks.astro
+// The small marks that hang in the margin under the ProductHunt badge: the star
+// count, and the post that announced the thing. GitHub and X both ship widgets
+// for this, but each one is an iframe carrying its own type and chrome, so the
+// star count is fetched at build time and both are set in this site's own hand.
+// The number is live either way; see scripts/fetch-stats.mjs.
+
+import type { Entry } from "../data/resume";
+import { marginStars } from "../data/stats";
+
+interface Props {
+    entry: Entry;
+}
+
+const { entry } = Astro.props;
+const stars = marginStars(entry);
+const repo = entry.repo?.split("/")[1] ?? entry.repo;
+---
+
+{entry.link && (
+            <a
+                href={entry.link.href}
+                target="_blank"
+                rel="noreferrer"
+                class="mark"
+                data-umami-event="link-open"
+                data-umami-event-name={entry.name}
+            >
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <path
+                        d="M5 11 11 5M6.2 5H11v4.8"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    ></path>
+                </svg>
+                <span>{entry.link.label}</span>
+            </a>
+        )}
+
+        {stars && entry.repo && (
+            <a
+                href={`https://github.com/${entry.repo}`}
+                target="_blank"
+                rel="noreferrer"
+                class="mark"
+                aria-label={`${repo} on GitHub, ${stars} stars`}
+                data-umami-event="repo-open"
+                data-umami-event-repo={entry.repo}
+            >
+                <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                    <path
+                        fill="currentColor"
+                        d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"
+                    ></path>
+                </svg>
+                <span>{stars}</span>
+            </a>
+        )}
+
+        {entry.tweet && (
+            <a
+                href={entry.tweet}
+                target="_blank"
+                rel="noreferrer"
+                class="mark"
+                aria-label={`The post announcing ${entry.name}`}
+                data-umami-event="tweet-open"
+                data-umami-event-name={entry.name}
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                        fill="currentColor"
+                        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+                    ></path>
+                </svg>
+                <span>post</span>
+            </a>
+        )}
+
+<style>
+    .mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        /* The ProductHunt badge these sit under. */
+        height: 24px;
+        padding: 0 8px;
+        border: 0.5px solid var(--color-rule-dot);
+        border-radius: 4px;
+        font-family: var(--font-mono);
+        font-variant-ligatures: none;
+        font-size: 11px;
+        letter-spacing: 0.02em;
+        line-height: 1;
+        color: var(--color-ink-soft);
+        white-space: nowrap;
+        transition:
+            color 120ms linear,
+            border-color 120ms linear;
+    }
+
+    .mark:hover {
+        color: var(--color-accent);
+        border-color: var(--color-accent-50);
+    }
+
+    .mark svg {
+        width: 10px;
+        height: 10px;
+        flex: none;
+    }
+</style>

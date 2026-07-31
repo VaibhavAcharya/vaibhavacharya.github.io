@@ -10,6 +10,11 @@ export default defineConfig({
     site: "https://vaibhavacharya.com",
 
     output: "static",
+
+    // The writings index now lives on the home page.
+    redirects: {
+        "/writings": "/#writings",
+    },
     outDir: "./docs",
     build: {
         assets: "astro",

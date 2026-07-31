@@ -1,0 +1,22 @@
+---
+// src/components/shipping/PrintList.astro
+// The printed sheet has no interaction to collapse into, so every variant falls
+// back to the same flat two-column list.
+
+import ResumeEntry from "../ResumeEntry.astro";
+import type { Entry } from "../../data/resume";
+
+interface Props {
+    entries: Entry[];
+    limit?: number;
+}
+
+const { entries, limit } = Astro.props;
+const printed = limit === undefined ? entries : entries.slice(0, limit);
+---
+
+<div data-print-only>
+    <div data-resume-grid>
+        {printed.map((entry) => <ResumeEntry {...entry} />)}
+    </div>
+</div>

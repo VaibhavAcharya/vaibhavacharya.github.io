@@ -1,29 +1,145 @@
 ---
 // src/components/ThemeToggle.astro
+// Small round button that sits half off the top edge of the page. It grows on hover.
+// Each click steps the theme and spins the wheel a third of a turn. The first step out
+// of `system` always flips what is on screen, so a dark system goes to light first and
+// a light system goes to dark first.
+//
+// The orb is cut exactly in half by the page edge, so the glyph sits low rather than
+// centred. Centred, only its bottom sliver would show and the crescent would read as
+// a blob.
 ---
 
-<label class="inline-flex items-center font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em]">
-    <span>theme:</span>
-    <select
-        class="ml-1 bg-transparent font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft outline-none transition-colors duration-[120ms] ease-linear hover:text-ink focus:text-ink"
-        aria-label="Theme"
-        data-theme-select
+<div data-print-hide class="flex justify-center">
+    <button
+        type="button"
+        data-theme-orb
+        data-theme-state="system"
+        aria-label="Theme: system"
+        class="orb -mt-3.5 size-7 rounded-full cursor-pointer"
     >
-        <option value="system">system</option>
-        <option value="light">light</option>
-        <option value="dark">dark</option>
-    </select>
-</label>
+        <span class="wheel">
+            <svg class="icon" data-icon="system" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" />
+            </svg>
+            <svg class="icon" data-icon="light" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="5" fill="currentColor" />
+                <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3" />
+                    <path d="M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1" />
+                </g>
+            </svg>
+            <svg class="icon" data-icon="dark" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 15.5A9.5 9.5 0 0 1 8.5 3a9.5 9.5 0 1 0 12.5 12.5z" fill="currentColor" />
+            </svg>
+        </span>
+    </button>
+</div>
+
+<style>
+    .orb {
+        position: relative;
+        background: var(--color-paper);
+        color: var(--color-ink-soft);
+        box-shadow: 0 0 0 1px var(--color-rule-solid);
+        transition:
+            background 240ms ease,
+            color 240ms ease,
+            box-shadow 240ms ease,
+            transform 300ms cubic-bezier(0.34, 1.32, 0.64, 1);
+    }
+
+    /* Slop, so a 28px target is still comfortable to hit. */
+    .orb::after {
+        content: "";
+        position: absolute;
+        inset: -10px;
+        border-radius: 999px;
+    }
+
+    .orb:hover,
+    .orb:focus-visible {
+        color: var(--color-ink);
+        box-shadow: 0 0 0 1px var(--color-accent);
+        transform: scale(1.55);
+    }
+
+    .orb:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 3px;
+    }
+
+    /* Sits in the half of the orb that is actually on screen. Rotating about its own
+       centre keeps the spin in place rather than swinging it in an arc. */
+    .wheel {
+        position: absolute;
+        left: 50%;
+        top: 73%;
+        width: 12px;
+        height: 12px;
+        transform: translate(-50%, -50%) rotate(var(--turn, 0deg));
+        transition: transform 420ms cubic-bezier(0.34, 1.32, 0.64, 1);
+    }
+
+    .icon {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transform: scale(0.6);
+        transition:
+            opacity 200ms ease,
+            transform 300ms cubic-bezier(0.34, 1.32, 0.64, 1);
+    }
+
+    [data-theme-state="system"] [data-icon="system"],
+    [data-theme-state="light"] [data-icon="light"],
+    [data-theme-state="dark"] [data-icon="dark"] {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Light leans warm, dark inverts to ink. System stays on paper. */
+    [data-theme-state="light"].orb {
+        background: oklch(0.93 0.035 85);
+        color: oklch(0.34 0.06 60);
+        box-shadow: 0 0 0 1px oklch(0.82 0.05 80);
+    }
+
+    [data-theme-state="dark"].orb {
+        background: var(--color-ink);
+        color: var(--color-paper);
+        box-shadow: 0 0 0 1px var(--color-ink);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .orb,
+        .wheel,
+        .icon {
+            transition-duration: 0.01ms;
+        }
+    }
+</style>
 
 <script is:inline>
     (() => {
+        const orb = document.querySelector("[data-theme-orb]");
+        if (!orb) return;
+
         const root = document.documentElement;
-        const select = document.querySelector("[data-theme-select]");
+        const wheel = orb.querySelector(".wheel");
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-        if (!select) return;
+        // The step out of `system` has to flip what is on screen, so the order
+        // depends on what `system` currently resolves to.
+        const order = () =>
+            mediaQuery.matches
+                ? ["system", "light", "dark"]
+                : ["system", "dark", "light"];
 
-        const getStoredTheme = () => {
+        const read = () => {
             try {
                 return localStorage.getItem("theme") || "system";
             } catch {
@@ -31,35 +147,49 @@
             }
         };
 
-        const storeTheme = (theme) => {
+        const write = (theme) => {
             try {
-                if (theme === "system") {
-                    localStorage.removeItem("theme");
-                } else {
-                    localStorage.setItem("theme", theme);
-                }
+                if (theme === "system") localStorage.removeItem("theme");
+                else localStorage.setItem("theme", theme);
             } catch {
                 // Ignore storage failures and keep the in-page state working.
             }
         };
 
-        const applyTheme = (theme) => {
-            const resolvedTheme = theme === "system" && mediaQuery.matches ? "dark" : theme;
-            root.classList.toggle("dark", resolvedTheme === "dark");
-            select.value = theme;
+        let theme = read();
+        let turn = order().indexOf(theme) * 120;
+
+        const apply = () => {
+            const resolved = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolved === "dark");
+            orb.dataset.themeState = theme;
+            orb.setAttribute("aria-label", `Theme: ${theme}`);
+            wheel.style.setProperty("--turn", `${turn}deg`);
         };
 
-        let selectedTheme = getStoredTheme();
-        applyTheme(selectedTheme);
+        apply();
 
-        select.addEventListener("change", () => {
-            selectedTheme = select.value;
-            storeTheme(selectedTheme);
-            applyTheme(selectedTheme);
+        orb.addEventListener("click", () => {
+            const steps = order();
+            theme = steps[(steps.indexOf(theme) + 1) % steps.length];
+            turn += 120;
+            write(theme);
+            apply();
+            window.umami?.track("theme", { theme });
         });
 
         mediaQuery.addEventListener("change", () => {
-            if (selectedTheme === "system") applyTheme(selectedTheme);
+            if (theme === "system") apply();
+        });
+
+        // What people arrive in, not just what they switch to. Umami loads
+        // deferred, so this waits for it.
+        window.addEventListener("load", () => {
+            window.umami?.track("theme-landing", {
+                preference: theme,
+                system: mediaQuery.matches ? "dark" : "light",
+                resolved: root.classList.contains("dark") ? "dark" : "light",
+            });
         });
     })();
 </script>

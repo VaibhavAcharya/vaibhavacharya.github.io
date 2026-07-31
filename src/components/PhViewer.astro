@@ -1,0 +1,222 @@
+---
+// src/components/PhViewer.astro
+// On-page viewer for the galleries. Every thumb links straight to its full frame,
+// which is what happens with JS off; with JS the click opens it here instead,
+// with the rest of that pile on the arrow keys.
+//
+// Include once per page that renders Figures.
+---
+
+<div class="viewer" data-ph-viewer hidden role="dialog" aria-modal="true" aria-label="Gallery">
+    <div class="stage" data-ph-stage>
+        <img class="plate" data-ph-image src="" alt="" />
+        <video class="plate" data-ph-video hidden muted loop playsinline autoplay></video>
+    </div>
+
+    <div class="bar font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.04em]">
+        <span class="count" data-ph-counter></span>
+        <p class="caption" data-ph-caption></p>
+        <span class="controls">
+            <button type="button" class="control" data-ph-prev>&larr; prev</button>
+            <button type="button" class="control" data-ph-next>next &rarr;</button>
+            <button type="button" class="control close" data-ph-close>close &times;</button>
+        </span>
+    </div>
+</div>
+
+<script is:inline>
+    (() => {
+        const viewer = document.querySelector("[data-ph-viewer]");
+        if (!viewer) return;
+
+        const image = viewer.querySelector("[data-ph-image]");
+        const video = viewer.querySelector("[data-ph-video]");
+        const caption = viewer.querySelector("[data-ph-caption]");
+        const counter = viewer.querySelector("[data-ph-counter]");
+        const closer = viewer.querySelector("[data-ph-close]");
+        const prev = viewer.querySelector("[data-ph-prev]");
+        const next = viewer.querySelector("[data-ph-next]");
+        const main = document.querySelector("main");
+
+        let frames = [];
+        let index = 0;
+        let opener = null;
+
+        const pad = (value) => String(value).padStart(2, "0");
+
+        function show(to) {
+            index = (to + frames.length) % frames.length;
+            const frame = frames[index];
+            const text = frame.dataset.caption || "";
+            const clip = frame.dataset.video !== undefined;
+
+            image.hidden = clip;
+            video.hidden = !clip;
+
+            if (clip) {
+                video.src = frame.href;
+                video.play?.().catch(() => {});
+            } else {
+                video.pause();
+                video.removeAttribute("src");
+                image.src = frame.href;
+                image.alt = text;
+            }
+
+            caption.textContent = text;
+            counter.textContent = `${pad(index + 1)} / ${pad(frames.length)}`;
+        }
+
+        function open(anchor) {
+            const pile = anchor.closest("[data-ph-pile]");
+            frames = pile ? [...pile.querySelectorAll("[data-ph-frame]")] : [anchor];
+            opener = anchor;
+
+            const solo = frames.length < 2;
+            prev.hidden = solo;
+            next.hidden = solo;
+
+            show(frames.indexOf(anchor));
+            viewer.hidden = false;
+            document.documentElement.style.overflow = "hidden";
+            if (main) main.inert = true;
+            closer.focus();
+        }
+
+        function close() {
+            video.pause();
+            viewer.hidden = true;
+            document.documentElement.style.overflow = "";
+            if (main) main.inert = false;
+            if (opener) opener.focus();
+        }
+
+        document.addEventListener("click", (event) => {
+            const anchor = event.target.closest("[data-ph-frame]");
+            if (!anchor) return;
+            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+            event.preventDefault();
+            open(anchor);
+        });
+
+        function step(to, via) {
+            show(to);
+            window.umami?.track("frame-step", { via, frame: index + 1 });
+        }
+
+        viewer.addEventListener("click", (event) => {
+            if (event.target.closest("[data-ph-prev]")) return step(index - 1, "prev");
+            if (event.target.closest("[data-ph-next]")) return step(index + 1, "next");
+            if (event.target.closest("[data-ph-close]") || !event.target.closest(".plate")) close();
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (viewer.hidden) return;
+            if (event.key === "Escape") close();
+            if (event.key === "ArrowLeft") step(index - 1, "key");
+            if (event.key === "ArrowRight") step(index + 1, "key");
+        });
+    })();
+</script>
+
+<style>
+    .viewer {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 16px;
+        padding: 26px;
+        background: color-mix(in oklab, var(--color-paper) 93%, transparent);
+        backdrop-filter: blur(7px);
+        animation: lift 180ms linear;
+    }
+
+    .viewer[hidden] {
+        display: none;
+    }
+
+    @keyframes lift {
+        from {
+            opacity: 0;
+        }
+    }
+
+    .stage {
+        display: grid;
+        place-items: center;
+        min-height: 0;
+    }
+
+    /* The mount is the image's own padding, so it hugs the frame on every side.
+       A wrapper cannot: its intrinsic width would come from the image's
+       unconstrained size and leave paper hanging off the right. Lengths stay in
+       viewport units for the same reason, percentages would go indefinite. */
+    .plate {
+        display: block;
+        padding: 7px;
+        border: 0.5px solid var(--color-rule-solid);
+        background: var(--color-paper);
+        max-width: min(1080px, calc(100vw - 66px));
+        max-height: calc(100vh - 172px);
+        width: auto;
+        height: auto;
+    }
+
+    .bar {
+        display: flex;
+        align-items: baseline;
+        gap: 10px 18px;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 1094px;
+        margin: 0 auto;
+        color: var(--color-ink-soft);
+    }
+
+    .count {
+        color: var(--color-rule-dot);
+    }
+
+    .caption {
+        flex: 1 1 12ch;
+        min-width: 0;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .controls {
+        display: flex;
+        gap: 16px;
+        white-space: nowrap;
+    }
+
+    .control {
+        appearance: none;
+        background: none;
+        border: 0;
+        border-bottom: 0.5px dotted var(--color-rule-dot);
+        padding: 0 0 1px;
+        font: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        cursor: pointer;
+        transition: color 120ms linear;
+    }
+
+    .control:hover {
+        color: var(--color-ink);
+    }
+
+    .close {
+        color: var(--color-accent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .viewer {
+            animation: none;
+        }
+    }
+</style>

@@ -1,0 +1,140 @@
+---
+// src/components/shipping/ShippingTabs.astro
+// Variant 04. Groups become a row of index tabs and only one block is on the
+// page at a time. Collapsed cost is one line of tabs; the numbering stays
+// continuous so the tabs read as slices of one ledger.
+//
+// Radios drive it, so it works without JS and gets arrow-key navigation free.
+// The ids are page-global, so render one of these per page.
+
+import LedgerRow from "./LedgerRow.astro";
+import PrintList from "./PrintList.astro";
+import type { Entry } from "../../data/resume";
+
+interface Group {
+    label?: string;
+    entries: Entry[];
+}
+
+interface Props {
+    title: string;
+    groups: Group[];
+    printLimit?: number;
+}
+
+const { title, groups, printLimit } = Astro.props;
+
+let running = 0;
+const tabs = groups.map((group, index) => ({
+    label: group.label ?? "other",
+    slug: (group.label ?? "other").replace(/\s+/g, "-"),
+    first: index === 0,
+    entries: group.entries.map((entry) => ({ entry, n: ++running })),
+}));
+
+const flat = groups.flatMap((group) => group.entries);
+const pad = (value: number) => String(value).padStart(2, "0");
+
+const rules = tabs
+    .map(({ slug }) =>
+        [
+            `#tab-${slug}:checked~.tabs [data-tab="${slug}"]{color:var(--color-accent);border-bottom-color:var(--color-accent)}`,
+            `#tab-${slug}:checked~.panels [data-panel="${slug}"]{display:block}`,
+            `#tab-${slug}:focus-visible~.tabs [data-tab="${slug}"]{outline:1px dashed var(--color-accent);outline-offset:3px}`,
+        ].join(""),
+    )
+    .join("");
+---
+
+<section data-resume-section>
+    <h2 data-resume-heading class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-4 [font-variation-settings:'opsz'_24]">
+        {title}
+    </h2>
+
+    <div data-print-hide>
+        {tabs.map(({ slug, first }) => (
+            <input type="radio" name="ship-tab" id={`tab-${slug}`} class="sr-only" checked={first} />
+        ))}
+
+        <div class="tabs">
+            {tabs.map(({ slug, label, entries }) => (
+                <label class="tab font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft" for={`tab-${slug}`} data-tab={slug}>
+                    {label}
+                    <span class="count">{pad(entries.length)}</span>
+                </label>
+            ))}
+        </div>
+
+        <div class="panels">
+            {tabs.map(({ slug, entries }) => (
+                <ol class="list-none p-0 m-0" data-panel={slug} data-rows>
+                    {entries.map(({ entry, n }, index) => (
+                        <li class="py-3" style={`--i:${index}`}><LedgerRow n={n} entry={entry} mark="none" /></li>
+                    ))}
+                </ol>
+            ))}
+        </div>
+    </div>
+
+    <PrintList entries={flat} limit={printLimit} />
+</section>
+
+<style is:inline set:html={rules}></style>
+
+<style>
+    [data-rows] li + li {
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 7px 15px;
+        border-bottom: 0.5px solid var(--color-rule-dot);
+        padding-bottom: 9px;
+    }
+
+    .tab {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 5px;
+        padding-bottom: 3px;
+        border-bottom: 1px solid transparent;
+        cursor: pointer;
+        transition: color 120ms linear;
+    }
+
+    .tab:hover {
+        color: var(--color-ink);
+    }
+
+    .count {
+        font-size: 9.5px;
+        color: var(--color-rule-dot);
+    }
+
+    .panels [data-panel] {
+        display: none;
+        padding-top: 3px;
+    }
+
+    /* Switching tabs remounts the rows, so the stagger replays each time. */
+    .panels li {
+        animation: deal 260ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+        animation-delay: calc(var(--i) * 26ms);
+    }
+
+    @keyframes deal {
+        from {
+            opacity: 0;
+            transform: translateY(-3px);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .panels li {
+            animation: none;
+        }
+    }
+</style>

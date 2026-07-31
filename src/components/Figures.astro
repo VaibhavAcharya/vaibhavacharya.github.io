@@ -1,0 +1,189 @@
+---
+// src/components/Figures.astro
+// The whole gallery, stacked in the right margin like a pile of prints: the
+// title card on top, the rest showing only their edges. Pointing at the pile
+// spreads it, pointing at one sheet lifts it, clicking opens the full frame.
+//
+// Below 900px there is no margin to use, so the pile lies down into a strip that
+// scrolls under the row.
+
+import type { Entry } from "../data/resume";
+import { shotsFor } from "../data/shots";
+
+interface Props {
+    entry: Entry;
+}
+
+const { entry } = Astro.props;
+const { name } = entry;
+const shots = shotsFor(entry);
+---
+
+{shots.length > 0 && (
+    <span class="figures" data-ph-pile>
+        {shots.map((shot, index) => (
+            <a
+                class:list={["fig", { clip: shot.video }]}
+                href={shot.src}
+                target="_blank"
+                rel="noreferrer"
+                data-ph-frame
+                data-video={shot.video ? "" : undefined}
+                data-caption={shot.caption ?? `${name}, frame ${index + 1}`}
+                data-umami-event="frame-open"
+                data-umami-event-product={entry.media ?? entry.ph}
+                data-umami-event-frame={index + 1}
+                style={`--i:${index}`}
+            >
+                <img
+                    src={shot.thumb}
+                    width={shot.width}
+                    height={shot.height}
+                    alt={shot.caption ?? `${name}, frame ${index + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                />
+            </a>
+        ))}
+    </span>
+)}
+
+<style>
+    /* No margin to hang in, so the pile lies down and wraps under the row rather
+       than pushing the column wider than the screen. */
+    .figures {
+        --sheet: 60px;
+        --step: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 11px 0 2px;
+    }
+
+    .fig {
+        position: relative;
+        flex: 0 0 auto;
+        display: block;
+        width: 78px;
+        padding: 3px;
+        border: 0.5px solid var(--color-rule-dot);
+        background: var(--color-paper);
+        transition:
+            transform 220ms cubic-bezier(0.2, 0.7, 0.3, 1),
+            margin-top 220ms cubic-bezier(0.2, 0.7, 0.3, 1),
+            border-color 160ms linear;
+    }
+
+    .fig img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        object-position: top center;
+        filter: grayscale(1) contrast(1.02);
+        opacity: 0.8;
+        transition:
+            filter 220ms linear,
+            opacity 220ms linear;
+    }
+
+    .fig:hover,
+    .fig:focus-visible {
+        border-color: var(--color-accent-50);
+    }
+
+    /* A clip reads as a still until it is opened, so it says so with a mark in
+       the corner rather than by moving in the pile. */
+    .clip::after {
+        content: "";
+        position: absolute;
+        right: 6px;
+        bottom: 6px;
+        border-style: solid;
+        border-width: 4px 0 4px 7px;
+        border-color: transparent transparent transparent var(--color-paper);
+        filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.55));
+    }
+
+    .fig:hover img,
+    .fig:focus-visible img {
+        filter: none;
+        opacity: 1;
+    }
+
+    /* The margin only exists once the viewport can hold it, same threshold the
+       ledger uses for its group labels. */
+    @media (min-width: 900px) {
+        /* The hit area is the row, not the pile: piles are taller than their row
+           and would otherwise steal the hover from the one below. Sheets only
+           take pointer events once the pile is spread. */
+        .figures {
+            position: absolute;
+            top: 12px;
+            bottom: 8px;
+            left: calc(100% + 24px);
+            width: 92px;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            gap: 0;
+            margin: 0;
+        }
+
+        .fig {
+            width: 92px;
+            pointer-events: none;
+            /* Earlier sheets sit on top, so the pile reads from the title card
+               down. */
+            z-index: calc(30 - var(--i));
+        }
+
+        .fig + .fig {
+            margin-top: calc(var(--step) - var(--sheet));
+        }
+
+        /* Spread, the pile sits on its own paper so it reads as one object
+           instead of running into the piles above and below. */
+        .figures:hover,
+        .figures:focus-within {
+            z-index: 30;
+            background: var(--color-paper);
+            outline: 7px solid var(--color-paper);
+        }
+
+        /* One pile open at a time. The others clear the margin while it spreads,
+           otherwise a six-frame pile lands on top of its neighbours. */
+        .figures {
+            transition: opacity 200ms linear;
+        }
+
+        :global(body:has(.figures:hover)) .figures:not(:hover),
+        :global(body:has(.figures:focus-within)) .figures:not(:focus-within) {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .figures:hover .fig,
+        .figures:focus-within .fig {
+            pointer-events: auto;
+        }
+
+        .figures:hover .fig + .fig,
+        .figures:focus-within .fig + .fig {
+            margin-top: 7px;
+        }
+
+        .fig:hover,
+        .fig:focus-visible {
+            transform: scale(1.14);
+            transform-origin: left center;
+            z-index: 40;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .fig,
+        .fig img {
+            transition: none;
+        }
+    }
+</style>

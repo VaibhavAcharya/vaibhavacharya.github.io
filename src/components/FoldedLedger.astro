@@ -1,0 +1,388 @@
+---
+// src/components/FoldedLedger.astro
+// A numbered ledger that runs flat and gets cut across by a fold line: a few
+// rows stay above it, the rest sit behind it with the paper edges showing. The
+// last row above dissolves into the crease so the toggle is where the eye lands.
+//
+// Group labels are dropped, so the numbering carries the structure, which is
+// also why the optional sort toggle renumbers as it reorders.
+
+import LedgerRow from "./shipping/LedgerRow.astro";
+import PrintList from "./shipping/PrintList.astro";
+import type { Entry } from "../data/resume";
+
+interface Group {
+    label?: string;
+    entries: Entry[];
+}
+
+interface Props {
+    title: string;
+    groups: Group[];
+    /** Anchor for the section, and the name it reports under. */
+    id?: string;
+    /** Rows kept above the fold. */
+    lead?: number;
+    /**
+     * Orderings on offer, the first one active. "relevance" is the order the
+     * entries arrive in; the other two read the entry's sortKey, or its year.
+     */
+    sorts?: Array<"relevance" | "latest" | "oldest">;
+    /** Whether the section belongs on the printed sheet at all. */
+    print?: boolean;
+    printLimit?: number;
+}
+
+const {
+    title,
+    groups,
+    id,
+    lead = 3,
+    sorts = [],
+    print = true,
+    printLimit,
+} = Astro.props;
+
+const flat = groups.flatMap((group) => group.entries);
+const numbered = flat.map((entry, index) => ({ entry, n: index + 1 }));
+const above = numbered.slice(0, lead);
+const below = numbered.slice(lead);
+const section = id ?? title;
+---
+
+<section
+    data-resume-section
+    data-fold-section
+    data-section={section}
+    id={id}
+    data-print-hide={print ? undefined : true}
+>
+    <div class="flex items-baseline justify-between gap-3">
+        <h2 data-resume-heading class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-4 [font-variation-settings:'opsz'_24]">
+            {title}
+        </h2>
+        <button
+            type="button"
+            data-fold-all
+            data-print-hide
+            hidden
+            class="fold-all font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.04em] text-ink-soft whitespace-nowrap"
+        >show all &darr;</button>
+    </div>
+
+    {sorts.length > 1 && (
+        <div
+            class="sort font-mono [font-variant-ligatures:none] text-[10.5px] tracking-[0.06em] text-rule-dot"
+            data-sort-controls
+            data-print-hide
+            hidden
+        >
+            <span>sort</span>
+            {sorts.map((key, index) => (
+                <>
+                    {index > 0 && <span aria-hidden="true">&middot;</span>}
+                    <button
+                        type="button"
+                        class="sort-option"
+                        data-sort={key}
+                        aria-pressed={String(index === 0)}
+                    >{key}</button>
+                </>
+            ))}
+        </div>
+    )}
+
+    <div data-print-hide>
+        <ol class="list-none p-0 m-0" data-rows>
+            {above.map(({ entry, n }) => (
+                <li class="py-3" data-rank={n} data-key={entry.sortKey ?? entry.year ?? 0}><LedgerRow n={n} entry={entry} /></li>
+            ))}
+        </ol>
+
+        <details class="fold">
+            <summary class="fold-line">
+                <span aria-hidden="true" class="fade"></span>
+                <span class="fold-label font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.06em] text-ink-soft whitespace-nowrap">
+                    <span data-closed>{below.length} more, folded ↓</span>
+                    <span data-open>fold back ↑</span>
+                </span>
+                <span aria-hidden="true" class="edges"></span>
+            </summary>
+
+            <ol class="list-none p-0 m-0" data-rows data-rest>
+                {below.map(({ entry, n }, index) => (
+                    <li class="py-3" style={`--i:${index}`} data-rank={n} data-key={entry.sortKey ?? entry.year ?? 0}><LedgerRow n={n} entry={entry} /></li>
+                ))}
+            </ol>
+        </details>
+    </div>
+
+    {print && <PrintList entries={flat} limit={printLimit} />}
+</section>
+
+<script is:inline>
+    document.querySelectorAll("[data-fold-section]").forEach((section) => {
+        if (section.dataset.foldReady) return;
+        section.dataset.foldReady = "1";
+
+        const name = section.dataset.section || "";
+        const track = (event, data) => window.umami?.track(event, data);
+        const fold = section.querySelector("details");
+        const button = section.querySelector("[data-fold-all]");
+
+        if (fold && button) {
+            const sync = () => {
+                button.textContent = fold.open ? "fold back ↑" : "show all ↓";
+                button.setAttribute("aria-expanded", String(fold.open));
+            };
+
+            button.hidden = false;
+            button.addEventListener("click", () => {
+                fold.open = !fold.open;
+                track("fold", { section: name, open: fold.open, via: "heading" });
+            });
+            fold.querySelector("summary")?.addEventListener("click", () => {
+                track("fold", { section: name, open: !fold.open, via: "crease" });
+            });
+            fold.addEventListener("toggle", sync);
+            sync();
+        }
+
+        // Landing on the section's own anchor means you came for the whole list.
+        if (fold && section.id) {
+            const openFromHash = () => {
+                if (location.hash === `#${section.id}`) fold.open = true;
+            };
+
+            openFromHash();
+            window.addEventListener("hashchange", openFromHash);
+        }
+
+        const controls = section.querySelector("[data-sort-controls]");
+        const lead = section.querySelector("[data-rows]:not([data-rest])");
+        const rest = section.querySelector("[data-rest]");
+        if (!controls || !lead || !rest) return;
+
+        const rows = [...lead.children, ...rest.children];
+        const leadCount = lead.children.length;
+        const pad = (value) => String(value).padStart(2, "0");
+
+        const key = (row) => Number(row.dataset.key) || 0;
+        const rank = (row) => Number(row.dataset.rank) || 0;
+        const compare = {
+            relevance: (a, b) => rank(a) - rank(b),
+            latest: (a, b) => key(b) - key(a) || rank(a) - rank(b),
+            oldest: (a, b) => key(a) - key(b) || rank(a) - rank(b),
+        };
+
+        const apply = (order) => {
+            const sorted = [...rows].sort(compare[order] ?? compare.relevance);
+
+            sorted.forEach((row, index) => {
+                (index < leadCount ? lead : rest).append(row);
+                row.style.setProperty("--i", String(Math.max(0, index - leadCount)));
+                const number = row.querySelector("[data-row-number]");
+                if (number) number.textContent = pad(index + 1);
+            });
+
+            controls.querySelectorAll("[data-sort]").forEach((option) => {
+                option.setAttribute("aria-pressed", String(option.dataset.sort === order));
+            });
+        };
+
+        controls.hidden = false;
+        controls.addEventListener("click", (event) => {
+            const option = event.target.closest("[data-sort]");
+            if (!option) return;
+
+            apply(option.dataset.sort);
+            // A new order is only useful if you can see all of it.
+            if (fold) fold.open = true;
+            track("sort", { section: name, order: option.dataset.sort });
+        });
+    });
+</script>
+
+<style>
+    [data-rows] li + li {
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    /* Flex lets the fold line move under the rows once it is open. */
+    .fold {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .fold-line {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 0;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .fold-line::-webkit-details-marker {
+        display: none;
+    }
+
+    .fold-line::before,
+    .fold-line::after {
+        content: "";
+        flex: 1;
+        border-bottom: 0.5px dashed var(--color-rule-dot);
+    }
+
+    .fold-line:hover .fold-label {
+        color: var(--color-ink);
+    }
+
+    .fold-line:focus-visible {
+        outline: 1px dashed var(--color-accent);
+        outline-offset: 4px;
+    }
+
+    .fold-label {
+        transition: color 120ms linear;
+    }
+
+    .fold-all {
+        appearance: none;
+        background: none;
+        border: 0;
+        border-bottom: 0.5px dotted var(--color-rule-dot);
+        padding: 0 0 1px;
+        cursor: pointer;
+        transition: color 120ms linear;
+    }
+
+    .fold-all:hover {
+        color: var(--color-ink);
+    }
+
+    .sort {
+        display: flex;
+        align-items: baseline;
+        gap: 7px;
+        margin: -6px 0 12px;
+    }
+
+    .sort-option {
+        appearance: none;
+        background: none;
+        border: 0;
+        border-bottom: 0.5px dotted transparent;
+        padding: 0 0 1px;
+        font: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        cursor: pointer;
+        transition:
+            color 120ms linear,
+            border-color 120ms linear;
+    }
+
+    .sort-option:hover {
+        color: var(--color-ink-soft);
+        border-bottom-color: var(--color-rule-dot);
+    }
+
+    .sort-option[aria-pressed="true"] {
+        color: var(--color-accent);
+        border-bottom-color: var(--color-accent-50);
+    }
+
+    .fold:not([open]) .fold-label {
+        color: var(--color-accent);
+    }
+
+    /* Closed, the last row dissolves into paper so the eye lands on the label.
+       The veil runs most of a row tall and holds around three quarters opacity
+       well up into it. */
+    .fade {
+        position: absolute;
+        inset-inline: 0;
+        bottom: 100%;
+        height: 165px;
+        pointer-events: none;
+        background: linear-gradient(
+            to top,
+            var(--color-paper) 0 30%,
+            color-mix(in oklab, var(--color-paper) 75%, transparent) 58%,
+            color-mix(in oklab, var(--color-paper) 34%, transparent) 82%,
+            transparent 100%
+        );
+    }
+
+    /* The margins carry badges and figures, so the veil has to reach them too. */
+    @media (min-width: 900px) {
+        .fade {
+            inset-inline: -160px;
+        }
+    }
+
+    /* Two more creases below the fold, hinting at the stack behind it. */
+    .edges {
+        position: absolute;
+        inset-inline: 14%;
+        top: calc(100% - 10px);
+    }
+
+    .edges::before,
+    .edges::after {
+        content: "";
+        position: absolute;
+        inset-inline: 0;
+        border-bottom: 0.5px dashed var(--color-rule-dot);
+    }
+
+    .edges::before {
+        top: 0;
+        opacity: 0.55;
+    }
+
+    .edges::after {
+        top: 4px;
+        inset-inline: 7%;
+        opacity: 0.3;
+    }
+
+    .fold:not([open]) > summary {
+        margin-bottom: 6px;
+    }
+
+    .fold[open] > summary {
+        order: 2;
+    }
+
+    .fold[open] .edges,
+    .fold[open] .fade,
+    .fold:not([open]) [data-open],
+    .fold[open] [data-closed] {
+        display: none;
+    }
+
+    [data-rest] li {
+        animation: unroll 300ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+        animation-delay: calc(var(--i) * 22ms);
+    }
+
+    @keyframes unroll {
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+    }
+
+    /* No height animation on ::details-content: it needs overflow hidden, which
+       clips the badges and figures out in the margins. The row stagger carries
+       the unroll on its own. */
+
+    @media (prefers-reduced-motion: reduce) {
+        [data-rest] li {
+            animation: none;
+        }
+    }
+</style>
