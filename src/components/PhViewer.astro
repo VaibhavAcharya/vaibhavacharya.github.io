@@ -41,6 +41,7 @@
         let frames = [];
         let index = 0;
         let opener = null;
+        let openedByKey = false;
 
         const pad = (value) => String(value).padStart(2, "0");
 
@@ -88,7 +89,12 @@
             viewer.hidden = true;
             document.documentElement.style.overflow = "";
             if (main) main.inert = false;
-            if (opener) opener.focus();
+
+            // A keyboard opener gets its place back. A click does not: focus on
+            // that sheet keeps its pile spread and every other pile hidden until
+            // something else takes it.
+            if (openedByKey && opener) opener.focus();
+            else document.activeElement?.blur();
         }
 
         document.addEventListener("click", (event) => {
@@ -97,6 +103,8 @@
             if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
             event.preventDefault();
+            // Enter and Space arrive as a click with no click count behind it.
+            openedByKey = event.detail === 0;
             open(anchor);
         });
 

@@ -49,7 +49,6 @@ export const SHOTS: Record<string, Shot[]> = {
     ]),
     "code-gpt-2": gallery("code-gpt-2", [
         [1400, 467, "Make sense of any code, anytime"],
-        [600, 338, "The extension at work inside VS Code"],
         [1000, 562, "Select the code, run the command, read the explanation", "video"],
     ]),
     "ultra-ai": gallery("ultra-ai", [

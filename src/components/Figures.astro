@@ -80,16 +80,18 @@ const shots = shotsFor(entry);
         aspect-ratio: 16 / 10;
         object-fit: cover;
         object-position: top center;
-        filter: grayscale(1) contrast(1.02);
         opacity: 0.8;
-        transition:
-            filter 220ms linear,
-            opacity 220ms linear;
+        transition: opacity 220ms linear;
     }
 
     .fig:hover,
     .fig:focus-visible {
         border-color: var(--color-accent-50);
+    }
+
+    .fig:hover img,
+    .fig:focus-visible img {
+        opacity: 1;
     }
 
     /* A clip reads as a still until it is opened, so it says so with a mark in
@@ -103,12 +105,6 @@ const shots = shotsFor(entry);
         border-width: 4px 0 4px 7px;
         border-color: transparent transparent transparent var(--color-paper);
         filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.55));
-    }
-
-    .fig:hover img,
-    .fig:focus-visible img {
-        filter: none;
-        opacity: 1;
     }
 
     /* The margin only exists once the viewport can hold it, same threshold the
@@ -142,9 +138,12 @@ const shots = shotsFor(entry);
         }
 
         /* Spread, the pile sits on its own paper so it reads as one object
-           instead of running into the piles above and below. */
+           instead of running into the piles above and below.
+           Keyboard focus spreads it, a click does not: closing the viewer hands
+           focus back to the sheet that opened it, which would otherwise leave
+           that pile spread and every other one hidden. */
         .figures:hover,
-        .figures:focus-within {
+        .figures:has(:focus-visible) {
             z-index: 30;
             background: var(--color-paper);
             outline: 7px solid var(--color-paper);
@@ -157,18 +156,18 @@ const shots = shotsFor(entry);
         }
 
         :global(body:has(.figures:hover)) .figures:not(:hover),
-        :global(body:has(.figures:focus-within)) .figures:not(:focus-within) {
+        :global(body:has(.figures :focus-visible)) .figures:not(:has(:focus-visible)) {
             opacity: 0;
             pointer-events: none;
         }
 
         .figures:hover .fig,
-        .figures:focus-within .fig {
+        .figures:has(:focus-visible) .fig {
             pointer-events: auto;
         }
 
         .figures:hover .fig + .fig,
-        .figures:focus-within .fig + .fig {
+        .figures:has(:focus-visible) .fig + .fig {
             margin-top: 7px;
         }
 
