@@ -30,7 +30,6 @@ const downloads = (entry: Entry) =>
 
 const upvotes = (entry: Entry) => (entry.ph ? stats.ph[entry.ph]?.upvotes : 0) ?? 0;
 
-/** The counts worth citing, wrapped around whatever the entry says for itself. */
 export function detail(entry: Entry): string | undefined {
     const starCount = stars(entry);
     const downloadCount = downloads(entry);
@@ -54,9 +53,6 @@ export function marginStars(entry: Entry): number | undefined {
     return count >= STARS_SHOWN_FROM ? count : undefined;
 }
 
-/**
- * Whether the row has anything to hang in the margin. The one place that knows
- * what counts, so adding a kind of mark cannot leave the slot switched off.
- */
+/** The one place that knows what counts, so a new kind cannot be left out. */
 export const hasMarks = (entry: Entry) =>
     Boolean(entry.ph || marginStars(entry) || entry.tweet || entry.link);

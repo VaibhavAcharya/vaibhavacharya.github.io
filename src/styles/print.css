@@ -105,7 +105,6 @@
         margin-bottom: 1.4mm;
     }
 
-    /* The summary runs as one block, so its paragraphs sit tight together. */
     [data-resume] > [data-entry-desc] {
         margin-bottom: 0.8mm !important;
     }

@@ -9,8 +9,7 @@ import { detail } from "../data/stats";
 type Props = Entry;
 
 const { name, href, meta, current, description, note, year } = Astro.props;
-// The printed sheet has no badge in the margin to carry the counts, so they all
-// land in this line.
+// No badge in the margin on paper, so every count lands in this line.
 const numbers = detail(Astro.props);
 ---
 

@@ -19,8 +19,7 @@ import { EXPERIENCE, PROJECTS } from "../src/data/resume.ts";
 const run = promisify(execFile);
 const outPath = path.resolve("src/data/stats.json");
 
-// Straight off the ledger, hidden entries included: naming a repo on an entry is
-// all it should take to have its count fetched.
+// Hidden entries included: naming a repo is all it should take to fetch it.
 const entries = [...PROJECTS, ...EXPERIENCE];
 const named = (key) => [...new Set(entries.map((entry) => entry[key]).filter(Boolean))];
 

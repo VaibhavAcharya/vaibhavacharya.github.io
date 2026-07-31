@@ -330,7 +330,6 @@ export const PROJECTS: Entry[] = [
     },
 ];
 
-/** Everything the pages are allowed to show, in the order set above. */
 const SHOWN = PROJECTS.filter((project) => !project.hidden);
 
 export const SHIPPING_GROUPS = GROUP_ORDER.map((label) => ({
