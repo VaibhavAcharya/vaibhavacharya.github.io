@@ -1,0 +1,106 @@
+---
+// src/components/Ledger.astro
+// Numbered ledger of entries. Group names sit out in the left margin so the numbering
+// reads as one continuous run rather than a stack of short lists. A group with no
+// label still reserves the rail, which keeps every section on the same left edge.
+//
+// Print takes the flat two-column list instead, where there is no margin to use.
+
+import LedgerRow from "./shipping/LedgerRow.astro";
+import ResumeEntry from "./ResumeEntry.astro";
+import type { Entry } from "../data/resume";
+
+interface Group {
+    label?: string;
+    entries: Entry[];
+}
+
+interface Props {
+    title: string;
+    groups: Group[];
+    /** How many entries the printed sheet carries. */
+    printLimit?: number;
+}
+
+const { title, groups, printLimit } = Astro.props;
+
+let running = 0;
+const numbered = groups.map((group) => ({
+    label: group.label,
+    entries: group.entries.map((entry) => ({ entry, n: ++running })),
+}));
+
+const flat = groups.flatMap((group) => group.entries);
+const printed = printLimit === undefined ? flat : flat.slice(0, printLimit);
+
+const pad = (n: number) => String(n).padStart(2, "0");
+---
+
+<section data-resume-section>
+    <h2 data-resume-heading class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-4 [font-variation-settings:'opsz'_24]">
+        {title}
+    </h2>
+
+    <div data-print-hide data-rail>
+        {numbered.map((group) => (
+            <section class="rail-group">
+                <p class="rail-label font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.06em] text-ink-soft">{group.label}</p>
+                <ol class="list-none p-0 m-0" data-rows>
+                    {group.entries.map(({ entry, n }) => (
+                        <li class="py-3"><LedgerRow n={n} entry={entry} /></li>
+                    ))}
+                </ol>
+            </section>
+        ))}
+    </div>
+
+    <div data-print-only>
+        <div data-resume-grid>
+            {printed.map((entry) => <ResumeEntry {...entry} />)}
+        </div>
+    </div>
+</section>
+
+<style>
+    [data-rows] li + li {
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    .rail-group + .rail-group {
+        margin-top: 26px;
+        padding-top: 22px;
+        border-top: 0.5px solid var(--color-rule-solid);
+    }
+
+    .rail-label {
+        margin: 0 0 8px;
+    }
+
+    .rail-label:empty {
+        display: none;
+    }
+
+    /* The rail needs room outside the reading column, so it only moves out once the
+       viewport is wide enough to hold it. */
+    @media (min-width: 900px) {
+        [data-rail] {
+            margin-left: -150px;
+        }
+
+        .rail-group {
+            display: grid;
+            grid-template-columns: 132px 1fr;
+            gap: 0 18px;
+        }
+
+        .rail-label {
+            margin: 0;
+            padding-top: 15px;
+            text-align: right;
+        }
+
+        .rail-label:empty {
+            display: block;
+        }
+    }
+</style>

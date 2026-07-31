@@ -1,0 +1,165 @@
+---
+// src/components/shipping/ShippingFootnotes.astro
+// Variant 05. The ledger collapses into one run of names, numbered like
+// footnote markers. Picking a name pulls that entry out below the run, one at a
+// time, the way a footnote sits under the text it belongs to.
+//
+// Radios drive it, so it works without JS and gets arrow-key navigation free.
+// The ids are page-global, so render one of these per page.
+
+import LedgerRow from "./LedgerRow.astro";
+import PrintList from "./PrintList.astro";
+import type { Entry } from "../../data/resume";
+
+interface Group {
+    label?: string;
+    entries: Entry[];
+}
+
+interface Props {
+    title: string;
+    groups: Group[];
+    printLimit?: number;
+}
+
+const { title, groups, printLimit } = Astro.props;
+
+const flat = groups.flatMap((group) => group.entries);
+const numbered = flat.map((entry, index) => ({ entry, n: index + 1 }));
+const pad = (value: number) => String(value).padStart(2, "0");
+
+const rules = numbered
+    .map(({ n }) =>
+        [
+            `#fn-${n}:checked~.run [data-f="${n}"]{color:var(--color-accent);border-bottom-style:solid;border-bottom-color:var(--color-accent)}`,
+            `#fn-${n}:checked~.fn-slot [data-fp="${n}"]{display:block}`,
+            `#fn-${n}:focus-visible~.run [data-f="${n}"]{outline:1px dashed var(--color-accent);outline-offset:3px}`,
+        ].join(""),
+    )
+    .join("");
+---
+
+<section data-resume-section>
+    <h2 data-resume-heading class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-4 [font-variation-settings:'opsz'_24]">
+        {title}
+    </h2>
+
+    <div data-print-hide>
+        <input type="radio" name="ship-fn" id="fn-none" class="sr-only" checked />
+        {numbered.map(({ n }) => (
+            <input type="radio" name="ship-fn" id={`fn-${n}`} class="sr-only" />
+        ))}
+
+        <p class="run font-sans text-[15px] text-ink-muted m-0">
+            {numbered.map(({ entry, n }, index) => (
+                <>
+                    <label class="name" for={`fn-${n}`} data-f={n}>
+                        <sup>{pad(n)}</sup>{entry.name}
+                    </label>
+                    {index < numbered.length - 1 && <span class="sep" aria-hidden="true"></span>}
+                </>
+            ))}
+        </p>
+
+        <div class="fn-slot">
+            <p class="hint font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.04em] text-rule-dot m-0">
+                pick one to read it
+            </p>
+
+            {numbered.map(({ entry, n }) => (
+                <div class="note" data-fp={n}>
+                    <LedgerRow n={n} entry={entry} mark="none" />
+                    <label class="close font-mono [font-variant-ligatures:none] text-[10.5px] tracking-[0.06em] text-ink-soft" for="fn-none">
+                        close ×
+                    </label>
+                </div>
+            ))}
+        </div>
+    </div>
+
+    <PrintList entries={flat} limit={printLimit} />
+</section>
+
+<style is:inline set:html={rules}></style>
+
+<style>
+    .run {
+        line-height: 2;
+        text-wrap: pretty;
+    }
+
+    .name {
+        white-space: nowrap;
+        border-bottom: 0.5px dotted transparent;
+        padding-bottom: 1px;
+        cursor: pointer;
+        transition:
+            color 120ms linear,
+            border-color 120ms linear;
+    }
+
+    .name:hover {
+        color: var(--color-ink);
+        border-bottom-color: var(--color-rule-dot);
+    }
+
+    .name sup {
+        font-family: var(--font-mono);
+        font-variant-ligatures: none;
+        font-size: 8.5px;
+        letter-spacing: 0.02em;
+        color: var(--color-rule-dot);
+        vertical-align: super;
+        margin-right: 2px;
+    }
+
+    .sep::before {
+        content: "·";
+        margin: 0 6px;
+        color: var(--color-rule-dot);
+    }
+
+    .fn-slot {
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    .note {
+        display: none;
+        animation: pull 240ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    }
+
+    .hint {
+        display: none;
+    }
+
+    #fn-none:checked ~ .fn-slot .hint {
+        display: block;
+    }
+
+    .close {
+        display: inline-block;
+        margin: 14px 0 0 26px;
+        border-bottom: 0.5px dotted var(--color-rule-dot);
+        cursor: pointer;
+        transition: color 120ms linear;
+    }
+
+    .close:hover {
+        color: var(--color-ink);
+    }
+
+    @keyframes pull {
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .note {
+            animation: none;
+        }
+    }
+</style>

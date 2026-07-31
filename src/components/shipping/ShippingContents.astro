@@ -1,0 +1,187 @@
+---
+// src/components/shipping/ShippingContents.astro
+// Variant 02. Every group collapses to one leader line carrying its count and
+// the first few names, so the whole section reads as a table of contents until
+// you open a block. Groups open independently.
+
+import LedgerRow from "./LedgerRow.astro";
+import PrintList from "./PrintList.astro";
+import type { Entry } from "../../data/resume";
+
+interface Group {
+    label?: string;
+    entries: Entry[];
+}
+
+interface Props {
+    title: string;
+    groups: Group[];
+    /** Names shown in the collapsed preview. */
+    preview?: number;
+    printLimit?: number;
+}
+
+const { title, groups, preview = 2, printLimit } = Astro.props;
+
+let running = 0;
+const numbered = groups.map((group) => ({
+    label: group.label,
+    entries: group.entries.map((entry) => ({ entry, n: ++running })),
+}));
+
+const flat = groups.flatMap((group) => group.entries);
+const pad = (value: number) => String(value).padStart(2, "0");
+
+function previewOf(entries: Entry[]): string {
+    const shown = entries.slice(0, preview).map((entry) => entry.name);
+    const hidden = entries.length - shown.length;
+
+    return hidden > 0 ? `${shown.join(", ")} +${hidden}` : shown.join(", ");
+}
+---
+
+<section data-resume-section>
+    <h2 data-resume-heading class="font-serif italic font-normal text-[17px] text-accent mt-13 mb-4 [font-variation-settings:'opsz'_24]">
+        {title}
+    </h2>
+
+    <div data-print-hide>
+        {numbered.map((group) => (
+            <details class="block">
+                <summary class="line">
+                    <span class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.06em] text-ink group-label">
+                        {group.label}
+                    </span>
+                    <span aria-hidden="true" class="leader"></span>
+                    <span class="preview font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.02em] text-ink-soft">
+                        {previewOf(group.entries.map(({ entry }) => entry))}
+                    </span>
+                    <span class="font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.02em] text-rule-dot">
+                        {pad(group.entries.length)}
+                    </span>
+                    <span aria-hidden="true" class="sign font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft"></span>
+                </summary>
+
+                <ol class="list-none p-0 m-0 pt-1 pb-3" data-rows>
+                    {group.entries.map(({ entry, n }, index) => (
+                        <li class="py-3" style={`--i:${index}`}><LedgerRow n={n} entry={entry} mark="none" /></li>
+                    ))}
+                </ol>
+            </details>
+        ))}
+    </div>
+
+    <PrintList entries={flat} limit={printLimit} />
+</section>
+
+<style>
+    [data-rows] li + li {
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    .block + .block {
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    .line {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 11px 0;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .line::-webkit-details-marker {
+        display: none;
+    }
+
+    .line:focus-visible {
+        outline: 1px dashed var(--color-accent);
+        outline-offset: 4px;
+    }
+
+    .leader {
+        flex: 1;
+        border-bottom: 0.5px dotted var(--color-rule-dot);
+        transform: translateY(-4px);
+    }
+
+    .preview {
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .sign::before {
+        content: "+";
+    }
+
+    .block[open] .sign::before {
+        content: "−";
+    }
+
+    .block[open] .group-label {
+        color: var(--color-accent);
+    }
+
+    .block[open] .preview {
+        display: none;
+    }
+
+    .line:hover .group-label {
+        color: var(--color-accent);
+    }
+
+    .group-label {
+        transition: color 120ms linear;
+    }
+
+    @media (max-width: 480px) {
+        .preview {
+            display: none;
+        }
+    }
+
+    [data-rows] li {
+        animation: settle 260ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+        animation-delay: calc(var(--i) * 24ms);
+    }
+
+    @keyframes settle {
+        from {
+            opacity: 0;
+            transform: translateY(-3px);
+        }
+    }
+
+    @supports selector(::details-content) {
+        .block {
+            interpolate-size: allow-keywords;
+        }
+
+        .block::details-content {
+            height: 0;
+            overflow: hidden;
+            transition:
+                height 300ms cubic-bezier(0.2, 0.7, 0.3, 1),
+                content-visibility 300ms allow-discrete;
+        }
+
+        .block[open]::details-content {
+            height: auto;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        [data-rows] li {
+            animation: none;
+        }
+
+        .block::details-content {
+            transition: none;
+        }
+    }
+</style>

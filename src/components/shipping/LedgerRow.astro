@@ -1,0 +1,142 @@
+---
+// src/components/shipping/LedgerRow.astro
+// One numbered ledger row. Anything ProductHunt goes out into the margins: the
+// official badge on the left, the launch gallery on the right, so the reading
+// column stays type only. The star count hangs under the badge, on the same side.
+
+import PhBadge from "../PhBadge.astro";
+import Figures from "../Figures.astro";
+import RowMarks from "../RowMarks.astro";
+import type { Entry } from "../../data/resume";
+import { shotsFor } from "../../data/shots";
+import { detail, hasMarks } from "../../data/stats";
+
+interface Props {
+    n: number;
+    entry: Entry;
+    /**
+     * "margin" hangs the badge and the gallery in the margins, "chip" falls back
+     * to the two-letter mark inside the row, "none" leaves ProductHunt out.
+     */
+    mark?: "margin" | "chip" | "none";
+}
+
+const { n, entry, mark = "margin" } = Astro.props;
+const pad = (value: number) => String(value).padStart(2, "0");
+const external = entry.href?.startsWith("http") ?? false;
+const numbers = detail(entry);
+const marks = hasMarks(entry);
+const figures = shotsFor(entry).length > 0;
+---
+
+<div class="row grid grid-cols-[26px_minmax(0,1fr)] gap-x-3">
+    <span data-row-number class="font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.02em] text-rule-dot pt-[3px]">
+        {pad(n)}
+    </span>
+    <div>
+        <div class="flex items-baseline gap-3">
+            <h3 class="font-sans font-normal text-[15px] leading-[1.4] text-ink m-0 min-w-0">
+                {entry.href ? (
+                    <a
+                        href={entry.href}
+                        target={external ? "_blank" : undefined}
+                        rel={external ? "noreferrer" : undefined}
+                        class="link"
+                        data-umami-event={external ? "project-open" : "writing-open"}
+                        data-umami-event-name={entry.name}
+                    >{entry.name}</a>
+                ) : (
+                    entry.name
+                )}
+            </h3>
+            <span aria-hidden="true" class="flex-1 border-b-[0.5px] border-dotted border-rule-dot translate-y-[-4px]"></span>
+            <span class="font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.02em] text-ink-soft whitespace-nowrap">
+                {entry.current && <span class="text-accent">currently</span>}
+                {[entry.current ? ` ${entry.meta}` : entry.meta, entry.year]
+                    .filter(Boolean)
+                    .join(" · ")}
+                {entry.ph && mark === "chip" && (
+                    <a
+                        href={`https://www.producthunt.com/products/${entry.ph}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`${entry.name} on ProductHunt`}
+                        class="ph"
+                        data-umami-event="ph-open"
+                        data-umami-event-product={entry.ph}
+                    >ph</a>
+                )}
+            </span>
+        </div>
+        <p class="font-sans text-[14px] leading-[1.6] text-ink-muted m-0 mt-1">
+            {entry.description}
+        </p>
+        {numbers && (
+            <p class="font-mono [font-variant-ligatures:none] text-[11px] leading-[1.6] tracking-[0.02em] text-accent m-0 mt-1">
+                {numbers}
+            </p>
+        )}
+        {entry.note && (
+            <p class="font-mono [font-variant-ligatures:none] text-[11px] leading-[1.6] tracking-[0.02em] text-ink-soft m-0 mt-1">
+                {entry.note}
+            </p>
+        )}
+
+        {mark === "margin" && (
+            <>
+                {marks && (
+                    <span class="badge-slot">
+                        {entry.ph && <PhBadge slug={entry.ph} name={entry.name} height={24} />}
+                        <RowMarks entry={entry} />
+                    </span>
+                )}
+                {figures && <Figures entry={entry} />}
+            </>
+        )}
+    </div>
+</div>
+
+<style>
+    .row {
+        position: relative;
+    }
+
+    .badge-slot {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 11px 0 2px;
+    }
+
+    /* A mark rather than another link, so it does not compete with the name. */
+    .ph {
+        display: inline-block;
+        margin-left: 7px;
+        padding: 1px 4px;
+        font-size: 9.5px;
+        letter-spacing: 0.08em;
+        color: var(--color-accent);
+        border: 0.5px solid var(--color-accent-50);
+        transition:
+            border-color 120ms linear,
+            background-color 120ms linear;
+    }
+
+    .ph:hover {
+        border-color: var(--color-accent);
+        background: color-mix(in oklab, var(--color-accent) 10%, transparent);
+    }
+
+    @media (min-width: 900px) {
+        .badge-slot {
+            position: absolute;
+            top: 13px;
+            right: calc(100% + 22px);
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            width: max-content;
+            margin: 0;
+        }
+    }
+</style>

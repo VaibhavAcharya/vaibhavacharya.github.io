@@ -1,0 +1,156 @@
+/* src/styles/print.css */
+/* Reflows a resume page into a single A4 sheet. Imported only by pages that
+   are meant to be printed. */
+
+[data-print-only] {
+    display: none;
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 5mm;
+    }
+
+    /* Paper is paper. Force the light palette even when the dark class is set. */
+    html,
+    html.dark {
+        --color-paper: #ffffff;
+        --color-ink: #101010;
+        --color-ink-muted: #26262a;
+        --color-ink-soft: #57575c;
+        --color-rule-dot: #bdbdc2;
+        --color-rule-solid: #97979d;
+        --color-accent: #23407a;
+        --color-accent-50: rgba(35, 64, 122, 0.45);
+        color-scheme: light;
+    }
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    body {
+        background: #ffffff;
+    }
+
+    [data-print-hide] {
+        display: none !important;
+    }
+
+    [data-print-only] {
+        display: revert !important;
+    }
+
+    [data-resume] {
+        max-width: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* The page leads with the side projects; the sheet keeps experience first. */
+    #shipping {
+        order: 1;
+    }
+
+    #education {
+        order: 2;
+    }
+
+    /* Name on the left, contact details on the right. */
+    [data-resume-header] {
+        flex-direction: row !important;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8mm;
+    }
+
+    [data-resume-contact] {
+        align-items: flex-end;
+        text-align: right;
+        margin-top: 0.6mm !important;
+        gap: 0 !important;
+    }
+
+    [data-resume-name] {
+        font-size: 23pt !important;
+        line-height: 1.04 !important;
+        margin: 0 0 1.2mm !important;
+    }
+
+    [data-resume-role] {
+        font-size: 10pt !important;
+        margin: 0 0 0.8mm !important;
+    }
+
+    [data-resume-tagline] {
+        font-size: 8.4pt !important;
+        margin: 0 !important;
+    }
+
+    [data-resume-contact] {
+        font-size: 7.6pt !important;
+    }
+
+    [data-resume-heading] {
+        font-size: 12.5pt !important;
+        margin: 2.8mm 0 1.2mm !important;
+        break-after: avoid;
+    }
+
+    [data-resume-entry] {
+        break-inside: avoid;
+        padding: 0;
+        margin-bottom: 1.4mm;
+    }
+
+    [data-resume] > [data-entry-desc] {
+        margin-bottom: 0.8mm !important;
+    }
+
+    /* Two columns, row-major: the sheet is read left, right, then down. */
+    [data-resume-grid] {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 8mm;
+        align-items: start;
+    }
+
+    [data-resume-entry] [data-entry-name] {
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+    }
+
+    [data-resume-entry] [data-entry-meta],
+    [data-resume-entry] [data-entry-detail],
+    [data-resume-entry] [data-entry-note] {
+        font-size: 7.3pt !important;
+        line-height: 1.4 !important;
+    }
+
+    /* Unscoped: also catches the standalone summary paragraph. */
+    [data-entry-desc] {
+        font-size: 8.4pt !important;
+        line-height: 1.38 !important;
+        max-width: none !important;
+    }
+
+    [data-resume-entry] [data-entry-desc],
+    [data-resume-entry] [data-entry-detail],
+    [data-resume-entry] [data-entry-note] {
+        margin-top: 0.5mm !important;
+    }
+
+    [data-resume-entry] [data-leader] {
+        transform: translateY(-2px);
+    }
+
+    /* Underlines survive the print; the border approach does not always. */
+    .link {
+        border-bottom: none;
+        text-decoration: underline;
+        text-decoration-color: var(--color-accent-50);
+        text-underline-offset: 2px;
+    }
+}

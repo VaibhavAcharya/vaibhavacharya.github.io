@@ -1,0 +1,245 @@
+---
+// src/pages/lab/badges.astro
+// Five placements for the official ProductHunt badge inside the shipping
+// ledger. The badge is a live SVG from PH, so the count is whatever the launch
+// is on right now; view 01 is the typographic stand-in for comparison.
+
+import BaseHead from "../../components/BaseHead.astro";
+import BackLink from "../../components/BackLink.astro";
+import Colophon from "../../components/Colophon.astro";
+import ThemeToggle from "../../components/ThemeToggle.astro";
+import LedgerRow from "../../components/shipping/LedgerRow.astro";
+import PhBadge from "../../components/PhBadge.astro";
+import { SITE_TITLE } from "../../consts";
+import { SHIPPING_GROUPS } from "../../data/resume";
+
+let running = 0;
+const numbered = SHIPPING_GROUPS.flatMap((group) =>
+    group.entries.map((entry) => ({ entry, n: ++running })),
+);
+const launches = numbered.filter(({ entry }) => entry.ph);
+
+const views = [
+    {
+        n: "01",
+        name: "the chip",
+        note: "No badge at all: a two-letter mark in the site's own mono, sitting where the numbers end. Costs nothing, loads nothing, and says the least.",
+        facts: "typographic · no request · count not shown",
+    },
+    {
+        n: "02",
+        name: "under the row",
+        note: "The real badge, hung under each entry against the text column. Reads as a stamp on the record, and the count comes straight from PH.",
+        facts: "official badge · 27px · one request per row",
+    },
+    {
+        n: "03",
+        name: "in the margin",
+        note: "Badge pushed out into the left rail, next to the row it belongs to, so the reading column stays pure type. Falls back under the row below 900px.",
+        facts: "official badge · 27px · needs the wide rail",
+    },
+    {
+        n: "04",
+        name: "the shelf",
+        note: "Rows stay untouched and every badge collects into one strip at the end of the section. Cheapest on the eye, weakest at tying a badge to its row.",
+        facts: "official badge · 40px · one strip, seven badges",
+    },
+    {
+        n: "05",
+        name: "on demand",
+        note: "The chip holds the line until you point at the row, then the badge unrolls under it. Quiet by default, official when asked.",
+        facts: "chip plus badge · reveals on hover or focus",
+    },
+];
+---
+
+<!doctype html>
+<html lang="en-IN">
+    <head>
+        <BaseHead
+            title={`lab · badges · ${SITE_TITLE}`}
+            description="Placements for the official ProductHunt badge in the shipping ledger."
+        />
+        <meta name="robots" content="noindex, nofollow" />
+    </head>
+    <body>
+        <ThemeToggle />
+        <main class="max-w-[580px] w-full mx-auto px-10 pt-14 pb-18 flex flex-col max-sm:px-6 max-sm:pt-10 max-sm:pb-12">
+            <BackLink label="home" href="/" />
+
+            <p class="font-serif italic font-normal text-[17px] text-accent mb-3.5 [font-variation-settings:'opsz'_24]">
+                lab · badges
+            </p>
+            <p class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0">
+                Seven of the side projects launched on ProductHunt. These are the
+                official embed badges, so the number inside each one is live, and
+                the question is only where they go.
+            </p>
+            <p class="font-mono [font-variant-ligatures:none] text-[11px] leading-[1.7] tracking-[0.02em] text-ink-soft max-w-[62ch] m-0 mt-3">
+                PH's neutral variant leads in light mode, its dark variant takes
+                over when the page flips
+            </p>
+
+            {views.map(({ n, name, note, facts }) => (
+                <article class="view">
+                    <div class="grid grid-cols-[26px_1fr] gap-x-3">
+                        <span class="font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.02em] text-accent pt-[5px]">
+                            {n}
+                        </span>
+                        <div>
+                            <h2 class="font-serif italic font-normal text-[17px] text-ink m-0 [font-variation-settings:'opsz'_24]">
+                                {name}
+                            </h2>
+                            <p class="font-sans text-[14px] leading-[1.6] text-ink-muted max-w-[62ch] m-0 mt-1.5">
+                                {note}
+                            </p>
+                            <p class="font-mono [font-variant-ligatures:none] text-[10.5px] leading-[1.6] tracking-[0.04em] text-rule-dot m-0 mt-2">
+                                {facts}
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-serif italic font-normal text-[17px] text-accent mt-8 mb-4 [font-variation-settings:'opsz'_24]">
+                        launched on ProductHunt
+                    </h3>
+
+                    {n === "01" && (
+                        <ol class="list-none p-0 m-0" data-rows>
+                            {launches.map(({ entry, n: row }) => (
+                                <li class="py-3"><LedgerRow n={row} entry={entry} mark="chip" /></li>
+                            ))}
+                        </ol>
+                    )}
+
+                    {n === "02" && (
+                        <ol class="list-none p-0 m-0" data-rows>
+                            {launches.map(({ entry, n: row }) => (
+                                <li class="py-3">
+                                    <LedgerRow n={row} entry={entry} mark="none" />
+                                    <div class="under">
+                                        <PhBadge slug={entry.ph!} name={entry.name} />
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
+                    )}
+
+                    {n === "03" && (
+                        <ol class="list-none p-0 m-0 margin-rail" data-rows>
+                            {launches.map(({ entry, n: row }) => (
+                                <li class="py-3">
+                                    <span class="rail-badge">
+                                        <PhBadge slug={entry.ph!} name={entry.name} />
+                                    </span>
+                                    <LedgerRow n={row} entry={entry} mark="none" />
+                                </li>
+                            ))}
+                        </ol>
+                    )}
+
+                    {n === "04" && (
+                        <>
+                            <ol class="list-none p-0 m-0" data-rows>
+                                {launches.map(({ entry, n: row }) => (
+                                    <li class="py-3"><LedgerRow n={row} entry={entry} mark="none" /></li>
+                                ))}
+                            </ol>
+                            <p class="font-mono [font-variant-ligatures:none] text-[10.5px] tracking-[0.06em] text-ink-soft mt-7 mb-3">
+                                all seven launches
+                            </p>
+                            <div class="shelf">
+                                {launches.map(({ entry }) => (
+                                    <PhBadge slug={entry.ph!} name={entry.name} height={40} />
+                                ))}
+                            </div>
+                        </>
+                    )}
+
+                    {n === "05" && (
+                        <ol class="list-none p-0 m-0 reveal" data-rows>
+                            {launches.map(({ entry, n: row }) => (
+                                <li class="py-3">
+                                    <LedgerRow n={row} entry={entry} mark="chip" />
+                                    <div class="slot">
+                                        <PhBadge slug={entry.ph!} name={entry.name} />
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
+                    )}
+                </article>
+            ))}
+
+            <Colophon />
+        </main>
+    </body>
+</html>
+
+<style>
+    .view {
+        margin-top: 44px;
+    }
+
+    .view + .view {
+        padding-top: 40px;
+        border-top: 0.5px solid var(--color-rule-solid);
+    }
+
+    [data-rows] li + li {
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    .under {
+        margin: 10px 0 2px 26px;
+    }
+
+    .shelf {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 12px;
+    }
+
+    .margin-rail li {
+        position: relative;
+    }
+
+    .rail-badge {
+        display: block;
+        margin: 0 0 10px 26px;
+    }
+
+    /* The rail only exists once the viewport can hold it, same rule the ledger
+       uses for its group labels. */
+    @media (min-width: 900px) {
+        .rail-badge {
+            position: absolute;
+            top: 14px;
+            right: calc(100% + 22px);
+            width: max-content;
+            margin: 0;
+        }
+    }
+
+    .reveal .slot {
+        margin-left: 26px;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition:
+            max-height 220ms cubic-bezier(0.2, 0.7, 0.3, 1),
+            opacity 180ms linear;
+    }
+
+    .reveal li:hover .slot,
+    .reveal li:focus-within .slot {
+        max-height: 44px;
+        opacity: 1;
+        margin-top: 10px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .reveal .slot {
+            transition: none;
+        }
+    }
+</style>

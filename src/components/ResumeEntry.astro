@@ -1,0 +1,53 @@
+---
+// src/components/ResumeEntry.astro
+// One experience / project / education row: a dotted leader, then a description
+// and the supporting numbers underneath.
+
+import type { Entry } from "../data/resume";
+import { detail } from "../data/stats";
+
+type Props = Entry;
+
+const { name, href, meta, current, description, note, year } = Astro.props;
+// No badge in the margin on paper, so every count lands in this line.
+const numbers = detail(Astro.props);
+---
+
+<article
+    data-resume-entry
+    class="break-inside-avoid pt-[13px] pb-[9px]"
+>
+    <div class="flex items-baseline gap-3">
+        <h3 data-entry-name class="font-sans font-normal text-[15px] leading-[1.4] text-ink max-sm:text-sm m-0 min-w-0">
+            {href ? (
+                <a href={href} target="_blank" rel="noreferrer" class="link">{name}</a>
+            ) : (
+                name
+            )}
+        </h3>
+        {(meta || year) && (
+            <>
+                <span data-leader aria-hidden="true" class="flex-1 border-b-[0.5px] border-dotted border-rule-dot translate-y-[-4px]"></span>
+                <span data-entry-meta class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft whitespace-nowrap">
+                    {current && <span class="text-accent">currently</span>}
+                    {[current ? ` ${meta}` : meta, year].filter(Boolean).join(" · ")}
+                </span>
+            </>
+        )}
+    </div>
+    {description && (
+        <p data-entry-desc class="font-sans text-[14px] leading-[1.62] text-ink-muted max-w-[62ch] mt-1.5 mb-0">
+            {description}
+        </p>
+    )}
+    {numbers && (
+        <p data-entry-detail class="font-mono [font-variant-ligatures:none] text-[11px] leading-[1.6] tracking-[0.02em] text-accent mt-1.5 mb-0">
+            {numbers}
+        </p>
+    )}
+    {note && (
+        <p data-entry-note class="font-mono [font-variant-ligatures:none] text-[11px] leading-[1.6] tracking-[0.02em] text-ink-soft mt-1.5 mb-0">
+            {note}
+        </p>
+    )}
+</article>

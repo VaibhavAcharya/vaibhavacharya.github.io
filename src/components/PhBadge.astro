@@ -1,0 +1,87 @@
+---
+// src/components/PhBadge.astro
+// The official ProductHunt embed badge, which carries a live upvote count.
+// PH ships a light, a dark and a neutral variant; the neutral one is the slate
+// blue that sits closest to this site's accent, so it leads in light mode and
+// the dark variant takes over when the page flips.
+
+import { phBadge, phLink } from "../data/ph";
+
+interface Props {
+    slug: string;
+    name: string;
+    /** Rendered height. The badge itself is 250x54. */
+    height?: number;
+    /** Which PH variant to use in light mode. */
+    theme?: "neutral" | "light";
+}
+
+const { slug, name, height = 27, theme = "neutral" } = Astro.props;
+const width = Math.round((250 / 54) * height);
+---
+
+<a
+    href={phLink(slug)}
+    target="_blank"
+    rel="noreferrer"
+    class="badge"
+    style={`--h:${height}px`}
+    data-umami-event="ph-open"
+    data-umami-event-product={slug}
+>
+    <img
+        class="on-light"
+        src={phBadge(slug, theme)}
+        alt={`${name} on ProductHunt`}
+        width={width}
+        height={height}
+        loading="lazy"
+        decoding="async"
+    />
+    <img
+        class="on-dark"
+        src={phBadge(slug, "dark")}
+        alt=""
+        aria-hidden="true"
+        width={width}
+        height={height}
+        loading="lazy"
+        decoding="async"
+    />
+</a>
+
+<style>
+    .badge {
+        display: inline-block;
+        line-height: 0;
+        transition: opacity 120ms linear;
+    }
+
+    .badge:hover {
+        opacity: 0.82;
+    }
+
+    .badge img {
+        height: var(--h);
+        width: auto;
+        /* Preflight caps images at 100%, which collapses to nothing when the
+           badge sits in a shrink-to-fit box. */
+        max-width: none;
+    }
+
+    .on-light {
+        display: block;
+    }
+
+    .on-dark {
+        display: none;
+    }
+
+    :global(.dark) .on-light {
+        display: none;
+    }
+
+    :global(.dark) .on-dark {
+        display: block;
+    }
+</style>

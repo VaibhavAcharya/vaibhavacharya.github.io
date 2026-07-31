@@ -1,0 +1,498 @@
+---
+// src/pages/lab/images.astro
+// Five ways to put the ProductHunt launch gallery into a page made of nothing
+// but type. Everything is greyed back to paper by default and only comes up to
+// full colour when you actually look at it, so the screenshots never shout over
+// the ledger.
+
+import BaseHead from "../../components/BaseHead.astro";
+import BackLink from "../../components/BackLink.astro";
+import Colophon from "../../components/Colophon.astro";
+import ThemeToggle from "../../components/ThemeToggle.astro";
+import LedgerRow from "../../components/shipping/LedgerRow.astro";
+import PhViewer from "../../components/PhViewer.astro";
+import { SITE_TITLE } from "../../consts";
+import { SHIPPING_GROUPS } from "../../data/resume";
+import { SHOTS, card, shot } from "../../data/shots";
+
+let running = 0;
+const numbered = SHIPPING_GROUPS.flatMap((group) =>
+    group.entries.map((entry) => ({ entry, n: ++running })),
+);
+
+const shots = numbered
+    .map(({ entry, n }) => ({ entry, n, key: entry.media ?? entry.ph }))
+    .filter(({ key }) => key && SHOTS[key])
+    .map(({ entry, n, key }) => ({
+        entry,
+        n,
+        card: card(key!)!,
+        shot: shot(key!)!,
+    }));
+
+const pad = (value: number) => String(value).padStart(2, "0");
+
+const treatments = [
+    {
+        n: "01",
+        name: "plates",
+        note: "The row opens like a book plate: mounted screenshot, hairline border, mono figure caption underneath. Closed, the ledger looks exactly as it does today.",
+        facts: "one per row · opens on click · captioned",
+    },
+    {
+        n: "02",
+        name: "contact sheet",
+        note: "Every launch card as a thumbnail above the list, numbered to match the rows. Pointing at a frame lights up the row it belongs to.",
+        facts: "seven thumbs · always visible · cross-lit rows",
+    },
+    {
+        n: "03",
+        name: "marginalia",
+        note: "What shipped. Every frame of the launch gallery piled in the right margin with only its edge showing, the official badge out in the left. Pointing at the pile spreads it, pointing at a sheet lifts it, clicking opens the full frame in a new tab.",
+        facts: "as shipped · all frames · both margins · needs 900px",
+    },
+    {
+        n: "04",
+        name: "filmstrip",
+        note: "One scrolling strip with sprocket holes, captions under each frame, and the ledger left entirely alone underneath it.",
+        facts: "horizontal scroll · snaps · rows untouched",
+    },
+    {
+        n: "05",
+        name: "ghost plate",
+        note: "Rows stay pure text. Pointing at one fades its screenshot into a single slot below, sized to the tallest, so nothing on the page moves.",
+        facts: "one slot · hover or focus · no click needed",
+    },
+];
+
+const ghostRules = shots
+    .map(({ n }) =>
+        [
+            `.ghost:has([data-g="${n}"]:hover) [data-gp="${n}"]`,
+            `,.ghost:has([data-g="${n}"]:focus-within) [data-gp="${n}"]`,
+            `{opacity:1;visibility:visible}`,
+        ].join(""),
+    )
+    .join("");
+
+const sheetRules = shots
+    .map(({ n }) =>
+        [
+            `.sheet-wrap:has([data-thumb="${n}"]:hover) [data-row="${n}"]`,
+            `,.sheet-wrap:has([data-thumb="${n}"]:focus-visible) [data-row="${n}"]`,
+            `{background:color-mix(in oklab, var(--color-accent) 7%, transparent)}`,
+        ].join(""),
+    )
+    .join("");
+---
+
+<!doctype html>
+<html lang="en-IN">
+    <head>
+        <BaseHead
+            title={`lab · images · ${SITE_TITLE}`}
+            description="Ways to bring ProductHunt launch images into a typographic page."
+        />
+        <meta name="robots" content="noindex, nofollow" />
+    </head>
+    <body>
+        <ThemeToggle />
+        <main class="max-w-[580px] w-full mx-auto px-10 pt-14 pb-18 flex flex-col max-sm:px-6 max-sm:pt-10 max-sm:pb-12">
+            <BackLink label="home" href="/" />
+
+            <p class="font-serif italic font-normal text-[17px] text-accent mb-3.5 [font-variation-settings:'opsz'_24]">
+                lab · images
+            </p>
+            <p class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0">
+                Seven launches with real screenshots behind them. The site has
+                never had a single image on it, so the point of these is to find
+                out how much picture the type can carry before it stops being
+                this site.
+            </p>
+            <p class="font-mono [font-variant-ligatures:none] text-[11px] leading-[1.7] tracking-[0.02em] text-ink-soft max-w-[62ch] m-0 mt-3">
+                every frame is greyed back at rest and only goes full colour
+                under the pointer
+            </p>
+
+            {treatments.map(({ n, name, note, facts }) => (
+                <article class="treatment">
+                    <div class="grid grid-cols-[26px_1fr] gap-x-3">
+                        <span class="font-mono [font-variant-ligatures:none] text-[11px] tracking-[0.02em] text-accent pt-[5px]">
+                            {n}
+                        </span>
+                        <div>
+                            <h2 class="font-serif italic font-normal text-[17px] text-ink m-0 [font-variation-settings:'opsz'_24]">
+                                {name}
+                            </h2>
+                            <p class="font-sans text-[14px] leading-[1.6] text-ink-muted max-w-[62ch] m-0 mt-1.5">
+                                {note}
+                            </p>
+                            <p class="font-mono [font-variant-ligatures:none] text-[10.5px] leading-[1.6] tracking-[0.04em] text-rule-dot m-0 mt-2">
+                                {facts}
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-serif italic font-normal text-[17px] text-accent mt-8 mb-4 [font-variation-settings:'opsz'_24]">
+                        fun shipping on the side
+                    </h3>
+
+                    {n === "01" && (
+                        <div>
+                            {shots.map(({ entry, n: row, card, shot }) => (
+                                <details class="plate-row">
+                                    <summary>
+                                        <LedgerRow n={row} entry={entry} mark="none" />
+                                        <span class="cue font-mono [font-variant-ligatures:none] text-[10px] tracking-[0.06em]">fig. {pad(row)}</span>
+                                    </summary>
+                                    <figure class="plate">
+                                        <img
+                                            src={shot.src}
+                                            width={shot.width}
+                                            height={shot.height}
+                                            alt={`${entry.name}: ${shot.caption}`}
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                        <figcaption class="font-mono [font-variant-ligatures:none] text-[10.5px] leading-[1.5] tracking-[0.02em] text-ink-soft">
+                                            fig. {pad(row)} &mdash; {shot.caption}
+                                        </figcaption>
+                                    </figure>
+                                </details>
+                            ))}
+                        </div>
+                    )}
+
+                    {n === "02" && (
+                        <div class="sheet-wrap">
+                            <div class="sheet">
+                                {shots.map(({ entry, n: row, card, shot }) => (
+                                    <a
+                                        class="thumb"
+                                        data-thumb={row}
+                                        href={`#${entry.ph}`}
+                                        aria-label={`${entry.name}: ${card.caption}`}
+                                    >
+                                        <img
+                                            src={card.thumb}
+                                            width={card.width}
+                                            height={card.height}
+                                            alt=""
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                        <span class="font-mono [font-variant-ligatures:none] text-[9.5px] tracking-[0.06em] text-rule-dot">{pad(row)}</span>
+                                    </a>
+                                ))}
+                            </div>
+
+                            <ol class="list-none p-0 m-0 mt-6" data-rows>
+                                {shots.map(({ entry, n: row }) => (
+                                    <li class="px-2 py-3 -mx-2" data-row={row} id={entry.ph}>
+                                        <LedgerRow n={row} entry={entry} mark="none" />
+                                    </li>
+                                ))}
+                            </ol>
+                        </div>
+                    )}
+
+                    {n === "03" && (
+                        <ol class="list-none p-0 m-0" data-rows>
+                            {shots.map(({ entry, n: row }) => (
+                                <li class="py-3"><LedgerRow n={row} entry={entry} mark="margin" /></li>
+                            ))}
+                        </ol>
+                    )}
+
+                    {n === "04" && (
+                        <>
+                            <div class="strip">
+                                {shots.map(({ entry, n: row, card, shot }) => (
+                                    <figure class="frame">
+                                        <img
+                                            src={shot.thumb}
+                                            width={shot.width}
+                                            height={shot.height}
+                                            alt={`${entry.name}: ${shot.caption}`}
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                        <figcaption class="font-mono [font-variant-ligatures:none] text-[10px] leading-[1.45] tracking-[0.02em] text-ink-soft">
+                                            {pad(row)} · {entry.name}
+                                        </figcaption>
+                                    </figure>
+                                ))}
+                            </div>
+
+                            <ol class="list-none p-0 m-0 mt-7" data-rows>
+                                {shots.map(({ entry, n: row }) => (
+                                    <li class="py-3"><LedgerRow n={row} entry={entry} mark="none" /></li>
+                                ))}
+                            </ol>
+                        </>
+                    )}
+
+                    {n === "05" && (
+                        <div class="ghost">
+                            <ol class="list-none p-0 m-0" data-rows>
+                                {shots.map(({ entry, n: row }) => (
+                                    <li class="py-3" data-g={row}><LedgerRow n={row} entry={entry} mark="none" /></li>
+                                ))}
+                            </ol>
+
+                            <div class="ghost-slot">
+                                {shots.map(({ entry, n: row, card, shot }) => (
+                                    <figure class="ghost-plate" data-gp={row}>
+                                        <img
+                                            src={card.src}
+                                            width={card.width}
+                                            height={card.height}
+                                            alt={`${entry.name}: ${card.caption}`}
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                        <figcaption class="font-mono [font-variant-ligatures:none] text-[10.5px] leading-[1.5] tracking-[0.02em] text-ink-soft">
+                                            {pad(row)} · {card.caption}
+                                        </figcaption>
+                                    </figure>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </article>
+            ))}
+
+            <Colophon />
+        </main>
+
+        <PhViewer />
+    </body>
+</html>
+
+<style is:inline set:html={ghostRules + sheetRules}></style>
+
+<style>
+    .treatment {
+        margin-top: 44px;
+    }
+
+    .treatment + .treatment {
+        padding-top: 40px;
+        border-top: 0.5px solid var(--color-rule-solid);
+    }
+
+    [data-rows] li + li {
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    /* Shared: paper first, colour only under the pointer. */
+    img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        filter: grayscale(1) contrast(1.02);
+        opacity: 0.82;
+        transition:
+            filter 240ms linear,
+            opacity 240ms linear;
+    }
+
+    /* 01 plates */
+    .plate-row + .plate-row {
+        border-top: 0.5px solid var(--color-rule-dot);
+    }
+
+    .plate-row > summary {
+        position: relative;
+        list-style: none;
+        cursor: pointer;
+        padding: 12px 0;
+    }
+
+    .plate-row > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .plate-row > summary:focus-visible {
+        outline: 1px dashed var(--color-accent);
+        outline-offset: 3px;
+    }
+
+    .cue {
+        position: absolute;
+        right: 0;
+        bottom: 2px;
+        color: var(--color-rule-dot);
+        opacity: 0;
+        transition: opacity 140ms linear;
+    }
+
+    .plate-row > summary:hover .cue,
+    .plate-row[open] .cue {
+        opacity: 1;
+    }
+
+    .plate {
+        margin: 0 0 18px 26px;
+        padding: 7px;
+        border: 0.5px solid var(--color-rule-solid);
+        background: var(--color-paper);
+        animation: mount 300ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+    }
+
+    .plate figcaption {
+        margin-top: 7px;
+    }
+
+    .plate:hover img,
+    .plate:focus-within img {
+        filter: none;
+        opacity: 1;
+    }
+
+    @keyframes mount {
+        from {
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+    }
+
+    /* 02 contact sheet */
+    .sheet {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .thumb {
+        display: block;
+        border: 0.5px solid var(--color-rule-dot);
+        padding: 3px;
+        transition: border-color 140ms linear;
+    }
+
+    .thumb img {
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        object-position: top center;
+        width: 100%;
+    }
+
+    .thumb span {
+        display: block;
+        margin-top: 3px;
+        text-align: center;
+    }
+
+    .thumb:hover,
+    .thumb:focus-visible {
+        border-color: var(--color-accent);
+    }
+
+    .thumb:hover img,
+    .thumb:focus-visible img {
+        filter: none;
+        opacity: 1;
+    }
+
+    .sheet-wrap [data-row] {
+        transition: background-color 160ms linear;
+    }
+
+    /* 04 filmstrip */
+    .strip {
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding: 11px 0;
+        border-top: 0.5px solid var(--color-rule-dot);
+        border-bottom: 0.5px solid var(--color-rule-dot);
+        background-image:
+            radial-gradient(
+                circle at center,
+                var(--color-rule-dot) 0 1.1px,
+                transparent 1.2px
+            ),
+            radial-gradient(
+                circle at center,
+                var(--color-rule-dot) 0 1.1px,
+                transparent 1.2px
+            );
+        background-size: 14px 7px;
+        background-position:
+            top left,
+            bottom left;
+        background-repeat: repeat-x;
+        scrollbar-width: none;
+    }
+
+    .strip::-webkit-scrollbar {
+        display: none;
+    }
+
+    .frame {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+        margin: 7px 0;
+        max-width: 240px;
+    }
+
+    .frame img {
+        height: 132px;
+        width: auto;
+        max-width: none;
+        border: 0.5px solid var(--color-rule-dot);
+    }
+
+    .frame figcaption {
+        margin-top: 6px;
+    }
+
+    .frame:hover img {
+        filter: none;
+        opacity: 1;
+    }
+
+    /* 05 ghost plate */
+    .ghost-slot {
+        display: grid;
+        margin-top: 20px;
+    }
+
+    .ghost-plate {
+        grid-area: 1 / 1;
+        margin: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            opacity 260ms linear,
+            visibility 260ms linear;
+    }
+
+    /* One crop for every plate, so the slot is the same height whichever row you
+       point at. */
+    .ghost-plate img {
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        object-position: top center;
+        width: 100%;
+        opacity: 0.72;
+    }
+
+    .ghost-plate figcaption {
+        margin-top: 7px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        img,
+        .ghost-plate,
+        .sheet-wrap [data-row] {
+            transition: none;
+        }
+
+        .plate {
+            animation: none;
+        }
+    }
+</style>

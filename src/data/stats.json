@@ -1,0 +1,75 @@
+{
+  "fetched": "2026-07-31",
+  "repos": {
+    "VaibhavAcharya/code-gpt": {
+      "stars": 352
+    },
+    "VaibhavAcharya/oneprompt": {
+      "stars": 15
+    },
+    "VaibhavAcharya/json-mason": {
+      "stars": 2
+    },
+    "VaibhavAcharya/gist-snip": {
+      "stars": 10
+    },
+    "VaibhavAcharya/plz": {
+      "stars": 0
+    },
+    "VaibhavAcharya/ChatGPT-Everywhere": {
+      "stars": 14
+    },
+    "VaibhavAcharya/raterbay": {
+      "stars": 2
+    },
+    "VaibhavAcharya/quizming": {
+      "stars": 2
+    },
+    "VaibhavAcharya/writtic": {
+      "stars": 1
+    },
+    "VaibhavAcharya/code-golf": {
+      "stars": 1
+    },
+    "VaibhavAcharya/perfectacademia": {
+      "stars": 0
+    }
+  },
+  "npm": {
+    "oneprompt": {
+      "total": 798
+    },
+    "json-mason": {
+      "total": 361
+    }
+  },
+  "ph": {
+    "ultra-ai": {
+      "upvotes": 178
+    },
+    "code-gpt-2": {
+      "upvotes": 227
+    },
+    "saasdata-app": {
+      "upvotes": 4
+    },
+    "intelcave": {
+      "upvotes": 8
+    },
+    "jobilist": {
+      "upvotes": 63
+    },
+    "ai-product-tools": {
+      "upvotes": 8
+    },
+    "gist-snip": {
+      "upvotes": 85
+    },
+    "raterbay": {
+      "upvotes": 68
+    },
+    "email-ai-2": {
+      "upvotes": 12
+    }
+  }
+}
