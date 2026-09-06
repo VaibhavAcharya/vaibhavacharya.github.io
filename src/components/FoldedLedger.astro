@@ -22,6 +22,8 @@ interface Props {
     id?: string;
     /** Rows kept above the fold. */
     lead?: number;
+    /** Fold only below the tablet breakpoint; show a flat list above it. */
+    mobileFoldOnly?: boolean;
     /**
      * Orderings on offer, the first one active. "relevance" is the order the
      * entries arrive in; the other two read the entry's sortKey, or its year.
@@ -37,6 +39,7 @@ const {
     groups,
     id,
     lead = 3,
+    mobileFoldOnly = false,
     sorts = [],
     print = true,
     printLimit,
@@ -52,6 +55,7 @@ const section = id ?? title;
 <section
     data-resume-section
     data-fold-section
+    data-mobile-fold-only={mobileFoldOnly || undefined}
     data-section={section}
     id={id}
     data-print-hide={print ? undefined : true}
@@ -128,6 +132,19 @@ const section = id ?? title;
         const track = (event, data) => window.umami?.track(event, data);
         const fold = section.querySelector("details");
         const button = section.querySelector("[data-fold-all]");
+
+        if (fold && section.hasAttribute("data-mobile-fold-only")) {
+            const desktop = window.matchMedia("(min-width: 768px)");
+            let mobileOpen = false;
+            const applyViewport = () => {
+                fold.open = desktop.matches || mobileOpen;
+            };
+            fold.addEventListener("toggle", () => {
+                if (!desktop.matches) mobileOpen = fold.open;
+            });
+            desktop.addEventListener("change", applyViewport);
+            applyViewport();
+        }
 
         if (fold && button) {
             const sync = () => {
@@ -382,6 +399,30 @@ const section = id ?? title;
     @media (prefers-reduced-motion: reduce) {
         [data-rest] li {
             animation: none;
+        }
+    }
+
+    @media (min-width: 768px) {
+        [data-mobile-fold-only] .fold-all,
+        [data-mobile-fold-only] .fold-line {
+            display: none;
+        }
+
+        /* Keep the flat list visible even before JavaScript runs. */
+        [data-mobile-fold-only] .fold::details-content {
+            content-visibility: visible;
+        }
+
+        [data-mobile-fold-only] [data-rest] {
+            display: block;
+        }
+
+        [data-mobile-fold-only] [data-rest] li {
+            animation: none;
+        }
+
+        [data-mobile-fold-only] [data-rest] li:first-child {
+            border-top: 0.5px solid var(--color-rule-dot);
         }
     }
 </style>

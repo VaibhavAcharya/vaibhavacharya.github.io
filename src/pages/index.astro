@@ -2,8 +2,6 @@
 import BaseHead from "../components/BaseHead.astro";
 import Colophon from "../components/Colophon.astro";
 import GithubActivity from "../components/GithubActivity.astro";
-import ResumeSection from "../components/ResumeSection.astro";
-import Ledger from "../components/Ledger.astro";
 import FoldedLedger from "../components/FoldedLedger.astro";
 import PhViewer from "../components/PhViewer.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
@@ -11,7 +9,6 @@ import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from "../consts";
 import {
     EXPERIENCE,
     SHIPPING_ORDERED,
-    EDUCATION,
     RESUME_ROLE,
     RESUME_TAGLINE,
     RESUME_CONTACT,
@@ -163,17 +160,19 @@ const writings = (await getCollection("writings"))
             />
 
             <FoldedLedger
+                id="experience"
+                mobileFoldOnly
+                title="experience"
+                groups={[{ entries: EXPERIENCE }]}
+            />
+
+            <FoldedLedger
                 id="shipping"
+                mobileFoldOnly
                 title="fun shipping on the side"
                 groups={SHIPPING_ORDERED}
                 sorts={["relevance", "latest"]}
             />
-
-            <Ledger title="experience" groups={[{ entries: EXPERIENCE }]} />
-
-            <div id="education" data-print-only>
-                <ResumeSection title="education" entries={EDUCATION} />
-            </div>
 
             <div data-print-hide>
                 <Colophon />

@@ -4,6 +4,7 @@
 export const WRITING_RELEVANCE = [
     "what-the-fk-is-a-monad-again",
     "mcps-skills-and-clis",
+    "the-internet-after-nobody-clicks",
     "building-a-tiny-reactive-system",
     "caching-strategies-from-scratch",
     "quic",

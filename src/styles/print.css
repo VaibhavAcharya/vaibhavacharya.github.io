@@ -48,13 +48,9 @@
         padding: 0 !important;
     }
 
-    /* The page leads with the side projects; the sheet keeps experience first. */
+    /* Keep shipping after experience on the printed sheet. */
     #shipping {
         order: 1;
-    }
-
-    #education {
-        order: 2;
     }
 
     /* Name on the left, contact details on the right. */

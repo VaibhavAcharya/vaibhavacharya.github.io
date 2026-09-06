@@ -82,7 +82,7 @@
         });
     })();
 </script> <main class="max-w-[580px] w-full mx-auto px-10 pt-14 pb-18 flex flex-col max-sm:px-6 max-sm:pt-10 max-sm:pb-12" data-astro-cid-jbqbou7q> <a href="/#writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← <span class="link">writings</span></a> <article data-astro-cid-jbqbou7q> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]" data-astro-cid-jbqbou7q>Functional Programming in JavaScript</h1> <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8" data-astro-cid-jbqbou7q> <a href="/" class="link" data-astro-cid-jbqbou7q>Vaibhav Acharya</a>, 4 May 2025  </p> <hr class="border-0 border-t border-rule-solid m-0 mb-8" data-astro-cid-jbqbou7q> <div class="post-body" data-astro-cid-jbqbou7q>  <p>Patterns for organising code are called <strong>programming paradigms</strong>.</p>
-<p>In this guide, we’ll explore the functional paradigm together, using just plain JavaScript and a few core ideas.</p>
+<p>In this guide, we&#39;ll explore the functional paradigm together, using just plain JavaScript and a few core ideas.</p>
 <h2 id="0-programming-paradigms-at-a-glance">0. Programming Paradigms at a Glance</h2>
 <ul>
 <li><strong>Imperative:</strong> write the exact steps in order.</li>
@@ -95,7 +95,7 @@
 <p>Each style is good for some problems and not others.</p>
 <p>In this guide we focus on the functional style and use only plain JavaScript and a few small ideas.</p>
 <h2 id="1-functions-are-just-values">1. Functions Are Just Values</h2>
-<p>In school we learn that a function is something you <em>call</em>. In JavaScript it’s also something you can <em>store</em>.</p>
+<p>In school we learn that a function is something you <em>call</em>. In JavaScript it&#39;s also something you can <em>store</em>.</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#B392F0"> greet</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#9ECBFF"> `Hello, ${</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}!`</span><span style="color:#E1E4E8">;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#6A737D">// We can put the function in a variable…</span></span>
@@ -131,7 +131,7 @@
 <span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> updated</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> { </span><span style="color:#F97583">...</span><span style="color:#E1E4E8">user, name: </span><span style="color:#9ECBFF">&quot;Charles&quot;</span><span style="color:#E1E4E8"> };</span></span></code></pre>
 <p>Immutability sounds fussy until you debug a race condition. Copies may cost a few bytes; <em>mystery bugs</em> cost weekends.</p>
 <h2 id="4-higher-order-functions">4. Higher-Order Functions</h2>
-<p>A function that takes a function or returns one is called <em>higher-order</em>. You’ve already met <code>callTwice</code>. JavaScript’s standard library is full of such helpers.</p>
+<p>A function that takes a function or returns one is called <em>higher-order</em>. You&#39;ve already met <code>callTwice</code>. JavaScript&#39;s standard library is full of such helpers.</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> numbers</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">];</span></span>
 <span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> doubled</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> numbers.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// [2, 4, 6]</span></span></code></pre>
 <p><code>map</code> receives your little doubling function and applies it to every element. No loops, no counters, no off-by-one errors.</p>
@@ -146,7 +146,7 @@
 <p>Want to see these helpers broken down line by line? Head over to the <strong><a href="/writings/deep-dive-into-javascript-array-methods/">Deep Dive into JavaScript Array Methods</a></strong> for build-your-own versions and more examples.</p>
 </blockquote>
 <h2 id="5-reduce-a-small-but-powerful-tool">5. <code>reduce</code>: A Small But Powerful Tool</h2>
-<p><code>reduce</code> looks intimidating, so let’s tame it.</p>
+<p><code>reduce</code> looks intimidating, so let&#39;s tame it.</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> sum</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">].</span><span style="color:#B392F0">reduce</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">total</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> total </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> n, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
 <span class="line"><span style="color:#6A737D">// 10</span></span></code></pre>
 <p>Think of <code>reduce</code> as <strong>folding</strong> a list. The callback says how to fold one more item, and the initial value is where you start.</p>
@@ -218,6 +218,6 @@ Doing it once by hand makes the built-in helpers feel much less like magic.</p>
 <ol>
 <li>Write pure functions where you can.</li>
 <li>Reach for <code>map</code>, <code>filter</code>, <code>reduce</code> before <code>for</code>.</li>
-<li>Keep data immutable unless there’s a reason not to.</li>
+<li>Keep data immutable unless there&#39;s a reason not to.</li>
 <li>Deepen your understanding of array helpers with the companion post <strong><a href="/writings/deep-dive-into-javascript-array-methods/">Deep Dive into JavaScript Array Methods</a></strong>.</li>
 </ol>  </div> </article> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link" data-umami-event="footer" data-umami-event-target="home">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/#writings" class="link" data-umami-event="footer" data-umami-event-target="writings">writings</a> </span> <span> <a href="/rss.xml" class="link" data-umami-event="footer" data-umami-event-target="rss">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap.xml" class="link" data-umami-event="footer" data-umami-event-target="sitemap">sitemap</a> </span> </div> </footer> </main> </body></html>

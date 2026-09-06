@@ -39,6 +39,7 @@ export default defineConfig({
     },
 
     markdown: {
+        smartypants: false,
         rehypePlugins: [rehypeOpenExternalLinksInNewTab],
     },
 

@@ -97,7 +97,7 @@
 </blockquote>
 <hr/>
 <h2 id="0-the-box-is-not-the-point">0. The box is not the point</h2>
-<p>People often say “a monad is a box.”</p>
+<p>People often say &quot;a monad is a box.&quot;</p>
 <p>That is almost useful, but it misses the part that matters.</p>
 <p><code>42</code> is just a value.</p>
 <p><code>Maybe(42)</code> means the value is 42, in a context where the value might be missing.</p>
@@ -179,7 +179,7 @@
 <p>You already know this:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">].</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">);</span></span>
 <span class="line"><span style="color:#6A737D">// [2, 4, 6]</span></span></code></pre>
-<p>An array is a context: “many values.”</p>
+<p>An array is a context: &quot;many values.&quot;</p>
 <p><code>map</code> sends a normal function into that context. The function receives a plain <code>n</code>, not the whole array. The result comes back in the same kind of context.</p>
 <p><code>Maybe.map</code> does the same thing:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#B392F0">Just</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">21</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">);</span></span>
@@ -267,7 +267,7 @@
 <span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#79B8FF"> Promise</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">))</span></span>
 <span class="line"><span style="color:#E1E4E8">    .</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">(console.log);</span></span>
 <span class="line"><span style="color:#6A737D">// 30</span></span></code></pre>
-<p><code>Promise.resolve(2)</code> puts a value into a context: “available later.”</p>
+<p><code>Promise.resolve(2)</code> puts a value into a context: &quot;available later.&quot;</p>
 <p><code>.then(fn)</code> runs <code>fn</code> when the value is ready.</p>
 <p>If <code>fn</code> returns a plain value, Promise wraps it:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#79B8FF">Promise</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
@@ -279,7 +279,7 @@
 <p>Arrays do it too:</p>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">].</span><span style="color:#B392F0">flatMap</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">n</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> [n, n </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">]);</span></span>
 <span class="line"><span style="color:#6A737D">// [1, 10, 2, 20, 3, 30]</span></span></code></pre>
-<p><code>flatMap</code> means “map this function, then flatten one layer.”</p>
+<p><code>flatMap</code> means &quot;map this function, then flatten one layer.&quot;</p>
 <p>You already understand the behavior. The name is the annoying part.</p>
 <hr/>
 <h2 id="7-the-laws">7. The laws</h2>
@@ -303,7 +303,7 @@
 <p>That matters because the whole point of this pattern is confidence. If the wrapper follows the laws, you can regroup and refactor chains without changing their meaning.</p>
 <hr/>
 <h2 id="8-do-not-put-everything-in-a-monad">8. Do not put everything in a monad</h2>
-<p>There is a dangerous moment after understanding monads. You will look at normal code and think, “I can improve this.”</p>
+<p>There is a dangerous moment after understanding monads. You will look at normal code and think, &quot;I can improve this.&quot;</p>
 <p>Use this style when the same context keeps leaking everywhere:</p>
 <ul>
 <li>Maybe missing values: <code>Maybe</code>, <code>Option</code>.</li>

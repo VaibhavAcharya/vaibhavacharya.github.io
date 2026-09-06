@@ -12,7 +12,7 @@
         }
     })();
 </script><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Fonts: Literata (display italic), Atkinson Hyperlegible (body), Cascadia Code (mono) --><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Cascadia+Code:ital,wght@0,300;0,400;0,500;1,400&display=swap"></noscript><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.com/lab/shipping/"><!-- Primary Meta --><title>lab · shipping · Vaibhav Acharya, engineer.</title><meta name="title" content="lab · shipping · Vaibhav Acharya, engineer."><meta name="description" content="Experiments with collapsed states for the shipping ledger."><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:url" content="https://vaibhavacharya.com/lab/shipping/"><meta property="og:title" content="lab · shipping · Vaibhav Acharya, engineer."><meta property="og:description" content="Experiments with collapsed states for the shipping ledger."><meta property="og:image" content="https://vaibhavacharya.com/og/index.png"><meta property="og:image:alt" content="lab · shipping · Vaibhav Acharya, engineer."><meta property="og:locale" content="en_IN"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@VaibhavAcharya_"><meta name="twitter:url" content="https://vaibhavacharya.com/lab/shipping/"><meta name="twitter:title" content="lab · shipping · Vaibhav Acharya, engineer."><meta name="twitter:description" content="Experiments with collapsed states for the shipping ledger."><meta name="twitter:image" content="https://vaibhavacharya.com/og/index.png"><meta name="twitter:image:alt" content="lab · shipping · Vaibhav Acharya, engineer."><!-- Structured Data --><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/astro/_slug_.C4pycKNR.css">
-<link rel="stylesheet" href="/astro/index.BNR0gjMd.css">
+<link rel="stylesheet" href="/astro/index._9JAvq-e.css">
 <link rel="stylesheet" href="/astro/index.Bek15X6Q.css">
 <link rel="stylesheet" href="/astro/shipping.Ce2sJofP.css"></head> <body data-astro-cid-7mkm727e> <div data-print-hide class="flex justify-center" data-astro-cid-x3pjskd3> <button type="button" data-theme-orb data-theme-state="system" aria-label="Theme: system" class="orb -mt-3.5 size-7 rounded-full cursor-pointer" data-astro-cid-x3pjskd3> <span class="wheel" data-astro-cid-x3pjskd3> <svg class="icon" data-icon="system" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" data-astro-cid-x3pjskd3></circle> <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" data-astro-cid-x3pjskd3></path> </svg> <svg class="icon" data-icon="light" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <circle cx="12" cy="12" r="5" fill="currentColor" data-astro-cid-x3pjskd3></circle> <g stroke="currentColor" stroke-width="2" stroke-linecap="round" data-astro-cid-x3pjskd3> <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3" data-astro-cid-x3pjskd3></path> <path d="M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1" data-astro-cid-x3pjskd3></path> </g> </svg> <svg class="icon" data-icon="dark" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <path d="M21 15.5A9.5 9.5 0 0 1 8.5 3a9.5 9.5 0 1 0 12.5 12.5z" fill="currentColor" data-astro-cid-x3pjskd3></path> </svg> </span> </button> </div>  <script>
     (() => {
@@ -101,6 +101,19 @@ all five are CSS only, keyboard reachable, and drop-in for the
         const track = (event, data) => window.umami?.track(event, data);
         const fold = section.querySelector("details");
         const button = section.querySelector("[data-fold-all]");
+
+        if (fold && section.hasAttribute("data-mobile-fold-only")) {
+            const desktop = window.matchMedia("(min-width: 768px)");
+            let mobileOpen = false;
+            const applyViewport = () => {
+                fold.open = desktop.matches || mobileOpen;
+            };
+            fold.addEventListener("toggle", () => {
+                if (!desktop.matches) mobileOpen = fold.open;
+            });
+            desktop.addEventListener("change", applyViewport);
+            applyViewport();
+        }
 
         if (fold && button) {
             const sync = () => {
