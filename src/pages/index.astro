@@ -10,7 +10,6 @@ import {
     EXPERIENCE,
     SHIPPING_ORDERED,
     RESUME_ROLE,
-    RESUME_TAGLINE,
     RESUME_CONTACT,
 } from "../data/resume";
 import { WRITING_RELEVANCE } from "../data/writings";
@@ -92,9 +91,6 @@ const writings = (await getCollection("writings"))
                     <div data-print-only>
                         <p data-resume-role class="font-serif italic font-normal text-xl text-ink-muted m-0 [font-variation-settings:'opsz'_24]">
                             {RESUME_ROLE}
-                        </p>
-                        <p data-resume-tagline class="font-sans text-sm text-ink-soft m-0">
-                            {RESUME_TAGLINE}
                         </p>
                     </div>
                 </div>

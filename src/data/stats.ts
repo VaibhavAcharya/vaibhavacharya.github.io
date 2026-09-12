@@ -54,4 +54,4 @@ export function marginStars(entry: Entry): number | undefined {
 
 /** The one place that knows what counts, so a new kind cannot be left out. */
 export const hasMarks = (entry: Entry) =>
-    Boolean(entry.ph || marginStars(entry) || entry.tweet || entry.link);
+    Boolean(entry.ph || marginStars(entry) || entry.tweet || entry.link || entry.links?.length);

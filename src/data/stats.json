@@ -1,5 +1,5 @@
 {
-  "fetched": "2026-07-31",
+  "fetched": "2026-09-12",
   "repos": {
     "VaibhavAcharya/code-gpt": {
       "stars": 352
@@ -37,18 +37,18 @@
   },
   "npm": {
     "oneprompt": {
-      "total": 798
+      "total": 857
     },
     "json-mason": {
-      "total": 361
+      "total": 374
     }
   },
   "ph": {
     "ultra-ai": {
-      "upvotes": 178
+      "upvotes": 170
     },
     "code-gpt-2": {
-      "upvotes": 227
+      "upvotes": 221
     },
     "saasdata-app": {
       "upvotes": 4

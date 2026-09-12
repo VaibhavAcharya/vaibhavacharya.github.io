@@ -24,6 +24,8 @@ export interface Entry {
     tweet?: string;
     /** Somewhere worth sending people that is not the entry's own href. */
     link?: { href: string; label: string };
+    /** Additional supporting links, rendered after the primary link. */
+    links?: { href: string; label: string }[];
     /** `owner/name`. Carries the live star count; see src/data/stats.ts. */
     repo?: string;
     /** Package name on npm. Carries the live download count. */
@@ -51,8 +53,7 @@ export const GROUP_ORDER = [
 
 export type Group = (typeof GROUP_ORDER)[number];
 
-export const RESUME_ROLE = "engineer + (product & design)";
-export const RESUME_TAGLINE = "whatever gets us close to product-market fit";
+export const RESUME_ROLE = "engineer + product";
 
 export const RESUME_CONTACT = [
     {
@@ -87,8 +88,14 @@ export const EXPERIENCE: Entry[] = [
             href: "https://www.netlify.com/platform/agent-runners/",
             label: "agent runners",
         },
+        links: [
+            {
+                href: "https://docs.netlify.com/manage/security/secure-access-to-sites/identity/overview/",
+                label: "identity",
+            },
+        ],
         description:
-            "Building product surfaces across the Netlify platform, from the UI down to the systems behind it. Currently focusing on Agent Runners: Claude Code, Codex and Gemini run against live projects from the browser alone, and every change arrives as a deploy preview to review.",
+            "Building Agent Runners across the UI, backend and orchestration, from technical proposals to implementation. Built interactive agent conversations, durable session state and server-side publishing, and brought Agent Runners to the CLI. Across the Experience and Agentic Workflows teams, improved deployment reliability and access controls, and helped improve Netlify Identity authentication and security. Also built agent skills for Netlify services and automated feature setup.",
     },
     {
         name: "Supernova AI",

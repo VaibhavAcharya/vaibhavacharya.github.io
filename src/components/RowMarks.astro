@@ -14,11 +14,12 @@ interface Props {
 const { entry } = Astro.props;
 const stars = marginStars(entry);
 const repo = entry.repo?.split("/")[1] ?? entry.repo;
+const links = [...(entry.link ? [entry.link] : []), ...(entry.links ?? [])];
 ---
 
-{entry.link && (
+{links.map((link) => (
             <a
-                href={entry.link.href}
+                href={link.href}
                 target="_blank"
                 rel="noreferrer"
                 class="mark"
@@ -35,9 +36,9 @@ const repo = entry.repo?.split("/")[1] ?? entry.repo;
                         stroke-linejoin="round"
                     ></path>
                 </svg>
-                <span>{entry.link.label}</span>
+                <span>{link.label}</span>
             </a>
-        )}
+        ))}
 
         {stars && entry.repo && (
             <a
