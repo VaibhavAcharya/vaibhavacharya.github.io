@@ -111,6 +111,13 @@ export const SHOTS: Record<string, Shot[]> = {
         [1400, 788, "The button it drops onto the page"],
     ]),
     "get-og": gallery("get-og", [[1200, 640, "The generator's own OG image"]]),
+    polydiff: gallery("polydiff", [
+        [1400, 973, "Three repositories and a linked worktree, reviewed together"],
+        [1400, 973, "Split diffs in the dark theme"],
+        [1400, 642, "Reviewed marks, and a file flagged as changed since it was read"],
+        [1400, 973, "Choosing what a worktree reviews and the branch it compares with"],
+        [1400, 681, "Search inside the loaded diffs, changed lines only"],
+    ]),
 };
 
 export const shotsFor = (entry: Entry): Shot[] =>

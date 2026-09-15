@@ -195,6 +195,17 @@ export const PROJECTS: Entry[] = [
             "Use your GitHub gists as autocomplete snippets in VS Code.",
     },
     {
+        name: "polydiff",
+        year: 2026,
+        group: "cli",
+        href: "https://github.com/VaibhavAcharya/polydiff",
+        media: "polydiff",
+        repo: "VaibhavAcharya/polydiff",
+        npm: "polydiff",
+        description:
+            "Review changes across repos and worktrees in one local workspace.",
+    },
+    {
         name: "oneprompt",
         year: 2024,
         group: "libraries",
