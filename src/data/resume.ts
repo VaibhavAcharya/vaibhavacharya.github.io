@@ -202,8 +202,20 @@ export const PROJECTS: Entry[] = [
         media: "polydiff",
         repo: "VaibhavAcharya/polydiff",
         npm: "polydiff",
+        link: { href: "https://www.npmjs.com/package/polydiff", label: "npm" },
+        tweet: "https://x.com/VaibhavAcharya_/status/2099932917371957421",
         description:
             "Review changes across repos and worktrees in one local workspace.",
+    },
+    {
+        name: "WooHooDoo",
+        year: 2026,
+        group: "products",
+        href: "https://github.com/VaibhavAcharya/woohoodoo",
+        media: "woohoodoo",
+        repo: "VaibhavAcharya/woohoodoo",
+        description:
+            "Search, pin, and preview clipboard history in a native macOS menu bar app.",
     },
     {
         name: "oneprompt",

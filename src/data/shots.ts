@@ -118,6 +118,14 @@ export const SHOTS: Record<string, Shot[]> = {
         [1400, 973, "Choosing what a worktree reviews and the branch it compares with"],
         [1400, 681, "Search inside the loaded diffs, changed lines only"],
     ]),
+    woohoodoo: gallery("woohoodoo", [
+        [1400, 997, "Clipboard history with an image preview"],
+        [1400, 997, "Search results and a pinned code clip"],
+        [1400, 997, "Video preview with playback controls"],
+        [1400, 997, "Animated GIF preview"],
+        [1400, 997, "Clipboard history in dark appearance"],
+        [1400, 997, "Retention and capture settings"],
+    ]),
 };
 
 export const shotsFor = (entry: Entry): Shot[] =>
