@@ -7,21 +7,22 @@ This website serves as both a **portfolio** and **blog** for Vaibhav Acharya.
 - **Framework**: Astro 5.x
 - **Styling**: TailwindCSS 4.x
 - **Content**: MDX for blog posts
-- **Package Manager**: Bun
+- **Package Manager**: pnpm
+- **Runtime**: Node.js 24
 
 ## Development
 
 ```bash
-bun install     # Install dependencies
-bun run dev     # Start dev server
-bun run build   # Build for production
+pnpm install    # Install dependencies
+pnpm dev        # Start dev server
+pnpm build      # Build for production
 ```
 
 ## Deployment
 
 This site is deployed to **GitHub Pages**. The build output is configured to go to the `./docs` directory.
 
-**Important**: Always run `bun run build` before committing to ensure the build files in `./docs` are up to date.
+**Important**: Always run `pnpm build` before committing to ensure the build files in `./docs` are up to date.
 
 ### Custom Domain
 

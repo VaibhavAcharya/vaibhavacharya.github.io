@@ -6,8 +6,8 @@
 // does not answer keeps whatever the committed snapshot already had for it, so
 // a machine without `gh` or without a network still builds the site.
 //
-// Runs under Bun, which is what lets it read the ledger straight out of the
-// TypeScript it already lives in.
+// Runs under Node 24, which reads the ledger straight out of its
+// TypeScript source.
 
 import { execFile } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";

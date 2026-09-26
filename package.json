@@ -2,9 +2,12 @@
     "name": "vaibhavacharya.github.io",
     "type": "module",
     "version": "0.0.1",
+    "engines": {
+        "node": ">=24"
+    },
     "scripts": {
         "dev": "astro dev",
-        "build": "bun scripts/fetch-github-activity.mjs && bun scripts/fetch-stats.mjs && astro build && bun scripts/generate-sitemap.mjs",
+        "build": "node scripts/fetch-github-activity.mjs && node scripts/fetch-stats.mjs && astro build && node scripts/generate-sitemap.mjs",
         "preview": "astro preview",
         "astro": "astro"
     },
@@ -18,12 +21,14 @@
         "@tailwindcss/vite": "^4.1.5",
         "astro": "^5.7.10",
         "react": "^19.2.5",
+        "react-dom": "^19.2.5",
         "satori": "^0.26.0",
         "tailwindcss": "^4.1.5"
     },
     "devDependencies": {
         "@types/react": "^19.2.14",
+        "@types/react-dom": "19.2.3",
         "prettier": "^3.5.3"
     },
-    "packageManager": "bun@1.2.4"
+    "packageManager": "pnpm@11.18.0"
 }
