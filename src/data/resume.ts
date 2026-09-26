@@ -139,6 +139,17 @@ export const EXPERIENCE: Entry[] = [
 // Ordered by hand. This order is what the sort toggle calls relevance.
 export const PROJECTS: Entry[] = [
     {
+        name: "stateofpixel",
+        href: "https://stateofpixel.com",
+        media: "stateofpixel",
+        group: "products",
+        current: true,
+        meta: "building",
+        sortKey: 2026,
+        description:
+            "Visual regression testing for GitHub pull requests. Your CI captures screenshots; stateofpixel stores baselines, shows pixel diffs and reports a GitHub check.",
+    },
+    {
         name: "Ultra AI",
         year: 2024,
         group: "products",

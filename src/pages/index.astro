@@ -112,8 +112,11 @@ const writings = (await getCollection("writings"))
             <p data-entry-desc data-print-hide class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 mb-2.5 body-line">
                 Currently working at <a href="https://netlify.com" target="_blank" rel="noreferrer" data-umami-event="connect" data-umami-event-channel="netlify"><svg class="netlify-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6.49 19.04h-.23L5.13 17.9v-.23l1.73-1.71h1.2l.15.15v1.2L6.5 19.04ZM5.13 6.31V6.1l1.13-1.13h.23L8.2 6.68v1.2l-.15.15h-1.2L5.13 6.31Zm9.96 9.09h-1.65l-.14-.13v-3.83c0-.68-.27-1.2-1.1-1.23-.42 0-.9 0-1.43.02l-.07.08v4.96l-.14.14H8.9l-.13-.14V8.73l.13-.14h3.7a2.6 2.6 0 0 1 2.61 2.6v4.08l-.13.14Zm-8.37-2.44H.14L0 12.82v-1.64l.14-.14h6.58l.14.14v1.64l-.14.14Zm17.14 0h-6.58l-.14-.14v-1.64l.14-.14h6.58l.14.14v1.64l-.14.14ZM11.05 6.55V1.64l.14-.14h1.65l.14.14v4.9l-.14.14h-1.65l-.14-.13Zm0 15.81v-4.9l.14-.14h1.65l.14.13v4.91l-.14.14h-1.65l-.14-.14Z"></path></svg>Netlify</a> as an engineer.
             </p>
+            <p data-entry-desc class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 mb-2.5 body-line">
+                I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap.
+            </p>
             <p data-entry-desc class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 body-line">
-                I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap. Off hours, still building small products to find out whether they deserve to exist.
+                I am currently building <a href="https://stateofpixel.com" target="_blank" rel="noreferrer"><svg class="stateofpixel-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect width="20" height="20" rx="5" fill="currentColor" /><path d="M5 5h4v4H5zM11 11h4v4h-4z" fill="var(--color-paper)" /></svg>stateofpixel</a>, a visual regression testing product that runs in your CI.
             </p>
 
             <div data-print-hide>
@@ -137,10 +140,14 @@ const writings = (await getCollection("writings"))
                         <button
                             type="button"
                             data-print-resume
-                            class="print-link font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft"
+                            class="print-link inline-flex items-center gap-[5px] font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink"
                             data-umami-event="resume-print"
                         >
-                            resume
+                            <svg width="12" height="12" class="shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                                <path d="M6 14h12v8H6zM18 12h.01" />
+                            </svg>
+                            <span>resume</span>
                         </button>
                     </li>
                 </ul>
@@ -165,7 +172,7 @@ const writings = (await getCollection("writings"))
             <FoldedLedger
                 id="shipping"
                 mobileFoldOnly
-                title="fun shipping on the side"
+                title="products & projects"
                 groups={SHIPPING_ORDERED}
                 sorts={["relevance", "latest"]}
             />
@@ -214,7 +221,8 @@ const writings = (await getCollection("writings"))
 
     /* Netlify's logomark, monochrome so it takes the colour of the text around it
        instead of dropping a brand gradient into the page. */
-    .netlify-mark {
+    .netlify-mark,
+    .stateofpixel-mark {
         display: inline-block;
         width: 0.84em;
         height: 0.84em;

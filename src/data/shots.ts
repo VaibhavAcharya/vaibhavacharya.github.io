@@ -38,6 +38,15 @@ function gallery(key: string, frames: Frame[]): Shot[] {
 }
 
 export const SHOTS: Record<string, Shot[]> = {
+    stateofpixel: [
+        {
+            src: "https://stateofpixel.com/og/index.png",
+            thumb: "https://stateofpixel.com/og/index.png",
+            width: 1200,
+            height: 630,
+            caption: "stateofpixel",
+        },
+    ],
     "saasdata-app": gallery("saasdata-app", [
         [1400, 735, "30k+ companies, 25k+ founders"],
         [1400, 723, "A company profile: revenue, MRR, valuation, headcount"],
