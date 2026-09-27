@@ -140,14 +140,13 @@ export const EXPERIENCE: Entry[] = [
 export const PROJECTS: Entry[] = [
     {
         name: "stateofpixel",
+        year: 2026,
         href: "https://stateofpixel.com",
         media: "stateofpixel",
         group: "products",
-        current: true,
-        meta: "building",
         sortKey: 2026,
         description:
-            "Visual regression testing for GitHub pull requests. Your CI captures screenshots; stateofpixel stores baselines, shows pixel diffs and reports a GitHub check.",
+            "Compare screenshots, review visual changes, and approve updates directly from GitHub pull requests.",
     },
     {
         name: "Ultra AI",
