@@ -374,11 +374,6 @@ export const PROJECTS: Entry[] = [
 
 const SHOWN = PROJECTS.filter((project) => !project.hidden);
 
-export const SHIPPING_GROUPS = GROUP_ORDER.map((label) => ({
-    label,
-    entries: SHOWN.filter((project) => project.group === label),
-})).filter((group) => group.entries.length > 0);
-
 /** One run, no group labels, straight down the order above. */
 export const SHIPPING_ORDERED = [{ entries: SHOWN }];
 

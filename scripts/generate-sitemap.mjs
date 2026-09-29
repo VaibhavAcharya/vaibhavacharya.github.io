@@ -5,7 +5,7 @@ const site = "https://vaibhavacharya.com";
 const outDir = path.resolve("docs");
 const contentDir = path.resolve("src/content/writings");
 const sitemapPath = path.join(outDir, "sitemap.xml");
-const ignoredDirectories = new Set(["astro", "og", "lab"]);
+const ignoredDirectories = new Set(["astro", "og"]);
 const ignoredFiles = new Set(["404.html"]);
 const ignoredRoutes = new Set(["/writings/"]);
 
