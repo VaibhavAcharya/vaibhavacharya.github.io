@@ -143,6 +143,10 @@ export const PROJECTS: Entry[] = [
         year: 2026,
         href: "https://stateofpixel.com",
         media: "stateofpixel",
+        links: [
+            { href: "https://github.com/VaibhavAcharya/stateofpixel", label: "github" },
+            { href: "https://stateofpixel.com/llms.txt", label: "llms.txt" },
+        ],
         group: "products",
         sortKey: 2026,
         description:
