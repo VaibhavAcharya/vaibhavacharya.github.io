@@ -29,3 +29,8 @@ blog.md
 
 # superpowers brainstorming artifacts
 .superpowers/
+
+# visual tests
+stateofpixel-screenshots/
+test-results/
+playwright-report/
