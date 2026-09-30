@@ -1,5 +1,5 @@
 {
-  "fetched": "2026-09-29",
+  "fetched": "2026-09-30",
   "repos": {
     "VaibhavAcharya/code-gpt": {
       "stars": 352
@@ -43,13 +43,13 @@
   },
   "npm": {
     "oneprompt": {
-      "total": 876
+      "total": 880
     },
     "json-mason": {
-      "total": 380
+      "total": 383
     },
     "polydiff": {
-      "total": 851
+      "total": 887
     }
   },
   "ph": {
