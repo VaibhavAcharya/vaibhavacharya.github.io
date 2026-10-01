@@ -1,0 +1,28 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import BackLink from "../components/BackLink.astro";
+import Colophon from "../components/Colophon.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
+import { SITE_TITLE } from "../consts";
+---
+
+<!doctype html>
+<html lang="en-IN">
+    <head>
+        <BaseHead title={`Not found · ${SITE_TITLE}`} description="This page does not exist." />
+        <meta name="robots" content="noindex" />
+    </head>
+    <body>
+        <ThemeToggle />
+        <main class="max-w-[580px] w-full mx-auto px-10 pt-14 pb-18 flex flex-col max-sm:px-6 max-sm:pt-10 max-sm:pb-12">
+            <BackLink label="home" href="/" />
+
+            <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]">Not found.</h1>
+            <p class="font-sans text-[17px] leading-[1.75] text-ink-muted max-w-[62ch] m-0">
+                This page does not exist. It may have moved, or the link may be wrong.
+            </p>
+
+            <Colophon />
+        </main>
+    </body>
+</html>

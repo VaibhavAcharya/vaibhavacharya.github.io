@@ -10,7 +10,7 @@
 @theme {
     /* Families */
     --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
-    --font-serif: "Literata", Georgia, serif;
+    --font-serif: "Literata Variable", Georgia, serif;
     --font-mono: "Cascadia Code", ui-monospace, monospace;
 
     /* Paper + ink + rules */

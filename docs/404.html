@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en-IN"> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.com/rss.xml"><meta name="generator" content="Astro v5.7.10"><meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk"><script>
+    (() => {
+        try {
+            const theme = localStorage.getItem("theme") || "system";
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle(
+                "dark",
+                theme === "dark" || (theme === "system" && prefersDark),
+            );
+        } catch {
+            // Keep the default light theme when theme detection is unavailable.
+        }
+    })();
+</script><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.com/404/"><!-- Primary Meta --><title>Not found · Vaibhav Acharya, engineer.</title><meta name="title" content="Not found · Vaibhav Acharya, engineer."><meta name="description" content="This page does not exist."><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:url" content="https://vaibhavacharya.com/404/"><meta property="og:title" content="Not found · Vaibhav Acharya, engineer."><meta property="og:description" content="This page does not exist."><meta property="og:image" content="https://vaibhavacharya.com/og/index.png"><meta property="og:image:alt" content="Not found · Vaibhav Acharya, engineer."><meta property="og:locale" content="en_IN"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@VaibhavAcharya_"><meta name="twitter:url" content="https://vaibhavacharya.com/404/"><meta name="twitter:title" content="Not found · Vaibhav Acharya, engineer."><meta name="twitter:description" content="This page does not exist."><meta name="twitter:image" content="https://vaibhavacharya.com/og/index.png"><meta name="twitter:image:alt" content="Not found · Vaibhav Acharya, engineer."><!-- Structured Data --><meta name="robots" content="noindex"><link rel="stylesheet" href="/astro/_slug_.BPH9GFOD.css"></head> <body> <div data-print-hide class="flex justify-center" data-astro-cid-x3pjskd3> <button type="button" data-theme-orb data-theme-state="system" aria-label="Theme: system" class="orb -mt-3.5 size-7 rounded-full cursor-pointer" data-astro-cid-x3pjskd3> <span class="wheel" data-astro-cid-x3pjskd3> <svg class="icon" data-icon="system" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" data-astro-cid-x3pjskd3></circle> <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" data-astro-cid-x3pjskd3></path> </svg> <svg class="icon" data-icon="light" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <circle cx="12" cy="12" r="5" fill="currentColor" data-astro-cid-x3pjskd3></circle> <g stroke="currentColor" stroke-width="2" stroke-linecap="round" data-astro-cid-x3pjskd3> <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3" data-astro-cid-x3pjskd3></path> <path d="M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1" data-astro-cid-x3pjskd3></path> </g> </svg> <svg class="icon" data-icon="dark" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <path d="M21 15.5A9.5 9.5 0 0 1 8.5 3a9.5 9.5 0 1 0 12.5 12.5z" fill="currentColor" data-astro-cid-x3pjskd3></path> </svg> </span> </button> </div>  <script>
+    (() => {
+        const orb = document.querySelector("[data-theme-orb]");
+        if (!orb) return;
+
+        const root = document.documentElement;
+        const wheel = orb.querySelector(".wheel");
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // The step out of `system` has to flip what is on screen, so the order
+        // depends on what `system` currently resolves to.
+        const order = () =>
+            mediaQuery.matches
+                ? ["system", "light", "dark"]
+                : ["system", "dark", "light"];
+
+        const read = () => {
+            try {
+                return localStorage.getItem("theme") || "system";
+            } catch {
+                return "system";
+            }
+        };
+
+        const write = (theme) => {
+            try {
+                if (theme === "system") localStorage.removeItem("theme");
+                else localStorage.setItem("theme", theme);
+            } catch {
+                // Ignore storage failures and keep the in-page state working.
+            }
+        };
+
+        let theme = read();
+        let turn = order().indexOf(theme) * 120;
+
+        const apply = () => {
+            const resolved = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolved === "dark");
+            orb.dataset.themeState = theme;
+            orb.setAttribute("aria-label", `Theme: ${theme}`);
+            wheel.style.setProperty("--turn", `${turn}deg`);
+        };
+
+        apply();
+
+        orb.addEventListener("click", () => {
+            const steps = order();
+            theme = steps[(steps.indexOf(theme) + 1) % steps.length];
+            turn += 120;
+            write(theme);
+            apply();
+            window.umami?.track("theme", { theme });
+        });
+
+        mediaQuery.addEventListener("change", () => {
+            if (theme === "system") apply();
+        });
+
+        // What people arrive in, not just what they switch to. Umami loads
+        // deferred, so this waits for it.
+        window.addEventListener("load", () => {
+            window.umami?.track("theme-landing", {
+                preference: theme,
+                system: mediaQuery.matches ? "dark" : "light",
+                resolved: root.classList.contains("dark") ? "dark" : "light",
+            });
+        });
+    })();
+</script> <main class="max-w-[580px] w-full mx-auto px-10 pt-14 pb-18 flex flex-col max-sm:px-6 max-sm:pt-10 max-sm:pb-12"> <a href="/" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← <span class="link">home</span></a> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]">Not found.</h1> <p class="font-sans text-[17px] leading-[1.75] text-ink-muted max-w-[62ch] m-0">
+This page does not exist. It may have moved, or the link may be wrong.
+</p> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link" data-umami-event="footer" data-umami-event-target="home">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/#writings" class="link" data-umami-event="footer" data-umami-event-target="writings">writings</a> </span> <span> <a href="/rss.xml" class="link" data-umami-event="footer" data-umami-event-target="rss">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap.xml" class="link" data-umami-event="footer" data-umami-event-target="sitemap">sitemap</a> </span> </div> </footer> </main> </body></html>

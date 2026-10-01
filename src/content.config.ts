@@ -8,7 +8,6 @@ const writings = defineCollection({
         description: z.string(),
         pubDate: z.coerce.date(),
         updatedDate: z.coerce.date().optional(),
-        heroImage: z.string().optional(),
     }),
 });
 
