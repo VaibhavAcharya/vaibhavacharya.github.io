@@ -7,7 +7,7 @@
     },
     "scripts": {
         "dev": "astro dev",
-        "build": "node scripts/fetch-github-activity.mjs && node scripts/fetch-stats.mjs && astro build && node scripts/generate-sitemap.mjs",
+        "build": "export TZ=UTC && node scripts/fetch-github-activity.mjs && node scripts/fetch-stats.mjs && astro build && node scripts/generate-sitemap.mjs",
         "preview": "astro preview",
         "astro": "astro",
         "test:visual": "playwright test"
@@ -16,6 +16,8 @@
         "@astrojs/mdx": "^4.2.6",
         "@astrojs/react": "^5.0.3",
         "@astrojs/rss": "^4.0.11",
+        "@fontsource-variable/literata": "^5.3.0",
+        "@fontsource/atkinson-hyperlegible": "^5.3.0",
         "@fontsource/cascadia-code": "^5.2.3",
         "@fontsource/literata": "^5.2.8",
         "@resvg/resvg-js": "^2.6.2",
@@ -32,7 +34,7 @@
         "@types/react": "^19.2.14",
         "@types/react-dom": "19.2.3",
         "prettier": "^3.5.3",
-        "stateofpixel": "^1.5.0"
+        "stateofpixel": "^1.7.0"
     },
     "packageManager": "pnpm@11.18.0"
 }

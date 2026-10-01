@@ -1,7 +1,8 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import astroConfig from "../astro.config.mjs";
 
-const site = "https://vaibhavacharya.com";
+const site = astroConfig.site;
 const outDir = path.resolve("docs");
 const contentDir = path.resolve("src/content/writings");
 const sitemapPath = path.join(outDir, "sitemap.xml");

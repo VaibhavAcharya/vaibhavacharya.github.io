@@ -17,6 +17,12 @@ importers:
       '@astrojs/rss':
         specifier: ^4.0.11
         version: 4.0.11
+      '@fontsource-variable/literata':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/atkinson-hyperlegible':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource/cascadia-code':
         specifier: ^5.2.3
         version: 5.2.3
@@ -61,8 +67,8 @@ importers:
         specifier: ^3.5.3
         version: 3.5.3
       stateofpixel:
-        specifier: ^1.5.0
-        version: 1.5.0(@playwright/test@1.63.0)(playwright@1.63.0)
+        specifier: ^1.7.0
+        version: 1.7.0(@playwright/test@1.63.0)(playwright@1.63.0)
 
 packages:
 
@@ -504,6 +510,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource-variable/literata@5.3.0':
+    resolution: {integrity: sha512-1Jw7xvOcoGyB83lxB2nG4bfNbqtX2/TTbdh9sHAOmU064SvmSdulDtA5RBu5JYWf64fdaKX7xU+z3GO1T2bCHA==}
+
+  '@fontsource/atkinson-hyperlegible@5.3.0':
+    resolution: {integrity: sha512-Sp8Ve8+rQmENY2Lv02VH7sLpntzTTvnncnJMTbRE7DX6TLxGraN4ykZfzaUWIoCFmaomwkvNiqmlPkrKBuDoSA==}
 
   '@fontsource/cascadia-code@5.2.3':
     resolution: {integrity: sha512-jnKfdZ+0UL25XUqYV7iq9gDlaUMWXxZNA7KnYzO4v8De6jBJmTkLHxDXs+1iZwl/8w7eKlDrTJWcyalOHdE2eg==}
@@ -2229,8 +2241,8 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
-  stateofpixel@1.5.0:
-    resolution: {integrity: sha512-XHVD19FINd1xiixw7aarYMp+bXVGVqSR1zYt6F1Dcbc2Pfb3Ch9rfCNURsmY5kW80dWFzNSCxlhoulbCTjORSA==}
+  stateofpixel@1.7.0:
+    resolution: {integrity: sha512-8Y5Rswzk+4cmDr0JFYvwOX1XEYGyf7+RPp5yiPvm/x5JVm/CcqgO6hLPL4oM6xV83k5OqCkji6lwrHoPQUUxyg==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
@@ -2985,6 +2997,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@fontsource-variable/literata@5.3.0': {}
+
+  '@fontsource/atkinson-hyperlegible@5.3.0': {}
 
   '@fontsource/cascadia-code@5.2.3': {}
 
@@ -5081,7 +5097,7 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  stateofpixel@1.5.0(@playwright/test@1.63.0)(playwright@1.63.0):
+  stateofpixel@1.7.0(@playwright/test@1.63.0)(playwright@1.63.0):
     dependencies:
       commander: 15.0.0
       pixelmatch: 7.2.0
