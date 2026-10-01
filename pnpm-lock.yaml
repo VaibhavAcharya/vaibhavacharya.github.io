@@ -67,8 +67,8 @@ importers:
         specifier: ^3.5.3
         version: 3.5.3
       stateofpixel:
-        specifier: ^1.5.0
-        version: 1.5.0(@playwright/test@1.63.0)(playwright@1.63.0)
+        specifier: ^1.7.0
+        version: 1.7.0(@playwright/test@1.63.0)(playwright@1.63.0)
 
 packages:
 
@@ -2241,10 +2241,9 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
-  stateofpixel@1.5.0:
-    resolution: {integrity: sha512-XHVD19FINd1xiixw7aarYMp+bXVGVqSR1zYt6F1Dcbc2Pfb3Ch9rfCNURsmY5kW80dWFzNSCxlhoulbCTjORSA==}
+  stateofpixel@1.7.0:
+    resolution: {integrity: sha512-8Y5Rswzk+4cmDr0JFYvwOX1XEYGyf7+RPp5yiPvm/x5JVm/CcqgO6hLPL4oM6xV83k5OqCkji6lwrHoPQUUxyg==}
     engines: {node: '>=20'}
-    deprecated: This version uses an API address that no longer works. Upgrade to 1.7.0 or newer.
     hasBin: true
     peerDependencies:
       '@playwright/test': '*'
@@ -5098,7 +5097,7 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  stateofpixel@1.5.0(@playwright/test@1.63.0)(playwright@1.63.0):
+  stateofpixel@1.7.0(@playwright/test@1.63.0)(playwright@1.63.0):
     dependencies:
       commander: 15.0.0
       pixelmatch: 7.2.0

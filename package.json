@@ -34,7 +34,7 @@
         "@types/react": "^19.2.14",
         "@types/react-dom": "19.2.3",
         "prettier": "^3.5.3",
-        "stateofpixel": "^1.5.0"
+        "stateofpixel": "^1.7.0"
     },
     "packageManager": "pnpm@11.18.0"
 }
