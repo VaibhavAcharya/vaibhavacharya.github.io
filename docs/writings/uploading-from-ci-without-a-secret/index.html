@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="en-IN" data-astro-cid-jbqbou7q> <head><!-- Global --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="sitemap" href="/sitemap.xml"><link rel="alternate" type="application/rss+xml" title="Vaibhav Acharya, engineer." href="https://vaibhavacharya.com/rss.xml"><meta name="generator" content="Astro v5.7.10"><meta name="google-site-verification" content="Jepg-Y_-iRcC_vwvHU6-HgDsmS8C1ZCQKNHni1Dytuk"><script>
+    (() => {
+        try {
+            const theme = localStorage.getItem("theme") || "system";
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            document.documentElement.classList.toggle(
+                "dark",
+                theme === "dark" || (theme === "system" && prefersDark),
+            );
+        } catch {
+            // Keep the default light theme when theme detection is unavailable.
+        }
+    })();
+</script><!-- Umami Analytics --><script defer src="https://cloud.umami.is/script.js" data-website-id="3bf54c2d-73b0-48c2-84e3-a72d4ee46fae"></script><!-- Canonical --><link rel="canonical" href="https://vaibhavacharya.com/writings/uploading-from-ci-without-a-secret/"><!-- Primary Meta --><title>OIDC, Uploading from GitHub Actions Without Secrets · Vaibhav Acharya, engineer.</title><meta name="title" content="OIDC, Uploading from GitHub Actions Without Secrets · Vaibhav Acharya, engineer."><meta name="description" content="How GitHub Actions proves which repository an upload comes from, without a stored API key."><!-- Open Graph --><meta property="og:type" content="article"><meta property="og:url" content="https://vaibhavacharya.com/writings/uploading-from-ci-without-a-secret/"><meta property="og:title" content="OIDC, Uploading from GitHub Actions Without Secrets · Vaibhav Acharya, engineer."><meta property="og:description" content="How GitHub Actions proves which repository an upload comes from, without a stored API key."><meta property="og:image" content="https://vaibhavacharya.com/og/uploading-from-ci-without-a-secret.png"><meta property="og:image:alt" content="OIDC, Uploading from GitHub Actions Without Secrets"><meta property="og:locale" content="en_IN"><meta property="article:published_time" content="2026-10-02T00:00:00.000Z"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@VaibhavAcharya_"><meta name="twitter:url" content="https://vaibhavacharya.com/writings/uploading-from-ci-without-a-secret/"><meta name="twitter:title" content="OIDC, Uploading from GitHub Actions Without Secrets · Vaibhav Acharya, engineer."><meta name="twitter:description" content="How GitHub Actions proves which repository an upload comes from, without a stored API key."><meta name="twitter:image" content="https://vaibhavacharya.com/og/uploading-from-ci-without-a-secret.png"><meta name="twitter:image:alt" content="OIDC, Uploading from GitHub Actions Without Secrets"><!-- Structured Data --><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"OIDC, Uploading from GitHub Actions Without Secrets","description":"How GitHub Actions proves which repository an upload comes from, without a stored API key.","url":"https://vaibhavacharya.com/writings/uploading-from-ci-without-a-secret/","mainEntityOfPage":"https://vaibhavacharya.com/writings/uploading-from-ci-without-a-secret/","image":"https://vaibhavacharya.com/og/uploading-from-ci-without-a-secret.png","datePublished":"2026-10-02T00:00:00.000Z","author":{"@type":"Person","name":"Vaibhav Acharya","url":"https://vaibhavacharya.com/","sameAs":["https://github.com/VaibhavAcharya","https://x.com/VaibhavAcharya_","https://bsky.app/profile/vaibhavacharya.bsky.social","https://www.linkedin.com/in/vaibhav-acharya"]},"publisher":{"@type":"Person","name":"Vaibhav Acharya","url":"https://vaibhavacharya.com/","sameAs":["https://github.com/VaibhavAcharya","https://x.com/VaibhavAcharya_","https://bsky.app/profile/vaibhavacharya.bsky.social","https://www.linkedin.com/in/vaibhav-acharya"]}}</script><link rel="stylesheet" href="/astro/_slug_.BPH9GFOD.css">
+<link rel="stylesheet" href="/astro/_slug_.DY0tPpq9.css"></head> <body data-astro-cid-jbqbou7q> <div data-print-hide class="flex justify-center" data-astro-cid-x3pjskd3> <button type="button" data-theme-orb data-theme-state="system" aria-label="Theme: system" class="orb -mt-3.5 size-7 rounded-full cursor-pointer" data-astro-cid-x3pjskd3> <span class="wheel" data-astro-cid-x3pjskd3> <svg class="icon" data-icon="system" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" data-astro-cid-x3pjskd3></circle> <path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" data-astro-cid-x3pjskd3></path> </svg> <svg class="icon" data-icon="light" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <circle cx="12" cy="12" r="5" fill="currentColor" data-astro-cid-x3pjskd3></circle> <g stroke="currentColor" stroke-width="2" stroke-linecap="round" data-astro-cid-x3pjskd3> <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3" data-astro-cid-x3pjskd3></path> <path d="M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1" data-astro-cid-x3pjskd3></path> </g> </svg> <svg class="icon" data-icon="dark" viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-x3pjskd3> <path d="M21 15.5A9.5 9.5 0 0 1 8.5 3a9.5 9.5 0 1 0 12.5 12.5z" fill="currentColor" data-astro-cid-x3pjskd3></path> </svg> </span> </button> </div>  <script>
+    (() => {
+        const orb = document.querySelector("[data-theme-orb]");
+        if (!orb) return;
+
+        const root = document.documentElement;
+        const wheel = orb.querySelector(".wheel");
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // The step out of `system` has to flip what is on screen, so the order
+        // depends on what `system` currently resolves to.
+        const order = () =>
+            mediaQuery.matches
+                ? ["system", "light", "dark"]
+                : ["system", "dark", "light"];
+
+        const read = () => {
+            try {
+                return localStorage.getItem("theme") || "system";
+            } catch {
+                return "system";
+            }
+        };
+
+        const write = (theme) => {
+            try {
+                if (theme === "system") localStorage.removeItem("theme");
+                else localStorage.setItem("theme", theme);
+            } catch {
+                // Ignore storage failures and keep the in-page state working.
+            }
+        };
+
+        let theme = read();
+        let turn = order().indexOf(theme) * 120;
+
+        const apply = () => {
+            const resolved = theme === "system" && mediaQuery.matches ? "dark" : theme;
+            root.classList.toggle("dark", resolved === "dark");
+            orb.dataset.themeState = theme;
+            orb.setAttribute("aria-label", `Theme: ${theme}`);
+            wheel.style.setProperty("--turn", `${turn}deg`);
+        };
+
+        apply();
+
+        orb.addEventListener("click", () => {
+            const steps = order();
+            theme = steps[(steps.indexOf(theme) + 1) % steps.length];
+            turn += 120;
+            write(theme);
+            apply();
+            window.umami?.track("theme", { theme });
+        });
+
+        mediaQuery.addEventListener("change", () => {
+            if (theme === "system") apply();
+        });
+
+        // What people arrive in, not just what they switch to. Umami loads
+        // deferred, so this waits for it.
+        window.addEventListener("load", () => {
+            window.umami?.track("theme-landing", {
+                preference: theme,
+                system: mediaQuery.matches ? "dark" : "light",
+                resolved: root.classList.contains("dark") ? "dark" : "light",
+            });
+        });
+    })();
+</script> <main class="max-w-[580px] w-full mx-auto px-10 pt-14 pb-18 flex flex-col max-sm:px-6 max-sm:pt-10 max-sm:pb-12" data-astro-cid-jbqbou7q> <a href="/#writings" class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.04em] text-ink-soft inline-block mb-10 transition-colors duration-[120ms] ease-linear hover:text-ink">← <span class="link">writings</span></a> <article data-astro-cid-jbqbou7q> <h1 class="font-serif italic font-normal text-[clamp(32px,4vw,44px)] leading-[1.1] tracking-[-0.02em] text-ink m-0 mb-3 [font-variation-settings:'opsz'_48]" data-astro-cid-jbqbou7q>OIDC, Uploading from GitHub Actions Without Secrets</h1> <p class="font-mono [font-variant-ligatures:none] text-[11.5px] tracking-[0.02em] text-ink-soft m-0 mb-8" data-astro-cid-jbqbou7q> <a href="/" class="link" data-astro-cid-jbqbou7q>Vaibhav Acharya</a>, 2 October 2026  </p> <hr class="border-0 border-t border-rule-solid m-0 mb-8" data-astro-cid-jbqbou7q> <div class="post-body" data-astro-cid-jbqbou7q>  <p>A CI upload usually starts with an API key copied into GitHub Secrets. Every run uses it until you rotate or revoke it.</p>
+<p>GitHub already knows which repository the job belongs to. <a href="https://docs.github.com/en/actions/concepts/security/openid-connect" target="_blank" rel="noopener noreferrer">OpenID Connect, or OIDC</a>, lets the job prove that to the upload service.</p>
+<h2 id="ask-github-for-a-token">Ask GitHub for a token</h2>
+<p>The job needs permission first:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">permissions</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    contents</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">read</span></span>
+<span class="line"><span style="color:#85E89D">    id-token</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">write</span></span></code></pre>
+<p><a href="https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token" target="_blank" rel="noopener noreferrer"><code>id-token: write</code></a> lets the job request an identity token. The upload service decides whether to accept it.</p>
+<p>GitHub gives the job a token endpoint and a temporary credential to call it. The upload tool requests a token with an <strong>audience</strong>, the intended recipient. GitHub returns a signed JWT containing the repository ID, commit SHA, run ID and expiry.</p>
+<p>The tool sends that JWT to the upload API as a bearer token.</p>
+<h2 id="check-the-signature">Check the signature</h2>
+<p>A JWT is easy to decode. Anyone can write JSON that says it came from your repository.</p>
+<p>The server verifies the signature against GitHub&#39;s public keys. It also checks the issuer, audience and expiry. That establishes who issued the token, who it was meant for and whether it is still valid.</p>
+<h2 id="decide-what-it-can-upload">Decide what it can upload</h2>
+<p>A valid token can belong to someone else&#39;s repository. The server still needs rules for which repositories it accepts and what each one can do.</p>
+<p>For an upload service, that can mean matching the verified repository ID to a connected project, then checking the commit or pull request the upload belongs to. Those checks happen before accepting the files.</p>
+<h2 id="a-screenshot-upload">A screenshot upload</h2>
+<p>I use this in <a href="https://stateofpixel.com" target="_blank" rel="noopener noreferrer">stateofpixel</a>, the visual regression testing tool I run. Once the repository is connected, CI can upload screenshots with:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#E1E4E8">- </span><span style="color:#85E89D">run</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">npx stateofpixel upload screenshots</span></span></code></pre>
+<p>The CLI requests the audience <code>stateofpixel</code>. The server verifies the token, finds the project by repository ID and checks the build&#39;s commit, with handling for pull request merge refs.</p>
+<p>Then the CLI sends screenshot names and hashes. The server returns upload URLs for images it needs, and the CLI uploads them and reports completion. Each uploaded image is checked against its expected hash. The <a href="https://stateofpixel.com/docs/security" target="_blank" rel="noopener noreferrer">security docs</a> cover these checks.</p>
+<h2 id="what-no-secret-means">What &quot;no secret&quot; means</h2>
+<p>There is still a credential during the job. Keep the bearer token private until it expires.</p>
+<p>What disappears is the long-lived upload key in repository settings. GitHub issues the identity token when the job requests it, and the server checks it on arrival. On CI providers without this integration, stateofpixel uses a project token instead.</p>  </div> </article> <footer class="mt-16 pt-[18px] border-t border-rule-solid font-mono [font-variant-ligatures:none] text-[11px] text-ink-soft tracking-[0.02em] leading-[1.7]"> <div class="flex justify-between gap-4 py-1"> <span> <a href="/" class="link" data-umami-event="footer" data-umami-event-target="home">home</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/#writings" class="link" data-umami-event="footer" data-umami-event-target="writings">writings</a> </span> <span> <a href="/rss.xml" class="link" data-umami-event="footer" data-umami-event-target="rss">rss</a> <span class="mx-1.5 text-rule-dot">&middot;</span> <a href="/sitemap.xml" class="link" data-umami-event="footer" data-umami-event-target="sitemap">sitemap</a> </span> </div> </footer> </main> </body></html>
