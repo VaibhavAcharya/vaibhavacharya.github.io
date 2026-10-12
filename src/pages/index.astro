@@ -1,6 +1,7 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
 import Colophon from "../components/Colophon.astro";
+import CompanyOfCraftMark from "../components/CompanyOfCraftMark.astro";
 import GithubActivity from "../components/GithubActivity.astro";
 import FoldedLedger from "../components/FoldedLedger.astro";
 import PhViewer from "../components/PhViewer.astro";
@@ -116,7 +117,7 @@ const writings = (await getCollection("writings"))
                 I like going 0 to 1, shipping often, and operating independently. Most of what I care about lives where the web, AI and tools for builders overlap.
             </p>
             <p data-entry-desc class="font-sans text-[15px] leading-[1.7] text-ink-muted max-w-[62ch] m-0 body-line">
-                I also run <a href="https://stateofpixel.com" target="_blank" rel="noreferrer"><svg class="stateofpixel-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect width="20" height="20" rx="5" fill="currentColor" /><path d="M5 5h4v4H5zM11 11h4v4h-4z" fill="var(--color-paper)" /></svg>stateofpixel</a>, a visual regression testing tool that helps teams catch UI issues before they merge.
+                I also run <a href="https://companyofcraft.com" target="_blank" rel="noopener"><CompanyOfCraftMark class="companyofcraft-mark" />Company of Craft</a>, which makes <a href="https://stateofpixel.com" target="_blank" rel="noopener"><svg class="stateofpixel-mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect width="20" height="20" rx="5" fill="currentColor" /><path d="M5 5h4v4H5zM11 11h4v4h-4z" fill="var(--color-paper)" /></svg>stateofpixel</a>, a visual regression testing tool that helps teams catch UI issues before they merge.
             </p>
 
             <div data-print-hide>
@@ -222,7 +223,8 @@ const writings = (await getCollection("writings"))
     /* Netlify's logomark, monochrome so it takes the colour of the text around it
        instead of dropping a brand gradient into the page. */
     .netlify-mark,
-    .stateofpixel-mark {
+    .stateofpixel-mark,
+    :global(.companyofcraft-mark) {
         display: inline-block;
         width: 0.84em;
         height: 0.84em;

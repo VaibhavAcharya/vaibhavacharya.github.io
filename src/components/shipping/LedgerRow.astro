@@ -39,7 +39,7 @@ const figures = shotsFor(entry).length > 0;
                     <a
                         href={entry.href}
                         target={external ? "_blank" : undefined}
-                        rel={external ? "noreferrer" : undefined}
+                        rel={external ? "noopener" : undefined}
                         class="link"
                         data-umami-event={external ? "project-open" : "writing-open"}
                         data-umami-event-name={entry.name}
