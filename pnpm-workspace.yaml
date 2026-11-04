@@ -2,4 +2,4 @@ allowBuilds:
     esbuild: true
     sharp: true
 minimumReleaseAgeExclude:
-    - stateofpixel@1.7.0
+    - stateofpixel@1.12.0
