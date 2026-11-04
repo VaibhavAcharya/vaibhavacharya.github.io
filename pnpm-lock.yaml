@@ -67,8 +67,8 @@ importers:
         specifier: ^3.5.3
         version: 3.5.3
       stateofpixel:
-        specifier: ^1.12.0
-        version: 1.12.0(@playwright/test@1.63.0)(playwright@1.63.0)
+        specifier: ^1.13.0
+        version: 1.13.0(@playwright/test@1.63.0)(playwright@1.63.0)
 
 packages:
 
@@ -2241,8 +2241,8 @@ packages:
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
 
-  stateofpixel@1.12.0:
-    resolution: {integrity: sha512-DVgRLJRSGKL4VFR5glM0Rip2qBfOzjjae6oqQGsQKF7EvmuvEHQWT1IiTil3qfbgajxlssOM3wJhY/53bK4k8A==}
+  stateofpixel@1.13.0:
+    resolution: {integrity: sha512-p90U5oxyJiEfc+uYqqGxMV2HwlAdoEQAg+5Ohram8zKyy3HazCrVk5gG6Ej7aQC6JGNT/u1ugn8QGSVU+xg5/w==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
@@ -5097,7 +5097,7 @@ snapshots:
 
   space-separated-tokens@2.0.2: {}
 
-  stateofpixel@1.12.0(@playwright/test@1.63.0)(playwright@1.63.0):
+  stateofpixel@1.13.0(@playwright/test@1.63.0)(playwright@1.63.0):
     dependencies:
       commander: 15.0.0
       pixelmatch: 7.2.0
