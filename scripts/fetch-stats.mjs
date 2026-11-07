@@ -101,7 +101,12 @@ async function downloads(name, today) {
     if (!days.size) throw new Error("no download days came back");
 
     const total = [...days.values()].reduce((sum, count) => sum + count, 0);
-    return { total };
+
+    const lastWeek = await fetch(`https://api.npmjs.org/downloads/point/last-week/${name}`);
+    if (!lastWeek.ok) throw new Error(`downloads last-week said ${lastWeek.status}`);
+    const weekly = (await lastWeek.json()).downloads ?? 0;
+
+    return { total, weekly };
 }
 
 // The official badge is an SVG with the count set in it, and it is the only

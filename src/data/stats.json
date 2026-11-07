@@ -39,17 +39,25 @@
     },
     "VaibhavAcharya/woohoodoo": {
       "stars": 2
+    },
+    "VaibhavAcharya/mdt": {
+      "stars": 2
     }
   },
   "npm": {
     "oneprompt": {
-      "total": 921
+      "total": 921,
+      "weekly": 11
     },
     "json-mason": {
       "total": 423
     },
     "polydiff": {
       "total": 929
+    },
+    "stateofpixel": {
+      "total": 6035,
+      "weekly": 3276
     }
   },
   "ph": {

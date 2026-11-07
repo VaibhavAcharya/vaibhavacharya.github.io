@@ -30,6 +30,8 @@ export interface Entry {
     repo?: string;
     /** Package name on npm. Carries the live download count. */
     npm?: string;
+    /** Also shows the package's downloads over the last week. */
+    npmWeekly?: boolean;
     /** Year it started, from the git history or the Vercel project. */
     year?: number;
     /** What the sort toggle orders on, when the year is too coarse to be useful. */
@@ -143,6 +145,8 @@ export const PROJECTS: Entry[] = [
         year: 2026,
         href: "https://stateofpixel.com",
         media: "stateofpixel",
+        npm: "stateofpixel",
+        npmWeekly: true,
         links: [
             { href: "https://github.com/VaibhavAcharya/stateofpixel", label: "github" },
             { href: "https://stateofpixel.com/llms.txt", label: "llms.txt" },
@@ -151,6 +155,7 @@ export const PROJECTS: Entry[] = [
         sortKey: 2026,
         description:
             "Compare screenshots, review visual changes, and approve updates directly from GitHub pull requests.",
+        detail: "used internally at Netlify",
     },
     {
         name: "Ultra AI",
@@ -220,6 +225,27 @@ export const PROJECTS: Entry[] = [
         tweet: "https://x.com/VaibhavAcharya_/status/2099932917371957421",
         description:
             "Review changes across repos and worktrees in one local workspace.",
+    },
+    {
+        name: "Company of Craft tools",
+        year: 2026,
+        href: "https://companyofcraft.com",
+        group: "products",
+        sortKey: 2026,
+        description:
+            "Free web tools with public APIs: OG preview, security headers, agent readability, favicon checker and IP lookup.",
+    },
+    {
+        name: "mdt",
+        year: 2026,
+        group: "cli",
+        href: "https://github.com/VaibhavAcharya/mdt",
+        media: "mdt",
+        repo: "VaibhavAcharya/mdt",
+        npm: "@vaibhavacharya_/mdt",
+        link: { href: "https://www.npmjs.com/package/@vaibhavacharya_/mdt", label: "npm" },
+        description:
+            "Read Markdown and JSON in the terminal, with diagrams, math, search and slides.",
     },
     {
         name: "WooHooDoo",

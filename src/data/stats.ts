@@ -8,7 +8,7 @@ import snapshot from "./stats.json";
 interface Snapshot {
     fetched: string;
     repos: Record<string, { stars: number }>;
-    npm: Record<string, { total: number }>;
+    npm: Record<string, { total: number; weekly?: number }>;
     ph: Record<string, { upvotes: number }>;
 }
 
@@ -27,16 +27,21 @@ const stars = (entry: Entry) =>
 const downloads = (entry: Entry) =>
     (entry.npm ? stats.npm[entry.npm]?.total : 0) ?? 0;
 
+const weeklyDownloads = (entry: Entry) =>
+    (entry.npm && entry.npmWeekly ? stats.npm[entry.npm]?.weekly : 0) ?? 0;
+
 const upvotes = (entry: Entry) => (entry.ph ? stats.ph[entry.ph]?.upvotes : 0) ?? 0;
 
 export function detail(entry: Entry): string | undefined {
     const starCount = stars(entry);
     const downloadCount = downloads(entry);
+    const weeklyDownloadCount = weeklyDownloads(entry);
     const upvoteCount = upvotes(entry);
 
     const parts = [
         starCount >= STARS_SHOWN_FROM ? `${compact(starCount)} GitHub stars` : "",
         downloadCount ? `${compact(downloadCount)} npm downloads` : "",
+        weeklyDownloadCount ? `${compact(weeklyDownloadCount)} weekly downloads` : "",
         entry.detail,
         upvoteCount >= UPVOTES_SHOWN_FROM
             ? `${compact(upvoteCount)} ProductHunt upvotes`
