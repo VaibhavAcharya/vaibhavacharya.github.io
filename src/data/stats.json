@@ -1,5 +1,5 @@
 {
-  "fetched": "2026-11-07",
+  "fetched": "2026-11-08",
   "repos": {
     "VaibhavAcharya/code-gpt": {
       "stars": 352
@@ -50,14 +50,16 @@
       "weekly": 11
     },
     "json-mason": {
-      "total": 423
+      "total": 425,
+      "weekly": 4
     },
     "polydiff": {
-      "total": 929
+      "total": 930,
+      "weekly": 10
     },
     "stateofpixel": {
-      "total": 6035,
-      "weekly": 3276
+      "total": 6105,
+      "weekly": 3345
     }
   },
   "ph": {
