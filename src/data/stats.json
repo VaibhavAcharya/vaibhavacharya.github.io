@@ -1,5 +1,5 @@
 {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-14",
   "repos": {
     "VaibhavAcharya/code-gpt": {
       "stars": 352
@@ -46,20 +46,20 @@
   },
   "npm": {
     "oneprompt": {
-      "total": 923,
-      "weekly": 2
+      "total": 924,
+      "weekly": 3
     },
     "json-mason": {
       "total": 427,
       "weekly": 4
     },
     "polydiff": {
-      "total": 931,
-      "weekly": 9
+      "total": 936,
+      "weekly": 6
     },
     "stateofpixel": {
-      "total": 6978,
-      "weekly": 1720
+      "total": 7190,
+      "weekly": 1603
     },
     "@vaibhavacharya_/mdt": {
       "total": 439,
