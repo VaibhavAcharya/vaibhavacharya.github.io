@@ -1,7 +1,7 @@
 {
-  "totalContributions": 1934,
+  "totalContributions": 1920,
   "start": "2025-11-23",
-  "end": "2026-11-22",
+  "end": "2026-11-23",
   "weeks": [
     [
       {
@@ -1566,6 +1566,10 @@
     [
       {
         "date": "2026-11-22",
+        "count": 0
+      },
+      {
+        "date": "2026-11-23",
         "count": 0
       }
     ]
